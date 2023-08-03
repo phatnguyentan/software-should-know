@@ -27,6 +27,8 @@ Builder is a creational design pattern that lets you construct complex objects s
 
 The Builder pattern suggests that you extract the object construction code out of its own class and move it to separate objects called builders.
 
+The pattern organizes object construction into a set of steps. To create an object, you execute a series of these steps on a builder object. The important part is that you don’t need to call all of the steps. You can call only those steps that are necessary for producing a particular configuration of an object.
+
 Podcast: https://open.spotify.com/episode/4MbA4NJ8WSFHroiVFILmUR
 
 Github: https://github.com/ELearning01/SoftwareEngineerShouldKnow/blob/main/DesignPatterns/README.md
