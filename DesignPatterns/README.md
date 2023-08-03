@@ -10,7 +10,6 @@ In the context of the Factory Method pattern, the Creator class defines a factor
 The Concrete Creators inherit from the Creator class and override the base factory method to produce a distinct type of product.
 Concrete Products pertain to diverse implementations of the product interface.
 
-
-Ref:
 Podcast: https://open.spotify.com/episode/4MbA4NJ8WSFHroiVFILmUR
+
 Github: https://github.com/ELearning01/SoftwareEngineerShouldKnow/blob/main/DesignPatterns/README.md
