@@ -1,0 +1,211 @@
+### Java Cheat Sheet
+
+This cheat sheet covers essential Java concepts, syntax, and examples. It's organized by topic for quick reference. Assume Java 17+ unless noted.
+
+#### 1. Basic Syntax
+- **Class Structure**:
+  ```java
+  public class MyClass {  // Class name matches file name
+      public static void main(String[] args) {  // Entry point
+          System.out.println("Hello, World!");  // Output
+      }
+  }
+  ```
+- **Comments**:
+  - Single-line: `// Comment`
+  - Multi-line: `/* Comment */`
+  - Javadoc: `/** Comment */`
+- **Variables**: `type name = value;` (e.g., `int x = 5;`)
+- **Constants**: `final type NAME = value;` (e.g., `final double PI = 3.14;`)
+
+#### 2. Data Types
+| Category | Type | Size | Range/Example |
+|----------|------|------|--------------|
+| **Primitive** | byte | 1 byte | -128 to 127 (e.g., `byte b = 100;`) |
+| | short | 2 bytes | -32,768 to 32,767 |
+| | int | 4 bytes | -2^31 to 2^31-1 (default for integers) |
+| | long | 8 bytes | -2^63 to 2^63-1 (suffix: L, e.g., `long l = 100L;`) |
+| | float | 4 bytes | ~6-7 decimal digits (suffix: F, e.g., `float f = 3.14F;`) |
+| | double | 8 bytes | ~15 decimal digits (default for decimals) |
+| | boolean | 1 bit | true/false |
+| | char | 2 bytes | Unicode (e.g., `char c = 'A';`) |
+| **Reference** | String | Varies | Immutable (e.g., `String s = "Hello";`) |
+| | Arrays | Varies | e.g., `int[] arr = {1, 2, 3};` or `int[] arr = new int[3];` |
+| | Objects | Varies | e.g., `MyClass obj = new MyClass();` |
+
+- **Type Conversion**:
+  - Implicit (widening): `int to double`
+  - Explicit (casting): `(int) 3.14;`
+  - Wrapper Classes: `Integer i = 5;` (autoboxing/unboxing)
+
+#### 3. Operators
+| Type | Operators | Example |
+|------|-----------|---------|
+| **Arithmetic** | +, -, *, /, % | `int sum = 5 + 3;` |
+| **Relational** | ==, !=, >, <, >=, <= | `if (a > b)` |
+| **Logical** | && (and), \|\| (or), ! (not) | `if (a && b)` |
+| **Bitwise** | & (and), \| (or), ^ (xor), ~ (not), <<, >>, >>> | `int x = 5 & 3;` (1) |
+| **Assignment** | =, +=, -=, *=, /=, %= | `x += 5;` |
+| **Unary** | ++, --, +, -, ! | `x++;` |
+| **Ternary** | condition ? true : false | `max = (a > b) ? a : b;` |
+
+#### 4. Control Flow
+- **If-Else**:
+  ```java
+  if (condition) {
+      // code
+  } else if (another) {
+      // code
+  } else {
+      // code
+  }
+  ```
+- **Switch** (enhanced in Java 14+):
+  ```java
+  switch (var) {
+      case 1 -> System.out.println("One");  // Arrow syntax (no break needed)
+      case 2, 3 -> System.out.println("Two or Three");
+      default -> System.out.println("Default");
+  }
+  ```
+- **Loops**:
+  - While: `while (condition) { ... }`
+  - Do-While: `do { ... } while (condition);`
+  - For: `for (int i = 0; i < 10; i++) { ... }`
+  - Enhanced For: `for (type item : collection) { ... }`
+- **Break/Continue**: Exit or skip iterations.
+
+#### 5. Methods
+- **Declaration**:
+  ```java
+  accessModifier returnType methodName(parameters) {
+      // body
+      return value;  // If non-void
+  }
+  ```
+- **Example**:
+  ```java
+  public int add(int a, int b) {
+      return a + b;
+  }
+  ```
+- **Overloading**: Same name, different parameters.
+- **Varargs**: `type... args` (e.g., `int sum(int... nums)`)
+
+#### 6. Classes and Objects (OOP)
+- **Class**:
+  ```java
+  public class Person {
+      private String name;  // Field
+      public Person(String name) {  // Constructor
+          this.name = name;
+      }
+      public String getName() {  // Getter
+          return name;
+      }
+  }
+  ```
+- **Object Creation**: `Person p = new Person("Alice");`
+- **Static**: Shared across instances (e.g., `static int count;`)
+- **This/Super**: Refer to current/superclass instance.
+
+#### 7. Inheritance and Polymorphism
+- **Extends**:
+  ```java
+  public class Employee extends Person {  // Inheritance
+      private double salary;
+      @Override  // Annotation for overriding
+      public String getName() {
+          return super.getName() + " (Employee)";
+      }
+  }
+  ```
+- **Interfaces**:
+  ```java
+  public interface Printable {
+      void print();  // Abstract method
+      default void defaultMethod() { ... }  // Java 8+
+  }
+  ```
+  - Implement: `class MyClass implements Printable { ... }`
+- **Abstract Classes**: `abstract class Shape { abstract void draw(); }`
+- **Polymorphism**: `Person p = new Employee();` (upcasting)
+
+#### 8. Exceptions
+- **Try-Catch**:
+  ```java
+  try {
+      // Risky code
+  } catch (ExceptionType e) {
+      // Handle
+  } finally {
+      // Always executes
+  }
+  ```
+- **Throw/Throws**: `throw new Exception("Error");` or `void method() throws Exception`
+- **Common**: `NullPointerException`, `ArrayIndexOutOfBoundsException`, `IOException`
+
+#### 9. Collections Framework
+| Interface | Implementation | Key Features |
+|-----------|----------------|--------------|
+| List | ArrayList | Dynamic array, ordered, allows duplicates |
+| | LinkedList | Doubly-linked, efficient inserts/deletes |
+| Set | HashSet | Unordered, no duplicates |
+| | TreeSet | Sorted, no duplicates |
+| Queue | LinkedList | FIFO |
+| | PriorityQueue | Priority-based |
+| Map | HashMap | Key-value, unordered |
+| | TreeMap | Sorted keys |
+
+- **Usage Example**:
+  ```java
+  List<String> list = new ArrayList<>();
+  list.add("Apple");
+  for (String s : list) { ... }
+  ```
+
+#### 10. Streams (Java 8+)
+- **Creation**: `list.stream()`
+- **Operations**:
+  - Filter: `.filter(x -> x > 5)`
+  - Map: `.map(x -> x * 2)`
+  - Reduce: `.reduce(0, (a, b) -> a + b)`
+  - Collect: `.collect(Collectors.toList())`
+- **Example**:
+  ```java
+  int sum = Arrays.asList(1,2,3).stream().filter(n -> n % 2 == 0).sum();
+  ```
+
+#### 11. Common Classes
+- **String**:
+  - Methods: `length()`, `substring(start, end)`, `equals()`, `toUpperCase()`
+  - Immutable: Use `StringBuilder` for mutable (e.g., `sb.append("text");`)
+- **Math**: Static methods like `Math.random()`, `Math.max(a,b)`, `Math.pow(base,exp)`
+- **Date/Time** (Java 8+): `LocalDate.now()`, `LocalDateTime.of(2023,1,1,12,0)`
+- **Random**: `Random r = new Random(); int num = r.nextInt(10);`
+
+#### 12. File I/O
+- **Reading** (try-with-resources):
+  ```java
+  try (BufferedReader br = new BufferedReader(new FileReader("file.txt"))) {
+      String line;
+      while ((line = br.readLine()) != null) { ... }
+  } catch (IOException e) { ... }
+  ```
+- **Writing**:
+  ```java
+  try (BufferedWriter bw = new BufferedWriter(new FileWriter("file.txt"))) {
+      bw.write("Hello");
+  } catch (IOException e) { ... }
+  ```
+- **Paths** (Java 7+): `Path path = Paths.get("file.txt"); Files.readAllLines(path);`
+
+#### Tips
+- **Access Modifiers**: public, protected, default (package), private
+- **Annotations**: @Override, @Deprecated, @SuppressWarnings
+- **Generics**: `<T>` for type safety (e.g., `List<String>`)
+- **Lambda Expressions** (Java 8+): `() -> { ... }`
+- **Modules** (Java 9+): module-info.java for encapsulation
+- **Best Practices**: Use try-with-resources, avoid null, prefer interfaces
+
+For advanced topics like concurrency (Threads, Executors) or JVM internals, refer to official docs. Compile with `javac File.java`, run with `java File`.

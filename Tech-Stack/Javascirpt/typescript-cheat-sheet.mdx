@@ -1,0 +1,210 @@
+### TypeScript Cheat Sheet
+
+This cheat sheet covers essential TypeScript concepts, syntax, and examples. It's organized by topic for quick reference. TypeScript (TS) is a superset of JavaScript (JS), so it compiles to JS. Assume TS 5.0+ unless noted. Install via npm: `npm install -g typescript`. Compile: `tsc file.ts`.
+
+#### 1. Basic Syntax
+- **File Structure**:
+  ```typescript
+  // file.ts
+  console.log("Hello, World!");  // No main method needed; runs as JS
+
+  // For modules (ES6+)
+  export const greeting = "Hello";
+  ```
+- **Comments**:
+  - Single-line: `// Comment`
+  - Multi-line: `/* Comment */`
+  - JSDoc: `/** Comment */` (for type docs)
+- **Variables**: `let name: type = value;` or `const name: type = value;` (e.g., `let x: number = 5;`)
+- **Type Inference**: TS infers types if not specified (e.g., `let x = 5;` infers number)
+- **Constants**: Use `const` for immutability.
+
+#### 2. Data Types
+| Category | Type | Example |
+|----------|------|---------|
+| **Primitives** | number | `let n: number = 42; // int, float, hex (0x), binary (0b)` |
+| | string | `let s: string = "Hello"; // or ' or `` (template literals)` |
+| | boolean | `let b: boolean = true;` |
+| | null/undefined | `let u: undefined = undefined;` |
+| | symbol | `let sym: symbol = Symbol("key");` (ES6+) |
+| | bigint | `let big: bigint = 100n;` (ES2020+) |
+| **Any** | any | `let a: any = "anything"; // Disables type checking` |
+| **Void** | void | For functions with no return |
+| **Objects** | object | `let obj: object = {};` |
+| | Array | `let arr: number[] = [1, 2];` or `let arr: Array<number> = [1, 2];` |
+| | Tuple | `let tup: [string, number] = ["hi", 10];` |
+| | Enum | `enum Color {Red, Green = 2}; let c: Color = Color.Red;` |
+| **Union/Intersection** | Union: `type U = string | number;` | `let val: U = "or 5";` |
+| | Intersection: `type I = A & B;` | Combines types |
+| **Literal** | `let lit: "red" | "blue" = "red";` | Restricts to specific values |
+
+- **Type Assertions**: `let val = <string>someValue;` or `let val = someValue as string;`
+- **Never**: For functions that never return (e.g., throw errors).
+
+#### 3. Operators
+| Type | Operators | Example |
+|------|-----------|---------|
+| **Arithmetic** | +, -, *, /, %, ** (exponent) | `let sum: number = 5 + 3;` |
+| **Relational** | ==, ===, !=, !==, >, <, >=, <= | `if (a > b)` (prefer === for strict equality) |
+| **Logical** | &&, ||, ! | `if (a && b)` |
+| **Bitwise** | &, |, ^, ~, <<, >>, >>> | `let x: number = 5 & 3; // 1` |
+| **Assignment** | =, +=, -=, *=, /=, %=, ??= (nullish) | `x += 5;` |
+| **Unary** | ++, --, +, -, !, typeof, delete | `x++;` |
+| **Ternary** | condition ? true : false | `let max = (a > b) ? a : b;` |
+| **Optional Chaining** | ?. | `obj?.prop` (safe access) |
+| **Nullish Coalescing** | ?? | `let val = maybeNull ?? "default";` |
+
+#### 4. Control Flow
+- **If-Else**:
+  ```typescript
+  if (condition) {
+      // code
+  } else if (another) {
+      // code
+  } else {
+      // code
+  }
+  ```
+- **Switch**:
+  ```typescript
+  switch (var) {
+      case 1:
+          console.log("One");
+          break;
+      default:
+          console.log("Default");
+  }
+  ```
+- **Loops**:
+  - While: `while (condition) { ... }`
+  - Do-While: `do { ... } while (condition);`
+  - For: `for (let i = 0; i < 10; i++) { ... }`
+  - For...Of: `for (const item of array) { ... }`
+  - For...In: `for (const key in object) { ... }`
+- **Break/Continue**: Exit or skip iterations.
+
+#### 5. Functions
+- **Declaration**:
+  ```typescript
+  function add(a: number, b: number): number {
+      return a + b;
+  }
+  ```
+- **Arrow Functions**:
+  ```typescript
+  const add = (a: number, b: number): number => a + b;
+  ```
+- **Optional/Default Parameters**: `function func(a: number, b?: number, c: number = 10) { ... }`
+- **Rest Parameters**: `function sum(...nums: number[]): number { ... }`
+- **Overloads**:
+  ```typescript
+  function greet(name: string): string;
+  function greet(age: number): string;
+  function greet(val: any): string { ... }  // Implementation
+  ```
+- **Generics**: `function identity<T>(arg: T): T { return arg; }`
+
+#### 6. Classes and Objects (OOP)
+- **Class**:
+  ```typescript
+  class Person {
+      private name: string;  // Access: public (default), private, protected
+      constructor(name: string) {
+          this.name = name;
+      }
+      public getName(): string {  // Method
+          return this.name;
+      }
+  }
+  ```
+- **Object Creation**: `const p = new Person("Alice");`
+- **Static**: `static count: number = 0;`
+- **Readonly**: `readonly prop: string;`
+
+#### 7. Inheritance and Polymorphism
+- **Extends**:
+  ```typescript
+  class Employee extends Person {
+      private salary: number;
+      constructor(name: string, salary: number) {
+          super(name);
+          this.salary = salary;
+      }
+      getName(): string {  // Override
+          return super.getName() + " (Employee)";
+      }
+  }
+  ```
+- **Interfaces**:
+  ```typescript
+  interface Printable {
+      print(): void;  // Method signature
+      optionalProp?: string;
+  }
+  ```
+  - Implement: `class MyClass implements Printable { print() { ... } }`
+- **Abstract Classes**: `abstract class Shape { abstract draw(): void; }`
+- **Polymorphism**: `let p: Person = new Employee("Bob", 50000);`
+
+#### 8. Modules and Namespaces
+- **Export/Import**:
+  ```typescript
+  // math.ts
+  export function add(a: number, b: number): number { ... }
+
+  // app.ts
+  import { add } from "./math";
+  ```
+- **Default Export**: `export default class MyClass { ... }` → `import MyClass from "./file";`
+- **Namespaces**:
+  ```typescript
+  namespace Utils {
+      export function log(msg: string) { ... }
+  }
+  Utils.log("Hi");
+  ```
+
+#### 9. Generics
+- **Functions/Classes**: See above.
+- **Constraints**: `function loggingIdentity<T extends { length: number }>(arg: T): T { ... }`
+- **Generic Interfaces**: `interface GenericFn<T> { (arg: T): T; }`
+
+#### 10. Advanced Types
+- **Type Aliases**: `type Point = { x: number; y: number };`
+- **Mapped Types**: `type Readonly<T> = { readonly [K in keyof T]: T[K] };`
+- **Conditional Types**: `type IsString<T> = T extends string ? "yes" : "no";`
+- **Utility Types**: Built-ins like `Partial<T>`, `Required<T>`, `Pick<T, K>`, `Omit<T, K>`, `Record<K, T>`
+- **Keyof/Index Signatures**: `type Obj = { [key: string]: number }; let key: keyof Obj;`
+
+#### 11. Error Handling
+- **Try-Catch**:
+  ```typescript
+  try {
+      // code
+  } catch (error: unknown) {  // Type unknown for safety
+      if (error instanceof Error) { console.error(error.message); }
+  } finally { ... }
+  ```
+- **Throw**: `throw new Error("Oops");`
+- **Promises/Async**: Use `async/await` with try-catch.
+
+#### 12. Decorators (Experimental, enable in tsconfig)
+- **Class Decorator**:
+  ```typescript
+  function sealed(constructor: Function) { ... }
+  @sealed
+  class BugReport { ... }
+  ```
+- **Common**: @Component (in Angular), etc.
+
+#### 13. Configuration (tsconfig.json)
+- Key Options: `"target": "es2020"`, `"module": "commonjs"`, `"strict": true`, `"noImplicitAny": true`
+
+#### Tips
+- **Type Guards**: `if (typeof x === "string") { ... }` or custom: `function isString(x: any): x is string { ... }`
+- **Async/Await**: `async function fetchData(): Promise<string> { const res = await fetch(url); return res.text(); }`
+- **Enums vs Unions**: Prefer unions for string literals.
+- **Best Practices**: Enable strict mode, avoid `any`, use interfaces over types for objects.
+- **Compile & Run**: `tsc file.ts` → `node file.js`. For Node: Use `ts-node` for direct execution.
+
+For advanced topics like React typings or Deno, refer to official docs at typescriptlang.org.
