@@ -1,0 +1,215 @@
+### Gradle Cheat Sheet
+
+This cheat sheet covers essential Gradle concepts, syntax, and examples for building Java (and other) projects. It's organized by topic for quick reference. Assume Gradle 8.0+ unless noted. Install via SDKMAN or download from gradle.org. Run commands like `./gradlew build` (wrapper) or `gradle build`.
+
+#### 1. Basic Structure
+- **Project Files**:
+  - `build.gradle` or `build.gradle.kts` (Kotlin DSL, preferred for new projects).
+  - `settings.gradle` or `settings.gradle.kts`: For multi-project builds.
+  - `gradlew` / `gradlew.bat`: Wrapper scripts for consistent Gradle version.
+  - `gradle.properties`: Global properties (e.g., `org.gradle.jvmargs=-Xmx2048m`).
+- **Init Project**: `gradle init` (creates basic structure).
+- **Build Script Example** (Groovy DSL):
+  ```groovy
+  plugins {
+      id 'java'  // Apply Java plugin
+  }
+
+  repositories {
+      mavenCentral()  // Dependency sources
+  }
+
+  dependencies {
+      implementation 'org.springframework.boot:spring-boot-starter-web:3.0.0'
+  }
+
+  tasks.named('jar') {
+      archiveBaseName = 'myapp'
+      archiveVersion = '1.0'
+  }
+  ```
+- **Kotlin DSL Equivalent** (`build.gradle.kts`):
+  ```kotlin
+  plugins {
+      java
+  }
+
+  repositories {
+      mavenCentral()
+  }
+
+  dependencies {
+      implementation("org.springframework.boot:spring-boot-starter-web:3.0.0")
+  }
+
+  tasks.named<Jar>("jar") {
+      archiveBaseName.set("myapp")
+      archiveVersion.set("1.0")
+  }
+  ```
+
+#### 2. Plugins
+- **Core Plugins**:
+  - `java`: For Java projects.
+  - `application`: Adds run/dist tasks.
+  - `war`: For web apps.
+  - `jacoco`: Code coverage.
+- **Community Plugins**: Apply via ID (e.g., `id 'org.springframework.boot' version '3.0.0'`).
+- **Applying**:
+  ```groovy
+  plugins {
+      id 'java-library'
+      id 'org.jetbrains.kotlin.jvm' version '1.9.0'
+  }
+  ```
+
+#### 3. Dependencies
+- **Configurations**:
+  - `implementation`: Runtime/compile, not transitive.
+  - `api`: Exposed to consumers (for libraries).
+  - `compileOnly`: Compile-time only.
+  - `runtimeOnly`: Runtime only.
+  - `testImplementation`: For tests.
+- **Adding Dependencies**:
+  ```groovy
+  dependencies {
+      implementation 'com.google.guava:guava:33.0.0-jre'
+      testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+      implementation platform('org.springframework.boot:spring-boot-dependencies:3.0.0')  // BOM for version management
+  }
+  ```
+- **Exclusions/Force**:
+  ```groovy
+  implementation('some:dep:1.0') {
+      exclude group: 'bad.group', module: 'bad-module'
+      force = true  // Force version
+  }
+  ```
+- **Repositories**:
+  - `mavenCentral()`
+  - `google()`
+  - `maven { url 'https://repo.example.com' }`
+
+#### 4. Tasks
+- **Common Tasks**:
+  - `build`: Compile, test, assemble.
+  - `clean`: Delete build dir.
+  - `test`: Run tests.
+  - `jar`: Build JAR.
+  - `run`: Run application (with 'application' plugin).
+  - `wrapper`: Generate wrapper.
+- **Custom Task**:
+  ```groovy
+  tasks.register('hello') {
+      doLast {
+          println 'Hello, Gradle!'
+      }
+  }
+  ```
+- **Task Dependencies**: `tasks.build.dependsOn('hello')`
+- **Run Task**: `gradle hello` or `./gradlew hello --info` (for logging).
+
+#### 5. Properties and Configuration
+- **gradle.properties**:
+  ```
+  version=1.0.0
+  myProp=value
+  ```
+- **Access in Build Script**:
+  ```groovy
+  version = '1.0.0'  // Or project.property('version')
+  ext {  // Extra properties
+      myLibVersion = '2.0'
+  }
+  ```
+- **Command-Line**: `gradle build -PmyProp=value`
+- **Environment Vars**: `System.getenv('VAR_NAME')`
+
+#### 6. Multi-Project Builds
+- **settings.gradle**:
+  ```groovy
+  rootProject.name = 'my-multi-project'
+  include 'subproject1', 'subproject2'
+  ```
+- **Subproject Dependencies**:
+  ```groovy
+  // In root build.gradle
+  subprojects {
+      apply plugin: 'java'
+  }
+
+  // In subproject1/build.gradle
+  dependencies {
+      implementation project(':subproject2')
+  }
+  ```
+
+#### 7. Testing
+- **JUnit 5** (default in Java plugin):
+  ```groovy
+  dependencies {
+      testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+  }
+  test {
+      useJUnitPlatform()
+  }
+  ```
+- **Options**:
+  ```groovy
+  test {
+      testLogging { events 'passed', 'skipped', 'failed' }
+      maxParallelForks = 4
+  }
+  ```
+
+#### 8. Publishing
+- **Maven Publish Plugin**:
+  ```groovy
+  plugins {
+      id 'maven-publish'
+  }
+  publishing {
+      publications {
+          maven(MavenPublication) {
+              from components.java
+          }
+      }
+      repositories {
+          maven {
+              url = uri('https://my-repo.com')
+          }
+      }
+  }
+  ```
+- **Publish**: `gradle publish`
+
+#### 9. Build Cache and Performance
+- **Enable Cache**: In gradle.properties: `org.gradle.caching=true`
+- **Daemon**: Enabled by default; stop with `gradle --stop`
+- **Parallel Execution**: `org.gradle.parallel=true`
+- **Configuration Avoidance**: Use `tasks.register` instead of `task` for lazy config.
+
+#### 10. Spring Boot Integration
+- **Plugin**:
+  ```groovy
+  plugins {
+      id 'org.springframework.boot' version '3.0.0'
+      id 'io.spring.dependency-management' version '1.1.0'
+  }
+  ```
+- **Tasks**: `bootJar`, `bootRun`, `bootBuildImage` (for Docker).
+
+#### 11. Kotlin DSL Specifics
+- Use `.kts` files.
+- String quotes: Double for interpolation (`"$var"`).
+- Accessors: `archiveBaseName.set("myapp")` instead of `archiveBaseName = 'myapp'`.
+
+#### 12. Common Commands and Tips
+- **Help**: `gradle tasks` (list tasks), `gradle help --task build` (details).
+- **Offline**: `gradle build --offline`
+- **Debug**: `gradle build --debug` or `--stacktrace`.
+- **Version Management**: Use platforms/BOMs to avoid version conflicts.
+- **Migration from Maven**: Use similar dependency scopes; Gradle is more flexible.
+- **Best Practices**: Use wrapper, keep build scripts declarative, enable strict null checks in Kotlin DSL.
+
+For advanced topics like custom plugins or Android builds, refer to official docs at gradle.org. Run `gradle --version` to check installation.
