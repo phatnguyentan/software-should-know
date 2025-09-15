@@ -42,6 +42,7 @@ Cú pháp:
 python export_images.py <thư_mục_input> <file_output.csv>
 
 pyinstaller --onefile export_images.py
+python -m PyInstaller --onefile export_images.py
 
 .\export_images.exe "C:\Users\ADMIN\Downloads" "./images_info.csv"
 
