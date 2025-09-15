@@ -28,12 +28,12 @@ Script dùng thư viện Pillow để xử lý ảnh.
 
 Với Python 3:
 
-pip3 install pillow
+pip3 install -r requirements.txt
 
 
 Nếu bạn đang dùng Python 2 (không khuyến khích, vì đã lỗi thời):
 
-pip install pillow
+pip install -r requirements.txt
 
 4. Chạy script
 
@@ -41,6 +41,9 @@ Cú pháp:
 
 python export_images.py <thư_mục_input> <file_output.csv>
 
+pyinstaller --onefile export_images.py
+
+.\export_images.exe "C:\Users\ADMIN\Downloads" "./images_info.csv"
 
 Ví dụ Windows:
 
