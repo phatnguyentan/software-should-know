@@ -1,0 +1,44 @@
+# 44. Disaster recovery (RPO/RTO cho storage)
+
+> **Nhóm:** Giai đoạn 6 — Bảo mật & vận hành
+
+---
+
+## 1 vấn đề duy nhất
+
+Không xác định rõ RPO/RTO sẽ khiến thiết kế DR thiếu thực tế: hoặc tốn quá nhiều tiền, hoặc không khôi phục kịp khi thảm họa xảy ra.
+
+---
+
+## 1 sơ đồ
+
+```
+Sự cố vùng A lúc 10:00
+      │
+      ├─ RPO = 5 phút  → mất tối đa dữ liệu từ 09:55
+      └─ RTO = 60 phút → phải khôi phục trước 11:00
+```
+
+
+---
+
+## 1 ví dụ thực tế
+
+Hệ thống giao dịch đặt mục tiêu RPO ≤ 5 phút, RTO ≤ 1 giờ nên dùng replication liên vùng + runbook failover thay vì chỉ dựa vào backup hằng đêm.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Nói có DR nhưng không chạy drill định kỳ nên failover thật bị lỗi quy trình.
+2. Đặt RPO/RTO quá tham vọng nhưng hạ tầng thực tế không đủ để đáp ứng.
+3. Chỉ backup data mà không backup metadata/config cần thiết để bring-up dịch vụ.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

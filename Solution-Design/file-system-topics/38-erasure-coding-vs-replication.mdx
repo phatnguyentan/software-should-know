@@ -1,0 +1,41 @@
+# 38. Erasure coding vs replication
+
+> **Nhóm:** Giai đoạn 5 — Distributed File System
+
+---
+
+## 1 vấn đề duy nhất
+
+Phải chọn giữa tiết kiệm dung lượng và tốc độ phục hồi khi node hỏng.
+
+---
+
+## 1 sơ đồ
+
+```
+Replication (3x): Data + Copy1 + Copy2
+Erasure coding (k+m): Data shards + parity shards
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Kho archive chọn erasure coding để giảm chi phí lưu trữ; kho giao dịch realtime vẫn dùng replication để phục hồi nhanh.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Dùng erasure coding cho file nhỏ và workload ghi nóng gây tốn CPU.
+2. Chọn replication factor thấp mà không tính thời gian rebuild sau failure.
+3. Không dự phòng băng thông cho quá trình reconstruct parity.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

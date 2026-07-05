@@ -1,0 +1,41 @@
+# 10. Hard link vs symbolic link
+
+> **Nhóm:** Giai đoạn 1 — Cấu trúc lưu trữ cốt lõi
+
+---
+
+## 1 vấn đề duy nhất
+
+Cần chia sẻ dữ liệu mà không copy file, nhưng vẫn phải kiểm soát hành vi khi xóa/di chuyển file gốc.
+
+---
+
+## 1 sơ đồ
+
+```
+Hard link: /a/report -> inode 1024 <- /b/report
+Symlink:   /c/report -> "/a/report" (path pointer)
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Kho artifact tạo hard link cho file release giữa nhiều thư mục để tiết kiệm dung lượng; symlink chỉ dùng cho shortcut cấu hình.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Dùng symlink cho tài liệu quan trọng rồi bị gãy link khi đổi path deploy.
+2. Xóa một hard link và tưởng đã giải phóng dung lượng ngay.
+3. Không giới hạn quyền ghi trên file được chia sẻ qua hard link.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

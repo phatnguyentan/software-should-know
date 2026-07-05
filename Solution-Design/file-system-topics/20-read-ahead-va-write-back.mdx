@@ -1,0 +1,41 @@
+# 20. Read-ahead và write-back
+
+> **Nhóm:** Giai đoạn 3 — Hiệu năng
+
+---
+
+## 1 vấn đề duy nhất
+
+Tối ưu đọc/ghi cần cân bằng giữa latency tức thời và throughput tổng thể của hệ thống.
+
+---
+
+## 1 sơ đồ
+
+```
+Sequential read -> Read-ahead window (N blocks)
+Write request    -> Page cache dirty -> Flush (write-back)
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Dịch vụ stream video tăng read-ahead để giảm cache miss; ngược lại hệ thống thanh toán giảm write-back delay để hạn chế mất dữ liệu khi sự cố.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Đặt read-ahead quá lớn cho random workload làm lãng phí băng thông disk.
+2. Write-back quá chậm khiến dirty page dồn cục và gây spike flush.
+3. Không tách profile tuning giữa workload read-heavy và write-heavy.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

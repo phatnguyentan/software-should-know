@@ -1,0 +1,45 @@
+# 43. Backup incremental vs full
+
+> **Nhóm:** Giai đoạn 6 — Bảo mật & vận hành
+
+---
+
+## 1 vấn đề duy nhất
+
+Chọn sai chiến lược backup có thể làm thời gian restore quá lâu hoặc mất dữ liệu nhiều hơn mức RPO chấp nhận.
+
+---
+
+## 1 sơ đồ
+
+```
+Ngày 1: Full Backup
+Ngày 2: Incremental #1
+Ngày 3: Incremental #2
+Ngày 4: Incremental #3
+Restore = Full + #1 + #2 + #3
+```
+
+
+---
+
+## 1 ví dụ thực tế
+
+Hệ thống lưu hồ sơ khách hàng dùng full backup cuối tuần và incremental hằng ngày để giảm chi phí lưu trữ nhưng vẫn đáp ứng phục hồi trong cùng ngày.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Chạy incremental liên tục nhưng không test restore định kỳ nên khi sự cố mới phát hiện chain bị lỗi.
+2. Giữ quá nhiều incremental mà không tạo full mới, khiến thời gian phục hồi kéo dài.
+3. Lưu backup cùng cụm storage production nên khi cụm hỏng thì backup cũng mất.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

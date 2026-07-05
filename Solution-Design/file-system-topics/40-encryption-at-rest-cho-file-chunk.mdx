@@ -1,0 +1,43 @@
+# 40. Encryption at rest cho file/chunk
+
+> **Nhóm:** Giai đoạn 6 — Bảo mật & vận hành
+
+---
+
+## 1 vấn đề duy nhất
+
+Dữ liệu trên disk có thể bị lộ khi mất ổ cứng hoặc snapshot bị truy cập trái phép nếu không mã hóa khi lưu trữ.
+
+---
+
+## 1 sơ đồ
+
+```
+Write chunk -> Encrypt (DEK)
+              │
+              └-> Store DEK wrapped by KEK (KMS)
+Read chunk  <- Decrypt via KMS policy
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Hệ thống hồ sơ y tế mã hóa chunk bằng AES-256 và quản lý key qua KMS để đáp ứng yêu cầu compliance.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Lưu key mã hóa cùng máy lưu dữ liệu khiến cơ chế at-rest mất ý nghĩa.
+2. Không xoay vòng key định kỳ cho dữ liệu nhạy cảm lâu năm.
+3. Bỏ qua đo overhead decrypt khi đọc file lớn.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

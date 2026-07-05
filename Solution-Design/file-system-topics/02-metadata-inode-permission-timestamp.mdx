@@ -1,0 +1,47 @@
+# 02. Metadata là gì (inode, permission, timestamp)
+
+> **Nhóm:** Giai đoạn 0 — Nền tảng (Beginner)
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu metadata để biết vì sao thao tác tưởng nhỏ (chmod, touch, rename, hard link) vẫn gây I/O và ảnh hưởng trực tiếp tới latency của hệ thống file.
+
+---
+
+## 1 sơ đồ
+
+```
+Path `/data/a.txt`
+      │
+      ▼
+Directory entry ──► inode #8127
+                      ├─ permission: rw-r-----
+                      ├─ timestamps: atime/mtime/ctime
+                      └─ data block pointers
+```
+
+
+---
+
+## 1 ví dụ thực tế
+
+Batch job chạy `touch` trên hàng triệu file log để cập nhật timestamp, làm metadata IOPS tăng mạnh và khiến request đọc file chậm đáng kể.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Không hiểu hard link dùng chung inode nên xóa 1 path chưa chắc giải phóng dung lượng.
+2. Bật cập nhật atime mặc định cho workload đọc nhiều làm tăng ghi metadata không cần thiết.
+3. Chỉ kiểm tra permission ở file cuối mà quên quyền traverse trên từng thư mục cha.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

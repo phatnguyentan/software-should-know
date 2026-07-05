@@ -1,0 +1,48 @@
+# 05. Buffer cache và page cache khác nhau thế nào
+
+> **Nhóm:** Giai đoạn 0 — Nền tảng (Beginner)
+
+---
+
+## 1 vấn đề duy nhất
+
+Nhầm buffer cache và page cache dễ dẫn đến tuning sai, khiến RAM bị dùng không hiệu quả và I/O latency tăng.
+
+---
+
+## 1 sơ đồ
+
+```
+Application Read
+   │
+   ├─ Page Cache (data page)
+   │       │ miss
+   │       ▼
+   └─ Disk block
+
+Metadata path
+   └─ Buffer Cache (inode/superblock/dir entry)
+```
+
+---
+
+## 1 ví dụ thực tế
+
+PostgreSQL chạy chậm dù CPU rảnh; kiểm tra thấy page cache hit thấp vì workload random read, trong khi metadata cache lại ổn định.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Tăng page cache mù quáng cho workload ghi tuần tự, làm cạnh tranh RAM với process chính.
+2. Không theo dõi cache hit ratio theo loại I/O nên không biết nghẽn ở data hay metadata.
+3. Tắt/bật tham số cache mà không benchmark theo tập dữ liệu thật.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

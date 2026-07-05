@@ -1,0 +1,41 @@
+# 30. Distributed lock cho distributed FS
+
+> **Nhóm:** Giai đoạn 4 — Đồng thời & chia sẻ
+
+---
+
+## 1 vấn đề duy nhất
+
+Nhiều node cập nhật cùng metadata file có thể tạo ghi đè lẫn nhau nếu không có cơ chế khóa phân tán.
+
+---
+
+## 1 sơ đồ
+
+```
+Node A -> acquire lock(file-123) -> update metadata -> release
+Node B -> wait/retry until lock released
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Metadata service dùng Redis/etcd lock để đảm bảo chỉ một node đổi owner hoặc rename tại một thời điểm.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Không gắn lease/TTL cho lock nên node chết để lại lock mồ côi.
+2. Release lock không kiểm tra owner token gây unlock nhầm phiên khác.
+3. Không thiết kế idempotency cho retry sau timeout lock.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

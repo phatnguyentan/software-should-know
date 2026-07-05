@@ -1,0 +1,43 @@
+# 35. Rebalancing dữ liệu khi thêm node
+
+> **Nhóm:** Giai đoạn 5 — Distributed File System
+
+---
+
+## 1 vấn đề duy nhất
+
+Sau khi scale-out, dữ liệu lệch tải nếu không rebalancing sẽ tạo hotspot và lãng phí node mới.
+
+---
+
+## 1 sơ đồ
+
+```
+Before: Node1 82% | Node2 79%
+Add Node3
+Rebalance chunks
+After:  Node1 55% | Node2 53% | Node3 51%
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Cụm lưu trữ thêm 3 node nhưng latency không giảm cho đến khi scheduler di chuyển chunk nóng sang node mới.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Rebalance toàn cụm cùng lúc làm bão network nội bộ.
+2. Không giới hạn băng thông migrate khiến ảnh hưởng traffic production.
+3. Bỏ qua affinity/rack awareness khi dịch chuyển replica.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

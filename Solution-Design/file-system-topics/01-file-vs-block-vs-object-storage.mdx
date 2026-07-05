@@ -1,0 +1,44 @@
+# 01. File vs Block vs Object Storage
+
+> **Nhóm:** Giai đoạn 0 — Nền tảng (Beginner)
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **File vs Block vs Object Storage** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+
+---
+
+## 1 sơ đồ
+
+```
+Ứng dụng media
+   ├─ File Storage   (share file theo path)
+   ├─ Block Storage  (volume cho DB)
+   └─ Object Storage (ảnh/video + metadata)
+```
+
+
+---
+
+## 1 ví dụ thực tế
+
+Sản phẩm lưu avatar bằng object storage, DB chạy trên block storage, còn NAS nội bộ giữ file cấu hình theo path.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Dùng block storage cho workload cần CDN/public URL khiến tích hợp phức tạp.
+2. Xem object storage như POSIX file system rồi kỳ vọng rename/mount như local disk.
+3. Không tách rõ nhu cầu latency thấp (block) và scale lớn (object).
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

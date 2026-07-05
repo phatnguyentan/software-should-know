@@ -1,0 +1,47 @@
+# 32. Data chunking/chunk size trade-off
+
+> **Nhóm:** Giai đoạn 5 — Distributed File System
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **Data chunking/chunk size trade-off** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+
+---
+
+## 1 sơ đồ
+
+```
+[Data chunking/chunk size trade-off]
+      │
+      ▼
+[Quyết định thiết kế]
+      │
+      ▼
+[Tác động: hiệu năng / độ bền / chi phí]
+```
+
+
+---
+
+## 1 ví dụ thực tế
+
+Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **Data chunking/chunk size trade-off** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Nhầm phạm vi áp dụng của **Data chunking/chunk size trade-off** trong local FS và distributed FS.
+2. Không đo trước/sau khi áp dụng **Data chunking/chunk size trade-off**, dẫn tới tối ưu theo cảm tính.
+3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **Data chunking/chunk size trade-off**.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

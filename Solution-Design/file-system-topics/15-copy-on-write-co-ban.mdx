@@ -1,0 +1,46 @@
+# 15. Copy-on-write (COW) căn bản
+
+> **Nhóm:** Giai đoạn 2 — Tính đúng đắn dữ liệu
+
+---
+
+## 1 vấn đề duy nhất
+
+Cần cập nhật dữ liệu an toàn khi crash mà không ghi đè trực tiếp lên block cũ.
+
+---
+
+## 1 sơ đồ
+
+```
+Block A (old)
+   │ write request
+   ▼
+Copy A -> A'
+   │ modify A'
+   ▼
+Pointer switch: inode -> A'
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Hệ thống snapshot dùng COW để tạo bản sao tức thời: block chỉ bị copy khi có ghi mới.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Dùng COW cho workload ghi nóng nhưng không kiểm soát phân mảnh block.
+2. Không theo dõi write amplification trên SSD khi bật COW toàn cục.
+3. Bỏ qua chi phí metadata update khi pointer đổi liên tục.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

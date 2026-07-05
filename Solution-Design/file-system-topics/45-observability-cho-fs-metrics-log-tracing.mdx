@@ -1,0 +1,47 @@
+# 45. Observability cho FS: metrics/log/tracing
+
+> **Nhóm:** Giai đoạn 6 — Bảo mật & vận hành
+
+---
+
+## 1 vấn đề duy nhất
+
+Thiếu observability khiến đội vận hành không phân biệt được lỗi do disk, network, lock contention hay application access pattern.
+
+---
+
+## 1 sơ đồ
+
+```
+Metrics (IOPS, latency p99, queue depth)
+                  │
+Logs (error code, slow op, retry)
+                  │
+Tracing (request → FS op → storage node)
+                  ▼
+Root cause nhanh hơn
+```
+
+
+---
+
+## 1 ví dụ thực tế
+
+Một API tải file tăng p99 từ 80ms lên 600ms; nhờ trace thấy nghẽn ở lock metadata, metric queue depth tăng cao và log xác nhận timeout trên node cụ thể.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Thu quá nhiều log không cấu trúc khiến khó lọc sự cố thật.
+2. Chỉ theo dõi average latency mà bỏ qua p95/p99 nên miss spike nghiêm trọng.
+3. Không gắn trace id xuyên suốt từ API đến storage node nên điều tra mất thời gian.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.

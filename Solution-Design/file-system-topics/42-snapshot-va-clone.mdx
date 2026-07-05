@@ -1,0 +1,42 @@
+# 42. Snapshot và clone
+
+> **Nhóm:** Giai đoạn 6 — Bảo mật & vận hành
+
+---
+
+## 1 vấn đề duy nhất
+
+Cần tạo môi trường test hoặc rollback nhanh sau lỗi dữ liệu mà không sao chép toàn bộ volume.
+
+---
+
+## 1 sơ đồ
+
+```
+Volume V0
+  ├─ Snapshot S1 (point-in-time)
+  └─ Clone C1 from S1 (read/write)
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Team QA clone từ snapshot production đã anonymize để chạy test regression trong vài phút thay vì restore nhiều giờ.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Coi snapshot là backup dài hạn dù vẫn phụ thuộc storage gốc.
+2. Giữ chuỗi snapshot quá dài gây tăng chi phí metadata và restore phức tạp.
+3. Clone từ snapshot không kiểm tra data consistency trước đó.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.
