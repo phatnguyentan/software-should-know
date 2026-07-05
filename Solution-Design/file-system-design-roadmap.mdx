@@ -1,0 +1,125 @@
+# File System Design Roadmap (Micro-Post)
+
+> Mục tiêu: tách roadmap thành các topic nhỏ kiểu từng bài post để học dần, dễ áp dụng.
+
+---
+
+## Cách dùng roadmap này
+
+- Mỗi topic = 1 bài post độc lập
+- Mỗi bài chỉ tập trung 1 vấn đề
+- Mỗi bài nên có: 1 sơ đồ, 1 ví dụ thực tế, 3 lỗi phổ biến, 1 checklist áp dụng
+
+---
+
+## Giai đoạn 0 — Nền tảng (Beginner)
+
+| # | Topic | Trọng tâm bài post |
+|---|-------|---------------------|
+| 01 | File vs Block vs Object Storage | Phân biệt mô hình lưu trữ và use case phù hợp |
+| 02 | Metadata (inode, permission, timestamp) | Vai trò metadata trong truy cập và quản trị file |
+| 03 | Path tuyệt đối/tương đối và namespace | Cách hệ thống resolve đường dẫn |
+| 04 | Syscall open/read/write/close | Vòng đời I/O căn bản từ user space sang kernel |
+| 05 | Buffer cache vs page cache | Khác biệt và tác động đến hiệu năng |
+
+---
+
+## Giai đoạn 1 — Cấu trúc lưu trữ cốt lõi
+
+| # | Topic | Trọng tâm bài post |
+|---|-------|---------------------|
+| 06 | Disk layout: superblock, inode table, data block | Bố cục cơ bản của file system trên disk |
+| 07 | Ánh xạ file → block (direct/indirect) | Cách file lớn được tham chiếu qua nhiều cấp block |
+| 08 | Free space management: bitmap vs free list | Theo dõi vùng trống và trade-off |
+| 09 | Directory implementation: linear list vs hash tree | Tối ưu tìm kiếm entry trong thư mục lớn |
+| 10 | Hard link vs symbolic link | Khác biệt về inode, lifecycle và rủi ro |
+| 11 | File allocation: contiguous, linked, indexed | So sánh chiến lược cấp phát dữ liệu |
+
+---
+
+## Giai đoạn 2 — Tính đúng đắn dữ liệu
+
+| # | Topic | Trọng tâm bài post |
+|---|-------|---------------------|
+| 12 | Crash consistency là gì | Vì sao mất điện có thể làm hỏng metadata/data |
+| 13 | Journaling mode (metadata/data/full) | Các mức bảo vệ và chi phí ghi |
+| 14 | Write-ahead logging trong file system | Ghi log trước khi commit thay đổi |
+| 15 | Copy-on-write (COW) căn bản | Tránh overwrite in-place để tăng an toàn |
+| 16 | Checkpoint và recovery flow | Luồng phục hồi sau crash theo checkpoint |
+| 17 | Fsck hoạt động như thế nào | Cách kiểm tra và sửa lỗi cấu trúc FS |
+
+---
+
+## Giai đoạn 3 — Hiệu năng
+
+| # | Topic | Trọng tâm bài post |
+|---|-------|---------------------|
+| 18 | Read path end-to-end | Luồng đọc từ app → kernel → disk |
+| 19 | Write path end-to-end | Luồng ghi và điểm nghẽn thường gặp |
+| 20 | Read-ahead và write-back | Cơ chế tối ưu đọc/ghi theo batch |
+| 21 | Caching policy: LRU/LFU trong FS | Chọn policy theo kiểu workload |
+| 22 | Fragmentation và compaction | Mảnh hóa dữ liệu và cách giảm chi phí seek |
+| 23 | SSD-aware design | Ảnh hưởng erase block và wear leveling |
+| 24 | Benchmark FS: throughput, IOPS, latency, p99 | Đọc và so sánh kết quả benchmark đúng cách |
+
+---
+
+## Giai đoạn 4 — Đồng thời & chia sẻ
+
+| # | Topic | Trọng tâm bài post |
+|---|-------|---------------------|
+| 25 | File locking: advisory vs mandatory | Kiểm soát truy cập đồng thời theo lock model |
+| 26 | Atomic rename và atomic append | Đảm bảo thao tác quan trọng không dở dang |
+| 27 | Consistency khi nhiều process cùng ghi | Race condition và cách kiểm soát |
+| 28 | NFS consistency model | Mô hình nhất quán của NFS trong thực tế |
+| 29 | SMB fundamentals | Nền tảng SMB cho môi trường doanh nghiệp |
+| 30 | Distributed lock cho distributed FS | Điều phối lock đa node an toàn |
+
+---
+
+## Giai đoạn 5 — Distributed File System
+
+| # | Topic | Trọng tâm bài post |
+|---|-------|---------------------|
+| 31 | Metadata server + data node architecture | Tách control plane và data plane |
+| 32 | Data chunking/chunk size trade-off | Kích thước chunk ảnh hưởng hiệu năng/chi phí |
+| 33 | Replication factor + placement strategy | Đặt replica để cân bằng bền vững và latency |
+| 34 | Quorum read/write cho file chunks | Đảm bảo nhất quán với cơ chế quorum |
+| 35 | Rebalancing khi thêm node | Di chuyển dữ liệu mà vẫn giữ hệ thống ổn định |
+| 36 | Failure detection và self-healing | Phát hiện node lỗi và phục hồi tự động |
+| 37 | Hotspot file và cách xử lý | Giảm nghẽn cho file bị truy cập quá cao |
+| 38 | Erasure coding vs replication | So sánh overhead lưu trữ và khả năng phục hồi |
+
+---
+
+## Giai đoạn 6 — Bảo mật & vận hành
+
+| # | Topic | Trọng tâm bài post |
+|---|-------|---------------------|
+| 39 | POSIX permission + ACL | Mô hình phân quyền ở cấp file/thư mục |
+| 40 | Encryption at rest cho file/chunk | Bảo vệ dữ liệu khi lưu trữ |
+| 41 | Encryption in transit giữa nodes | Bảo vệ dữ liệu khi truyền mạng |
+| 42 | Snapshot và clone | Sao chụp nhanh và nhân bản dữ liệu |
+| 43 | Backup incremental vs full | Chọn chiến lược backup theo RPO/RTO |
+| 44 | Disaster recovery (RPO/RTO cho storage) | Thiết kế kịch bản phục hồi sau sự cố lớn |
+| 45 | Observability cho FS | Theo dõi metrics/log/tracing cho storage |
+| 46 | Capacity planning và dự báo tăng trưởng | Dự báo dung lượng và throughput theo thời gian |
+
+---
+
+## Đề xuất đóng gói thành series post
+
+- **Series A (10 post):** FS local cơ bản (topic 1–17)
+- **Series B (8 post):** FS performance (topic 18–24 + benchmark case study)
+- **Series C (8 post):** Concurrent & network FS (topic 25–30 + practical pitfalls)
+- **Series D (12 post):** Distributed FS production (topic 31–46)
+
+---
+
+## Template chuẩn cho từng bài post
+
+1. **Một vấn đề duy nhất**
+2. **Một sơ đồ trực quan**
+3. **Một ví dụ thực tế**
+4. **Ba lỗi phổ biến**
+5. **Một checklist áp dụng**
