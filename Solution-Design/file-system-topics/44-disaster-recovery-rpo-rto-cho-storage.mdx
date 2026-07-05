@@ -6,20 +6,17 @@
 
 ## 1 vấn đề duy nhất
 
-Hiểu đúng **Disaster recovery (RPO/RTO cho storage)** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+Không xác định rõ RPO/RTO sẽ khiến thiết kế DR thiếu thực tế: hoặc tốn quá nhiều tiền, hoặc không khôi phục kịp khi thảm họa xảy ra.
 
 ---
 
 ## 1 sơ đồ
 
 ```
-[Disaster recovery (RPO/RTO cho storage)]
+Sự cố vùng A lúc 10:00
       │
-      ▼
-[Quyết định thiết kế]
-      │
-      ▼
-[Tác động: hiệu năng / độ bền / chi phí]
+      ├─ RPO = 5 phút  → mất tối đa dữ liệu từ 09:55
+      └─ RTO = 60 phút → phải khôi phục trước 11:00
 ```
 
 
@@ -27,15 +24,15 @@ Hiểu đúng **Disaster recovery (RPO/RTO cho storage)** để đưa ra quyết
 
 ## 1 ví dụ thực tế
 
-Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **Disaster recovery (RPO/RTO cho storage)** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
+Hệ thống giao dịch đặt mục tiêu RPO ≤ 5 phút, RTO ≤ 1 giờ nên dùng replication liên vùng + runbook failover thay vì chỉ dựa vào backup hằng đêm.
 
 ---
 
 ## 3 lỗi phổ biến
 
-1. Nhầm phạm vi áp dụng của **Disaster recovery (RPO/RTO cho storage)** trong local FS và distributed FS.
-2. Không đo trước/sau khi áp dụng **Disaster recovery (RPO/RTO cho storage)**, dẫn tới tối ưu theo cảm tính.
-3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **Disaster recovery (RPO/RTO cho storage)**.
+1. Nói có DR nhưng không chạy drill định kỳ nên failover thật bị lỗi quy trình.
+2. Đặt RPO/RTO quá tham vọng nhưng hạ tầng thực tế không đủ để đáp ứng.
+3. Chỉ backup data mà không backup metadata/config cần thiết để bring-up dịch vụ.
 
 ---
 

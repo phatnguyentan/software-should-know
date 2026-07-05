@@ -6,20 +6,20 @@
 
 ## 1 vấn đề duy nhất
 
-Hiểu đúng **Metadata là gì (inode, permission, timestamp)** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+Hiểu metadata để biết vì sao thao tác tưởng nhỏ (chmod, touch, rename, hard link) vẫn gây I/O và ảnh hưởng trực tiếp tới latency của hệ thống file.
 
 ---
 
 ## 1 sơ đồ
 
 ```
-[Metadata là gì (inode, permission, timestamp)]
+Path `/data/a.txt`
       │
       ▼
-[Quyết định thiết kế]
-      │
-      ▼
-[Tác động: hiệu năng / độ bền / chi phí]
+Directory entry ──► inode #8127
+                      ├─ permission: rw-r-----
+                      ├─ timestamps: atime/mtime/ctime
+                      └─ data block pointers
 ```
 
 
@@ -27,15 +27,15 @@ Hiểu đúng **Metadata là gì (inode, permission, timestamp)** để đưa ra
 
 ## 1 ví dụ thực tế
 
-Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **Metadata là gì (inode, permission, timestamp)** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
+Batch job chạy `touch` trên hàng triệu file log để cập nhật timestamp, làm metadata IOPS tăng mạnh và khiến request đọc file chậm đáng kể.
 
 ---
 
 ## 3 lỗi phổ biến
 
-1. Nhầm phạm vi áp dụng của **Metadata là gì (inode, permission, timestamp)** trong local FS và distributed FS.
-2. Không đo trước/sau khi áp dụng **Metadata là gì (inode, permission, timestamp)**, dẫn tới tối ưu theo cảm tính.
-3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **Metadata là gì (inode, permission, timestamp)**.
+1. Không hiểu hard link dùng chung inode nên xóa 1 path chưa chắc giải phóng dung lượng.
+2. Bật cập nhật atime mặc định cho workload đọc nhiều làm tăng ghi metadata không cần thiết.
+3. Chỉ kiểm tra permission ở file cuối mà quên quyền traverse trên từng thư mục cha.
 
 ---
 
