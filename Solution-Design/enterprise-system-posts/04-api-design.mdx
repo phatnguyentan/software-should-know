@@ -1,0 +1,45 @@
+# 04. API Design
+
+> **Nhóm:** Contract between systems
+
+---
+
+## Vấn đề cốt lõi
+
+API là giao kèo giữa client, backend và đối tác tích hợp; thiết kế tốt giúp hệ thống dễ dùng, dễ mở rộng và an toàn khi thay đổi.
+
+---
+
+## Giải thích
+
+API design bao gồm:
+- Chọn style phù hợp: REST, GraphQL, gRPC, webhook
+- Thiết kế resource và payload rõ nghĩa
+- Kiểm soát idempotency, validation, versioning
+- Chuẩn hóa error response, pagination, rate limit
+
+Một API tốt giúp giảm coupling giữa producer và consumer.
+
+---
+
+## Diagram
+
+```
+Mobile App ──HTTP──► API Gateway ──► Order Service
+Partner ERP ─Webhook/REST──► Integration API
+Internal Services ──gRPC──► Pricing Service
+```
+
+---
+
+## Ví dụ cụ thể
+
+API tạo đơn hàng nên hỗ trợ `Idempotency-Key` để nếu mobile retry do timeout thì không tạo ra hai đơn giống nhau.
+
+---
+
+## Sai lầm phổ biến
+
+1. Thiết kế endpoint theo màn hình thay vì theo domain.
+2. Không chuẩn hóa mã lỗi và message lỗi.
+3. Dùng offset pagination cho feed lớn dẫn tới chậm và trùng dữ liệu.

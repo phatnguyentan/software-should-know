@@ -1,0 +1,57 @@
+# 04.07 Filtering
+
+> **Nhóm:** Giai đoạn 4 — Thiết kế giao tiếp
+> **Phân nhóm:** REST
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **Filtering** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **API Design**.
+
+---
+
+## Giải thích nhanh
+
+**Filtering** là khái niệm nói về lọc dữ liệu.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về api design thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Nó thường được học cùng các khái niệm khác trong nhóm **REST** để thấy rõ trade-off và phạm vi áp dụng.
+
+---
+
+## 1 sơ đồ
+
+```
+Client / Partner
+   ↓
+API Contract
+   ↓
+Apply Filtering
+   ↓
+Stable Consumer Experience
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một nền tảng commerce có mobile app, partner và service nội bộ, **Filtering** giúp API rõ contract hơn và giảm rủi ro khi client retry, nâng cấp phiên bản hoặc tích hợp ngoài hệ thống.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Thiết kế contract theo màn hình hiện tại thay vì theo resource/use case.
+2. Không chuẩn hóa lỗi và hành vi retry.
+3. Để consumer phụ thuộc vào chi tiết implementation bên trong.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **Filtering**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **Filtering**.

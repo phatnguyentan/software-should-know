@@ -1,0 +1,56 @@
+# 01.09 Value Stream
+
+> **Nhóm:** Giai đoạn 1 — Hiểu doanh nghiệp
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **Value Stream** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **Business Analysis**.
+
+---
+
+## Giải thích nhanh
+
+**Value Stream** là khái niệm nói về luồng tạo giá trị.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về business analysis thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Điểm quan trọng là hiểu khi nào nên áp dụng, khi nào không, và nó tương tác với phần còn lại của kiến trúc ra sao.
+
+---
+
+## 1 sơ đồ
+
+```
+Stakeholder Need
+   ↓
+Analyze Value Stream
+   ↓
+Business Flow / Constraint
+   ↓
+System Requirement
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một hệ thống mua sắm nội bộ nhiều bước phê duyệt, nhóm BA dùng **Value Stream** để làm rõ quy trình, trách nhiệm và điều kiện trước khi team kỹ thuật thiết kế API hay database.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Dùng thuật ngữ kỹ thuật thay cho ngôn ngữ nghiệp vụ.
+2. Bỏ qua actor hoặc bước phê duyệt ngoại lệ.
+3. Không biến phân tích thành yêu cầu đo được.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **Value Stream**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **Value Stream**.

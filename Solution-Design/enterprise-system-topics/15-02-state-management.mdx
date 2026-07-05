@@ -1,0 +1,56 @@
+# 15.02 State Management
+
+> **Nhóm:** Giai đoạn 15 — Kiến trúc phía client
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **State Management** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **Frontend Architecture**.
+
+---
+
+## Giải thích nhanh
+
+**State Management** là khái niệm nói về Redux, Zustand, Pinia.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về frontend architecture thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Điểm quan trọng là hiểu khi nào nên áp dụng, khi nào không, và nó tương tác với phần còn lại của kiến trúc ra sao.
+
+---
+
+## 1 sơ đồ
+
+```
+User Interaction
+   ↓
+Frontend Layer
+   ↓
+Apply State Management
+   ↓
+Consistent UI Behavior
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một backoffice lớn có nhiều màn hình và nhiều team frontend, **State Management** giúp UI nhất quán hơn, giảm duplication và giữ trải nghiệm người dùng ổn định khi sản phẩm mở rộng.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Để business rule nằm phân tán trong component ngẫu nhiên.
+2. Không chuẩn hóa primitive UI và cách quản lý state.
+3. Tối ưu happy path mà quên loading, error và offline state.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **State Management**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **State Management**.

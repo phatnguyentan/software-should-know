@@ -1,0 +1,57 @@
+# 03.19 MVCC
+
+> **Nhóm:** Giai đoạn 3 — Thiết kế dữ liệu
+> **Phân nhóm:** Relational (SQL)
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **MVCC** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **Database Design**.
+
+---
+
+## Giải thích nhanh
+
+**MVCC** là khái niệm nói về Multi-Version Concurrency Control.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về database design thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Nó thường được học cùng các khái niệm khác trong nhóm **Relational (SQL)** để thấy rõ trade-off và phạm vi áp dụng.
+
+---
+
+## 1 sơ đồ
+
+```
+Application Query
+   ↓
+Database Layer
+   ↓
+Use MVCC
+   ↓
+Correctness / Performance Result
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một hệ thống bán hàng có OLTP và dashboard phân tích, **MVCC** thường được cân nhắc để giữ dữ liệu đúng, truy vấn đủ nhanh và tách được workload giao dịch khỏi báo cáo.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Thiết kế schema chỉ theo CRUD screen mà không theo quan hệ nghiệp vụ.
+2. Tối ưu hiệu năng trước khi đo bottleneck thật.
+3. Trộn workload giao dịch, tìm kiếm và analytics vào cùng một path.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **MVCC**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **MVCC**.

@@ -1,0 +1,53 @@
+# 14. DevOps
+
+> **Nhóm:** Safe and repeatable delivery
+
+---
+
+## Vấn đề cốt lõi
+
+DevOps giúp chuyển thay đổi từ code tới production nhanh hơn nhưng vẫn kiểm soát được rủi ro.
+
+---
+
+## Giải thích
+
+Những thành phần chính:
+- Git flow hoặc trunk-based workflow
+- CI/CD pipeline
+- Infrastructure as Code
+- Blue/Green, Canary, Rollback
+- Feature toggle để giảm blast radius
+
+Mục tiêu là biến deploy thành thao tác lặp lại được, thay vì phụ thuộc vào cá nhân nhớ bước nào làm trước.
+
+---
+
+## Diagram
+
+```
+Git Push
+  ↓
+CI: test + build + security check
+  ↓
+Artifact Registry
+  ↓
+CD Pipeline
+  ├─ Canary 10%
+  ├─ Monitor metrics
+  └─ Roll forward / rollback
+```
+
+---
+
+## Ví dụ cụ thể
+
+Một service thanh toán có thể rollout canary 10% traffic, theo dõi error rate 15 phút rồi mới tăng lên 100%. Nếu metric xấu, pipeline tự rollback.
+
+---
+
+## Sai lầm phổ biến
+
+1. Có CI nhưng không chặn merge khi test fail.
+2. Deploy thủ công khác nhau giữa môi trường.
+3. Không chuẩn bị rollback trước khi release.

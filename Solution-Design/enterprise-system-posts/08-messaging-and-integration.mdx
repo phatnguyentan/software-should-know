@@ -1,0 +1,51 @@
+# 08. Messaging & Integration
+
+> **Nhóm:** Connecting internal and external systems
+
+---
+
+## Vấn đề cốt lõi
+
+Enterprise system hiếm khi sống một mình; nó phải giao tiếp an toàn với service khác, queue, partner API và hệ thống legacy.
+
+---
+
+## Giải thích
+
+Bạn cần nắm:
+- Queue, topic, pub/sub, event bus
+- Retry, backoff, dead letter queue
+- Idempotent consumer
+- At-most-once, at-least-once, exactly-once
+- Message broker như Kafka hoặc RabbitMQ
+
+Mục tiêu là **tích hợp chịu lỗi**, không phải chỉ “gửi message đi là xong”.
+
+---
+
+## Diagram
+
+```
+Order Service
+   ↓ publish OrderPlaced
+Kafka Topic
+   ├─ Inventory Consumer
+   ├─ Billing Consumer
+   └─ Notification Consumer
+            ↓
+         DLQ if failed repeatedly
+```
+
+---
+
+## Ví dụ cụ thể
+
+Khi order được tạo, hệ thống phát `OrderPlaced`. Inventory reserve hàng, Billing tạo invoice, Notification gửi email. Nếu email lỗi 5 lần thì message chuyển vào DLQ để xử lý sau, còn order vẫn thành công.
+
+---
+
+## Sai lầm phổ biến
+
+1. Không thiết kế idempotency cho consumer.
+2. Retry vô hạn làm nghẽn queue.
+3. Đồng bộ mọi tích hợp qua request/response dù workload phù hợp async hơn.

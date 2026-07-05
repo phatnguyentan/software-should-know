@@ -1,0 +1,50 @@
+# 07. Business Rule Design
+
+> **Nhóm:** Dynamic business behavior
+
+---
+
+## Vấn đề cốt lõi
+
+Khi business rule thay đổi thường xuyên, bạn cần thiết kế để sửa rule mà không phá cả hệ thống.
+
+---
+
+## Giải thích
+
+Business Rule Design tập trung vào:
+- **Specification/Policy** cho rule đơn lẻ
+- **Decision table/tree** cho nhiều nhánh quyết định
+- **State machine** cho quy trình nhiều trạng thái
+- **Workflow/approval engine** cho flow nhiều bước
+- **Feature flag/config-driven** để đổi hành vi không cần redeploy toàn bộ
+
+Đây là phần rất quan trọng ở hệ thống enterprise nhiều approval và exception.
+
+---
+
+## Diagram
+
+```
+Draft → Submitted → Manager Approved → Finance Approved → Paid
+   │            │                │
+   └─ Rejected ─┴────────────────┘
+
+Rule source:
+- Amount > 100M → cần Finance
+- Vendor mới → cần Compliance
+```
+
+---
+
+## Ví dụ cụ thể
+
+Trong hệ thống mua sắm nội bộ, rule phê duyệt có thể phụ thuộc vào số tiền, phòng ban và loại vendor. Dùng decision table + state machine sẽ rõ hơn rất nhiều so với hard-code trong controller.
+
+---
+
+## Sai lầm phổ biến
+
+1. Hard-code rule rải rác trong nhiều service.
+2. Không mô hình hóa trạng thái rõ ràng.
+3. Gộp workflow engine với domain rule engine thành một khối khó bảo trì.

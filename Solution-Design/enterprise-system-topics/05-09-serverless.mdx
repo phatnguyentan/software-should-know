@@ -1,0 +1,56 @@
+# 05.09 Serverless
+
+> **Nhóm:** Giai đoạn 5 — Tổ chức backend
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **Serverless** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **Backend Architecture**.
+
+---
+
+## Giải thích nhanh
+
+**Serverless** là khái niệm nói về function-as-a-service.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về backend architecture thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Điểm quan trọng là hiểu khi nào nên áp dụng, khi nào không, và nó tương tác với phần còn lại của kiến trúc ra sao.
+
+---
+
+## 1 sơ đồ
+
+```
+Incoming Request
+   ↓
+Application Boundary
+   ↓
+Organize with Serverless
+   ↓
+Domain + Infrastructure Separation
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một sản phẩm B2B tăng số team phát triển qua thời gian, **Serverless** là lựa chọn kiến trúc để giữ codebase dễ đọc, dễ test và ít phụ thuộc framework hơn.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Chọn kiến trúc theo trend thay vì theo nhu cầu thay đổi thực tế.
+2. Để framework chi phối toàn bộ business logic.
+3. Tách service quá sớm khi boundary nghiệp vụ chưa rõ.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **Serverless**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **Serverless**.

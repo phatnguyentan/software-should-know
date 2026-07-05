@@ -1,0 +1,56 @@
+# 10.05 Read Through
+
+> **Nhóm:** Giai đoạn 10 — Mở rộng tải
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **Read Through** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **Scalability**.
+
+---
+
+## Giải thích nhanh
+
+**Read Through** là khái niệm nói về đọc qua cache.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về scalability thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Điểm quan trọng là hiểu khi nào nên áp dụng, khi nào không, và nó tương tác với phần còn lại của kiến trúc ra sao.
+
+---
+
+## 1 sơ đồ
+
+```
+Traffic Growth
+   ↓
+Scalability Lever: Read Through
+   ↓
+System Path
+   ↓
+Lower Latency / Higher Throughput
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một nền tảng thương mại điện tử tăng traffic theo mùa, **Read Through** là đòn bẩy thường được dùng để giảm áp lực lên app node, database hoặc network edge.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Scale thành phần sai vì chưa đo bottleneck.
+2. Bổ sung cache hay gateway mà không có chiến lược invalidation/ownership.
+3. Tăng hạ tầng trước khi tối ưu query và payload.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **Read Through**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **Read Through**.

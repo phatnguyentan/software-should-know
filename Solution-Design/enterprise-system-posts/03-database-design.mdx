@@ -1,0 +1,49 @@
+# 03. Database Design
+
+> **Nhóm:** Data correctness and performance
+
+---
+
+## Vấn đề cốt lõi
+
+Database design không chỉ là tạo bảng; nó là cách bảo vệ tính đúng đắn, hiệu năng và khả năng mở rộng của dữ liệu.
+
+---
+
+## Giải thích
+
+Bạn cần cân bằng giữa:
+- **Mô hình dữ liệu**: ERD, cardinality, normalization
+- **Tính toàn vẹn**: PK, FK, UNIQUE, CHECK, transaction
+- **Hiệu năng**: index, execution plan, partition
+- **Nhu cầu đặc thù**: NoSQL, read replica, sharding, consistency
+
+Thiết kế DB tốt làm giảm bug nghiệp vụ và giảm chi phí tối ưu sau này.
+
+---
+
+## Diagram
+
+```
+Customer 1 ─── N Order 1 ─── N OrderItem N ─── 1 Product
+        │
+        └── 1 Address
+
+Write path → Primary DB
+Read-heavy queries → Read Replica
+Analytics → Warehouse / Materialized View
+```
+
+---
+
+## Ví dụ cụ thể
+
+Trong hệ thống bán hàng, bảng `orders` cần transaction để tạo order + order_items nhất quán, còn dashboard doanh thu nên đọc từ materialized view hoặc warehouse thay vì query trực tiếp OLTP.
+
+---
+
+## Sai lầm phổ biến
+
+1. Denormalize quá sớm khi chưa đo bottleneck.
+2. Thêm index theo cảm tính làm write chậm.
+3. Dùng cùng một database cho OLTP, full-text search và analytics.

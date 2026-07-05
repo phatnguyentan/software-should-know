@@ -1,0 +1,48 @@
+# 13. Observability
+
+> **Nhóm:** Seeing system behavior clearly
+
+---
+
+## Vấn đề cốt lõi
+
+Bạn không thể vận hành hệ thống enterprise nếu không biết nó đang lỗi ở đâu, chậm ở đâu và ảnh hưởng tới ai.
+
+---
+
+## Giải thích
+
+Observability dựa trên 3 trụ cột:
+- **Logs** để xem sự kiện chi tiết
+- **Metrics** để đo xu hướng và cảnh báo
+- **Tracing** để nhìn xuyên qua nhiều service
+
+Bổ sung thêm health check, SLI/SLO/SLA để biến “cảm giác hệ thống ổn” thành dữ liệu đo được.
+
+---
+
+## Diagram
+
+```
+Request
+  ↓
+API Service ─┬─► Structured Log
+             ├─► Metrics (latency, error rate)
+             └─► Trace Span ─► Downstream Services
+
+Dashboards + Alerts ← Observability Stack
+```
+
+---
+
+## Ví dụ cụ thể
+
+Nếu checkout bị chậm, trace có thể cho thấy 70% thời gian nằm ở pricing service, còn metric p95 tăng mạnh sau một đợt deploy. Log correlation ID giúp truy ngược request cụ thể.
+
+---
+
+## Sai lầm phổ biến
+
+1. Ghi log nhiều nhưng không có cấu trúc.
+2. Chỉ đo average latency mà không nhìn p95/p99.
+3. Không gắn trace ID xuyên suốt giữa các service.

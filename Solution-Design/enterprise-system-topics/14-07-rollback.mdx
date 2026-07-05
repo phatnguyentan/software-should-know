@@ -1,0 +1,56 @@
+# 14.07 Rollback
+
+> **Nhóm:** Giai đoạn 14 — Vận hành phát hành
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **Rollback** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **DevOps**.
+
+---
+
+## Giải thích nhanh
+
+**Rollback** là khái niệm nói về quay lại phiên bản trước.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về devops thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Điểm quan trọng là hiểu khi nào nên áp dụng, khi nào không, và nó tương tác với phần còn lại của kiến trúc ra sao.
+
+---
+
+## 1 sơ đồ
+
+```
+Code Change
+   ↓
+Delivery Pipeline
+   ↓
+Apply Rollback
+   ↓
+Safer Release
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một team phát hành nhiều lần mỗi tuần, **Rollback** giúp biến việc build, kiểm tra và deploy thành quy trình lặp lại được thay vì phụ thuộc thao tác thủ công.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Có pipeline nhưng không tạo được niềm tin để release thường xuyên.
+2. Không chuẩn bị rollback hoặc quan sát sau deploy.
+3. Để khác biệt môi trường làm hỏng tính lặp lại.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **Rollback**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **Rollback**.

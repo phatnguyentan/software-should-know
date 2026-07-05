@@ -1,0 +1,56 @@
+# 18.10 Integration Testing
+
+> **Nhóm:** Giai đoạn 18 — Kỷ luật kỹ thuật
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **Integration Testing** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **Software Engineering**.
+
+---
+
+## Giải thích nhanh
+
+**Integration Testing** là khái niệm nói về kiểm thử tích hợp.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về software engineering thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Điểm quan trọng là hiểu khi nào nên áp dụng, khi nào không, và nó tương tác với phần còn lại của kiến trúc ra sao.
+
+---
+
+## 1 sơ đồ
+
+```
+Requirement
+   ↓
+Engineering Practice: Integration Testing
+   ↓
+Implementation + Tests
+   ↓
+Maintainable System
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một codebase enterprise phải sống lâu qua nhiều team, **Integration Testing** giúp giữ chất lượng thiết kế, khả năng test và tốc độ thay đổi bền vững theo thời gian.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Nói nhiều về principle nhưng không biến thành practice cụ thể.
+2. Không cân bằng giữa tốc độ giao hàng và nợ kỹ thuật.
+3. Để quyết định kiến trúc quan trọng tồn tại chỉ trong đầu vài người.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **Integration Testing**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **Integration Testing**.

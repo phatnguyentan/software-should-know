@@ -1,0 +1,50 @@
+# 11. Security
+
+> **Nhóm:** Trust, access and protection
+
+---
+
+## Vấn đề cốt lõi
+
+Security không phải lớp thêm vào cuối dự án; nó phải xuất hiện ngay từ design của authentication, authorization, encryption và audit.
+
+---
+
+## Giải thích
+
+Khối này thường gồm:
+- OAuth2, OIDC, JWT, session
+- RBAC, ABAC, PBAC
+- TLS, encryption at rest
+- Secret management
+- Audit log và traceability
+
+Hệ thống enterprise thường thất bại không phải vì thiếu login, mà vì phân quyền và kiểm soát thay đổi không đủ chặt.
+
+---
+
+## Diagram
+
+```
+User ─► Identity Provider ─► Access Token
+  │                             │
+  └──────────── API Gateway ◄───┘
+                    │
+             Policy Check (RBAC/ABAC)
+                    │
+               Service + Audit Log
+```
+
+---
+
+## Ví dụ cụ thể
+
+Trong core banking, nhân viên giao dịch có thể tạo lệnh nhưng không được tự duyệt lệnh đó. Quy tắc phân quyền phải đi cùng audit log để truy vết ai làm gì, lúc nào.
+
+---
+
+## Sai lầm phổ biến
+
+1. Nhét quá nhiều dữ liệu nhạy cảm vào JWT.
+2. Chỉ kiểm tra quyền ở UI mà quên backend.
+3. Lưu secret trong source code hoặc file cấu hình tĩnh.

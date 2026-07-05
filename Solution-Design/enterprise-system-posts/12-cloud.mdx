@@ -1,0 +1,53 @@
+# 12. Cloud
+
+> **Nhóm:** Runtime platform and infrastructure
+
+---
+
+## Vấn đề cốt lõi
+
+Cloud design quyết định hệ thống được deploy, kết nối mạng, cấp quyền và scale tài nguyên như thế nào trong môi trường thực tế.
+
+---
+
+## Giải thích
+
+Các khái niệm cần nắm:
+- Docker, containers, Kubernetes
+- Ingress, service mesh, auto scaling
+- Object storage, IAM, VPC
+- Chọn managed service hay tự vận hành
+
+Cloud tốt là cloud phục vụ business và team vận hành, không phải nơi gom thật nhiều công nghệ thời thượng.
+
+---
+
+## Diagram
+
+```
+Internet
+  ↓
+Ingress / Load Balancer
+  ↓
+Kubernetes Cluster
+  ├─ API Pods
+  ├─ Worker Pods
+  └─ Internal Services
+        │
+        ├─ Object Storage
+        └─ Managed Database trong VPC
+```
+
+---
+
+## Ví dụ cụ thể
+
+Một nền tảng học trực tuyến có thể chạy API và worker trên Kubernetes, lưu video trên S3-compatible object storage, và tách private database subnet để giảm rủi ro truy cập trái phép.
+
+---
+
+## Sai lầm phổ biến
+
+1. Dùng Kubernetes khi team chưa sẵn sàng vận hành.
+2. Mở quyền IAM quá rộng cho service account.
+3. Không thiết kế network boundary giữa public và private resources.

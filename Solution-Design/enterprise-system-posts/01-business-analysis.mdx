@@ -1,0 +1,53 @@
+# 01. Business Analysis
+
+> **Nhóm:** Business-first foundation
+
+---
+
+## Vấn đề cốt lõi
+
+Trước khi chọn database, API hay microservice, bạn phải hiểu **quy trình kinh doanh, actor và mục tiêu vận hành** của hệ thống.
+
+---
+
+## Giải thích
+
+Business Analysis giúp trả lời 4 câu hỏi:
+- Ai dùng hệ thống?
+- Quy trình hiện tại chạy như thế nào?
+- Hệ thống phải hỗ trợ quyết định nào?
+- Ràng buộc nào là bắt buộc: SLA, compliance, approval, audit?
+
+Nếu bỏ qua bước này, team rất dễ code đúng kỹ thuật nhưng sai nghiệp vụ.
+
+---
+
+## Diagram
+
+```
+Customer Request
+      ↓
+Sales receives order
+      ↓
+Credit check
+      ↓
+Approval if amount > limit
+      ↓
+Warehouse reserves stock
+      ↓
+Finance issues invoice
+```
+
+---
+
+## Ví dụ cụ thể
+
+Trong hệ thống cấp tín dụng nội bộ, yêu cầu thật sự không chỉ là “tạo khoản vay”. Business flow còn có kiểm tra hạn mức, phê duyệt theo cấp, audit log và thời gian phản hồi dưới 30 phút.
+
+---
+
+## Sai lầm phổ biến
+
+1. Nhảy thẳng vào schema và API mà chưa map quy trình.
+2. Viết user story nhưng không rõ actor chính/phụ.
+3. Không tách functional requirement và non-functional requirement.

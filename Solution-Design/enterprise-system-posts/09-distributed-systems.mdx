@@ -1,0 +1,47 @@
+# 09. Distributed Systems
+
+> **Nhóm:** Multi-node coordination
+
+---
+
+## Vấn đề cốt lõi
+
+Khi hệ thống chạy trên nhiều node, bài toán lớn nhất không còn là CRUD mà là **đồng bộ trạng thái, thời gian và quyết định chung**.
+
+---
+
+## Giải thích
+
+Distributed systems yêu cầu hiểu:
+- CAP, PACELC, strong/eventual consistency
+- Consensus như Raft/Paxos
+- Leader election, quorum, distributed lock
+- Clock, time sync, ordering of events
+
+Đây là nền tảng để thiết kế các hệ thống có thể chịu partition và failure thực tế.
+
+---
+
+## Diagram
+
+```
+Node A ─┐
+Node B ─┼─► Leader Election ─► Leader
+Node C ─┘                         │
+                                  ├─ Replicate log to followers
+                                  └─ Commit when quorum acknowledged
+```
+
+---
+
+## Ví dụ cụ thể
+
+Trong hệ thống config phân tán, chỉ leader mới được nhận write. Follower replicate log và chỉ coi thay đổi là committed khi quorum xác nhận, tránh mỗi node thấy một giá trị khác nhau.
+
+---
+
+## Sai lầm phổ biến
+
+1. Dùng distributed lock để che thiết kế state sai.
+2. Giả định đồng hồ giữa các node luôn đồng bộ.
+3. Áp strong consistency cho mọi use case dù latency quá cao.
