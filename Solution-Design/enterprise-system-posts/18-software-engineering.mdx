@@ -1,0 +1,52 @@
+# 18. Software Engineering
+
+> **Nhóm:** Engineering discipline across the stack
+
+---
+
+## Vấn đề cốt lõi
+
+Software engineering là lớp kỷ luật giúp mọi phần kiến trúc ở trên tiếp tục sống khỏe khi hệ thống và team cùng lớn lên.
+
+---
+
+## Giải thích
+
+Khối này bao gồm:
+- SOLID, GRASP, KISS, DRY, YAGNI
+- Refactoring có kiểm soát
+- Test pyramid, TDD, BDD
+- Integration testing, contract testing
+- ADR để ghi lại quyết định kiến trúc
+
+Nếu thiếu nền tảng này, hệ thống dễ tích lũy nợ kỹ thuật rất nhanh.
+
+---
+
+## Diagram
+
+```
+Requirements
+   ↓
+Design Decision (ADR)
+   ↓
+Implementation
+   ↓
+Unit Test → Integration Test → Contract Test
+   ↓
+Refactor safely over time
+```
+
+---
+
+## Ví dụ cụ thể
+
+Khi team quyết định dùng outbox pattern, một ADR ngắn giải thích bối cảnh, lựa chọn và trade-off sẽ giúp thành viên mới hiểu tại sao hệ thống không publish event trực tiếp từ controller.
+
+---
+
+## Sai lầm phổ biến
+
+1. Chỉ nói về principle mà không biến thành practice trong code review.
+2. Có nhiều test nhưng lệch test pyramid.
+3. Không ghi lại quyết định kiến trúc nên team lặp lại tranh luận cũ.

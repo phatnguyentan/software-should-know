@@ -1,0 +1,51 @@
+# 16. AI Architecture
+
+> **Nhóm:** Enterprise AI capabilities
+
+---
+
+## Vấn đề cốt lõi
+
+AI architecture là cách bạn biến LLM hoặc agent thành một phần đáng tin cậy của hệ thống doanh nghiệp, thay vì chỉ là demo prompt.
+
+---
+
+## Giải thích
+
+Các khối chính thường gồm:
+- RAG và vector search
+- Agent architecture, tool calling, MCP
+- Memory và context engineering
+- Guardrails và evaluation
+- Multi-agent workflow khi cần phân vai rõ ràng
+
+AI enterprise thành công khi nó kiểm soát được nguồn dữ liệu, hành động và chất lượng đầu ra.
+
+---
+
+## Diagram
+
+```
+User Request
+   ↓
+AI Orchestrator
+   ├─ Retrieve knowledge
+   ├─ Build context
+   ├─ Call tools / APIs
+   ├─ Apply guardrails
+   └─ Return answer + action
+```
+
+---
+
+## Ví dụ cụ thể
+
+Một trợ lý hỗ trợ pháp chế có thể dùng RAG để tìm policy nội bộ, gọi tool để tra hợp đồng, rồi buộc mọi câu trả lời phải kèm nguồn trích dẫn trước khi hiển thị cho người dùng.
+
+---
+
+## Sai lầm phổ biến
+
+1. Ném toàn bộ dữ liệu vào prompt thay vì thiết kế retrieval.
+2. Cho agent quyền hành động mà không có policy/approval.
+3. Không đo chất lượng bằng evaluation set thực tế.

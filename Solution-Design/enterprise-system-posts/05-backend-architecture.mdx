@@ -1,0 +1,55 @@
+# 05. Backend Architecture
+
+> **Nhóm:** Organizing application logic
+
+---
+
+## Vấn đề cốt lõi
+
+Backend architecture quyết định codebase có dễ hiểu, dễ test và dễ thay đổi khi business phát triển hay không.
+
+---
+
+## Giải thích
+
+Bạn có thể chọn nhiều phong cách kiến trúc:
+- **Layered** khi hệ thống còn đơn giản
+- **Clean/Hexagonal/Onion** khi muốn tách domain khỏi framework
+- **Vertical Slice** khi tổ chức theo use case
+- **Modular Monolith** khi cần scale đội ngũ trước khi tách service
+- **Microservice** khi ranh giới nghiệp vụ và vận hành đã đủ rõ
+
+Mục tiêu không phải là “kiến trúc hiện đại nhất” mà là mức tách phù hợp nhất.
+
+---
+
+## Diagram
+
+```
+Client
+  ↓
+Controller / Handler
+  ↓
+Application Service
+  ↓
+Domain Model
+  ↓
+Ports
+  ├─ Database Adapter
+  ├─ Message Broker Adapter
+  └─ External API Adapter
+```
+
+---
+
+## Ví dụ cụ thể
+
+Một hệ thống bảo hiểm với 6 team có thể bắt đầu bằng modular monolith: `policy`, `claim`, `billing`, `document` là các module độc lập, cùng deploy nhưng tách boundary rõ ràng.
+
+---
+
+## Sai lầm phổ biến
+
+1. Chia microservice theo bảng dữ liệu thay vì bounded context.
+2. Phụ thuộc framework trong domain logic.
+3. Tách quá nhiều layer nhưng use case vẫn khó trace.

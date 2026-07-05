@@ -1,0 +1,52 @@
+# 10. Scalability
+
+> **Nhóm:** Growing without collapse
+
+---
+
+## Vấn đề cốt lõi
+
+Scalability là khả năng tăng tải mà hệ thống vẫn giữ được thời gian phản hồi và chi phí chấp nhận được.
+
+---
+
+## Giải thích
+
+Các đòn bẩy phổ biến gồm:
+- Horizontal vs vertical scaling
+- Cache strategy
+- Load balancer, reverse proxy, CDN
+- API gateway, service discovery
+- Tách read/write path khi cần
+
+Scale hiệu quả bắt đầu từ đo bottleneck thật, không phải từ việc thêm server theo cảm tính.
+
+---
+
+## Diagram
+
+```
+Users
+  ↓
+CDN / Load Balancer
+  ↓
+App Nodes (scale out)
+  ↓            ↓
+Redis Cache   API Services
+      \        /
+       Primary DB + Read Replica
+```
+
+---
+
+## Ví dụ cụ thể
+
+Trang sản phẩm thương mại điện tử thường scale bằng CDN cho ảnh, Redis cho product cache, read replica cho truy vấn đọc nhiều, thay vì chỉ tăng CPU cho database chính.
+
+---
+
+## Sai lầm phổ biến
+
+1. Cache dữ liệu mà không có chiến lược invalidation.
+2. Scale app nhưng quên bottleneck ở DB hoặc external API.
+3. Thêm nhiều tầng hạ tầng trước khi tối ưu query hoặc payload.

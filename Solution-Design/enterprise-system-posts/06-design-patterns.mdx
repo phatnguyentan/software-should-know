@@ -1,0 +1,47 @@
+# 06. Design Patterns
+
+> **Nhóm:** Reusable design vocabulary
+
+---
+
+## Vấn đề cốt lõi
+
+Design pattern giúp giải quyết vấn đề lặp lại bằng ngôn ngữ chung thay vì mỗi nơi tự nghĩ một cách mới.
+
+---
+
+## Giải thích
+
+Các pattern quan trọng trong enterprise gồm:
+- **Creational**: Factory, Builder
+- **Structural**: Adapter, Facade, Proxy
+- **Behavioral**: Strategy, State, Observer
+- **Enterprise**: Repository, CQRS, Saga, Outbox, Specification
+
+Pattern tốt khi nó làm rõ intent; pattern tệ khi bị dùng như “template bắt buộc”.
+
+---
+
+## Diagram
+
+```
+Checkout Use Case
+   ├─ Strategy: PricingPolicy
+   ├─ Specification: CanPlaceOrder
+   ├─ Repository: OrderRepository
+   └─ Outbox: Publish OrderPlaced event
+```
+
+---
+
+## Ví dụ cụ thể
+
+Trong pricing engine, `Strategy` rất hợp cho nhiều cách tính giá: giá thường, giá theo membership, giá khuyến mãi. Khi đó logic thay đổi mà không phải nhồi `if/else` khắp code.
+
+---
+
+## Sai lầm phổ biến
+
+1. Áp pattern trước khi hiểu vấn đề.
+2. Lạm dụng inheritance thay vì composition.
+3. Dùng CQRS hoặc Saga cho case CRUD đơn giản.

@@ -1,0 +1,49 @@
+# 17. Data Engineering
+
+> **Nhóm:** Moving and shaping data at scale
+
+---
+
+## Vấn đề cốt lõi
+
+Data engineering đảm bảo dữ liệu đi đúng nơi, đúng thời điểm và đúng chất lượng để phục vụ analytics, ML và tích hợp downstream.
+
+---
+
+## Giải thích
+
+Bạn cần hiểu:
+- ETL, ELT, CDC
+- Data warehouse, data lake, data mart
+- OLTP vs OLAP
+- Batch vs stream processing
+
+Thiết kế tốt sẽ tách workload giao dịch khỏi workload phân tích, đồng thời vẫn giữ lineage và độ tin cậy dữ liệu.
+
+---
+
+## Diagram
+
+```
+OLTP DB
+  ↓ CDC
+Event Stream / Staging
+  ├─ Batch Transform → Warehouse
+  └─ Stream Processing → Realtime Dashboard
+                  ↓
+              Data Mart / ML Features
+```
+
+---
+
+## Ví dụ cụ thể
+
+Một công ty fintech có thể dùng CDC từ database giao dịch sang warehouse để đội risk phân tích hành vi gần realtime, thay vì chạy query nặng trực tiếp trên production DB.
+
+---
+
+## Sai lầm phổ biến
+
+1. Trộn analytics query vào production database.
+2. Không định nghĩa ownership và quality check cho pipeline.
+3. Dùng stream processing khi bài toán chỉ cần batch hàng giờ.

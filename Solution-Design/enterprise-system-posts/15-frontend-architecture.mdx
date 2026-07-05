@@ -1,0 +1,50 @@
+# 15. Frontend Architecture
+
+> **Nhóm:** Delivering usable client experiences
+
+---
+
+## Vấn đề cốt lõi
+
+Frontend architecture quyết định ứng dụng client có giữ được trải nghiệm nhất quán, dễ mở rộng và dễ bảo trì khi product lớn dần hay không.
+
+---
+
+## Giải thích
+
+Các điểm chính gồm:
+- Component design và design system
+- State management
+- Routing và data fetching strategy
+- Accessibility, theming, offline-first
+- Caching phía client
+
+Frontend enterprise không chỉ là render UI; nó còn quản lý permission, workflow, error state và hiệu năng người dùng cuối.
+
+---
+
+## Diagram
+
+```
+Design System
+      ↓
+Feature Modules
+  ├─ Routing
+  ├─ State Store
+  ├─ API Client Cache
+  └─ Access Control UI
+```
+
+---
+
+## Ví dụ cụ thể
+
+Trong một backoffice nhiều màn hình, dùng design system + shared form primitives giúp các flow approval, report, settings đồng nhất hơn và giảm lỗi UX giữa các team.
+
+---
+
+## Sai lầm phổ biến
+
+1. Để business rule nằm tản mát trong component.
+2. Không chuẩn hóa component cơ bản nên UI lệch nhau.
+3. Chỉ tối ưu happy path mà bỏ qua loading, retry và offline state.

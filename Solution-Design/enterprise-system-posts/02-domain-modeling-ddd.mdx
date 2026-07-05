@@ -1,0 +1,52 @@
+# 02. Domain Modeling (DDD)
+
+> **Nhóm:** Core design foundation
+
+---
+
+## Vấn đề cốt lõi
+
+Mô hình domain quyết định hệ thống có phản ánh đúng nghiệp vụ hay không.
+
+---
+
+## Giải thích
+
+DDD giúp team gom business logic về đúng chỗ thông qua:
+- **Entity** cho đối tượng có identity
+- **Value Object** cho khái niệm bất biến
+- **Aggregate** để giữ consistency boundary
+- **Domain Event** để tách side effect
+- **Bounded Context** để chia domain lớn thành các phần hiểu được
+
+Domain đúng sẽ giúp API rõ nghĩa hơn, database ít bị “bảng chung chung”, và rule không bị rải khắp nơi.
+
+---
+
+## Diagram
+
+```
+Sales Context
+   └─ Order Aggregate
+        ├─ Order (Root)
+        ├─ OrderItem
+        └─ ShippingAddress
+                 ↓
+          Domain Event: OrderConfirmed
+                 ↓
+        Billing Context / Inventory Context
+```
+
+---
+
+## Ví dụ cụ thể
+
+Ở hệ thống e-commerce, `Order` không nên chỉ là record CRUD. Nó cần tự kiểm soát các hành vi như `confirm()`, `cancel()` và chỉ phát `OrderConfirmed` khi trạng thái hợp lệ.
+
+---
+
+## Sai lầm phổ biến
+
+1. Dùng service procedural thay cho aggregate.
+2. Cho transaction chạm nhiều aggregate cùng lúc.
+3. Dùng cùng một model `Customer` cho sales, support và billing.
