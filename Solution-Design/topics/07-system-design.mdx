@@ -1,0 +1,335 @@
+# 07. System Design (Distributed Systems)
+
+> **Mức độ quan trọng**: ⭐⭐⭐ — Đây là thứ mọi người hay nói, nhưng cần nền tảng Domain/API/DB trước.
+
+---
+
+## Khái Niệm
+
+**System Design** là quá trình thiết kế kiến trúc tổng thể của một hệ thống phân tán để đáp ứng các yêu cầu về **scalability**, **availability**, **performance**, và **reliability**.
+
+---
+
+## 1. CAP Theorem
+
+### Khái Niệm
+Trong một hệ thống phân tán, khi có network partition, bạn phải chọn giữa **Consistency** và **Availability**.
+
+```
+                  ┌─────────────────┐
+                  │  Consistency    │
+                  │ (C)             │
+                  │ Mọi node thấy   │
+                  │ cùng dữ liệu    │
+                  └────────┬────────┘
+                           │
+               ┌───────────┴───────────┐
+               │                       │
+    ┌──────────┴────┐         ┌────────┴──────────┐
+    │ Availability  │         │    Partition      │
+    │ (A)           │         │    Tolerance (P)  │
+    │ Luôn trả lời  │         │ Hoạt động dù có   │
+    │ request       │         │ network partition │
+    └───────────────┘         └───────────────────┘
+
+Chỉ có thể chọn 2 trong 3:
+- CP (Consistency + Partition): MongoDB, HBase, Zookeeper
+  → Trả lỗi thay vì stale data
+- AP (Availability + Partition): Cassandra, DynamoDB, CouchDB
+  → Trả stale data thay vì lỗi
+- CA (không thực tế với distributed systems)
+```
+
+---
+
+## 2. Load Balancer
+
+### Khái Niệm
+Phân phối traffic đến nhiều server để tránh single point of failure và tăng throughput.
+
+### Diagram
+```
+                     ┌──────────────────┐
+    Clients ────────►│  Load Balancer   │
+                     └────────┬─────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+        ┌──────────┐   ┌──────────┐   ┌──────────┐
+        │ Server 1 │   │ Server 2 │   │ Server 3 │
+        └──────────┘   └──────────┘   └──────────┘
+```
+
+### Load Balancing Algorithms
+```
+Round Robin:       Request 1→Server1, 2→Server2, 3→Server3, 4→Server1...
+Weighted Round:    Server1 (capacity 2x) nhận 2x requests
+Least Connections: Route to server với ít connections nhất
+IP Hash:           Same client IP → same server (session affinity)
+Random:            Ngẫu nhiên
+
+Layer 4 LB (Transport): Route dựa trên IP + Port (faster)
+Layer 7 LB (Application): Route dựa trên URL, headers, cookies (smarter)
+  e.g., /api/images → Image Server, /api/orders → Order Server
+```
+
+---
+
+## 3. Caching
+
+### Caching Layers
+```
+Request flow with caching:
+
+Client → CDN Cache → API Gateway Cache → Application Cache (Redis) → Database
+  L1        L2              L3                    L4                   L5
+
+Hit rate per layer:
+CDN: ~70%+ hits (static assets)
+App Cache: ~80%+ hits (hot data)
+DB: should be the last resort
+```
+
+### Cache Strategies
+
+#### Cache Aside (Lazy Loading)
+```
+Read:
+1. Check cache → Hit? Return
+2. Miss → Query DB → Store in cache → Return
+
+Write:
+1. Write to DB
+2. Invalidate/delete from cache (not update)
+
+✅ Cache only what's requested
+❌ Cache miss penalty on first request
+❌ Data can be stale
+```
+
+#### Write Through
+```
+Write:
+1. Write to cache AND DB simultaneously
+2. Always consistent
+
+✅ No stale data
+❌ Write latency higher
+❌ Caches data that may never be read
+```
+
+#### Write Behind (Write Back)
+```
+Write:
+1. Write to cache immediately → return
+2. Async write to DB
+
+✅ Low write latency
+❌ Risk of data loss if cache crashes
+```
+
+### Cache Eviction Policies
+```
+LRU (Least Recently Used):  Xóa data ít được dùng nhất gần đây
+LFU (Least Frequently Used): Xóa data có tần suất thấp nhất
+TTL (Time To Live):         Xóa sau X giây
+```
+
+---
+
+## 4. Message Queue (trong System Design)
+
+```
+Use cases:
+- Decoupling: Order Service → Queue → Email Service
+- Load leveling: Spike traffic → Queue buffer → Backend processes steadily
+- Async processing: Upload video → Queue → Transcoding background job
+- Fan-out: One event → Multiple consumers
+
+Diagram:
+                    ┌────────────┐
+API (high traffic)─►│   Queue    │◄── Consumer rate: 100 req/s
+(1000 req/s)        │  Buffer    │
+                    └────────────┘
+                    Queue absorbs spike
+```
+
+---
+
+## 5. CDN (Content Delivery Network)
+
+```
+Without CDN: User in Vietnam → Server in US → High latency
+With CDN:    User in Vietnam → CDN Edge Node in Vietnam → ~10ms
+
+┌────────────────────────────────────────────────────────────┐
+│                         CDN                                │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐              │
+│  │ Edge Node │  │ Edge Node │  │ Edge Node │              │
+│  │ (Vietnam) │  │  (Japan)  │  │  (US)     │              │
+│  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘              │
+│        │               │               │                    │
+│        └───────────────┴───────────────┘                   │
+│                         │                                   │
+│                    Origin Server                           │
+└────────────────────────────────────────────────────────────┘
+
+Serve: Images, videos, CSS/JS, HTML, API responses
+```
+
+---
+
+## 6. Rate Limiting
+
+```
+Mục đích: Protect system from abuse, ensure fair usage
+
+Algorithms:
+
+Token Bucket:
+┌───────────────────────────────────────────────────────┐
+│ Bucket capacity: 10 tokens                            │
+│ Refill rate: 1 token/second                           │
+│ Each request consumes 1 token                         │
+│ → Allows burst (up to 10), sustains 1 req/s           │
+└───────────────────────────────────────────────────────┘
+
+Fixed Window:
+└── 0-60s: max 100 requests; 61-120s: max 100 requests
+    ⚠️ Burst at window boundary: 100 at :59, 100 at :01 → 200 in 2s
+
+Sliding Window:
+└── Count requests in last 60 seconds (rolling)
+    More accurate, prevents boundary burst
+
+Implementation with Redis:
+INCR rate:user123:2024-01-01-10:00
+EXPIRE rate:user123:2024-01-01-10:00 60
+→ If count > limit → 429 Too Many Requests
+```
+
+---
+
+## 7. Distributed Lock
+
+```
+Vấn đề: Nhiều instances cùng chạy một task (cron job, payment processing)
+
+Redis Distributed Lock (Redlock):
+1. SET lock:key uniqueId NX PX 30000
+   NX = only set if not exists
+   PX = expire in 30 seconds
+2. Execute critical section
+3. DEL lock:key (only if value == uniqueId)
+
+┌──────────────────────────────────────────────────────┐
+│ Instance 1: SET lock:order-123 uuid1 NX → Success    │
+│ Instance 2: SET lock:order-123 uuid2 NX → Fail       │
+│ → Instance 2 either waits or returns                 │
+│                                                      │
+│ Auto-expire: nếu Instance 1 crash → lock auto release│
+└──────────────────────────────────────────────────────┘
+```
+
+---
+
+## 8. Distributed Transaction
+
+```
+Vấn đề: Cần atomic operation qua nhiều services/databases
+
+Approaches:
+
+Two-Phase Commit (2PC):
+┌─────────────────────────────────────────────────────┐
+│ Phase 1 (Prepare): Coordinator hỏi tất cả → "Ready?"│
+│ Phase 2 (Commit): Nếu tất cả sẵn sàng → Commit all  │
+│ → Blocking protocol, coordinator = SPOF              │
+└─────────────────────────────────────────────────────┘
+
+Saga Pattern (preferred):
+┌─────────────────────────────────────────────────────┐
+│ Sequence of local transactions + compensating trans  │
+│ Order → Reserve Inventory → Charge Payment           │
+│ If Payment fails → Refund Inventory → Cancel Order   │
+└─────────────────────────────────────────────────────┘
+
+Eventual Consistency (often best choice):
+└── Accept temporary inconsistency, design for convergence
+```
+
+---
+
+## 9. Consensus (Raft/Paxos)
+
+```
+Vấn đề: Làm sao các nodes đồng ý về một giá trị trong distributed system?
+
+Raft Algorithm:
+1. Leader Election:
+   - Nodes start as Followers
+   - If no heartbeat from Leader → become Candidate
+   - Candidate requests votes → majority → becomes Leader
+
+2. Log Replication:
+   - All writes go to Leader
+   - Leader replicates to Followers
+   - Majority acknowledge → commit
+
+┌──────────────────────────────────────────────┐
+│  Node A (Leader)  →  Node B (Follower)        │
+│  Node A (Leader)  →  Node C (Follower)        │
+│  Node A (Leader)  →  Node D (Follower)        │
+│                                              │
+│  Write: Leader + 2/4 Followers acknowledge  │
+│  → Committed (majority = 3/5 nodes)          │
+└──────────────────────────────────────────────┘
+
+Used by: etcd, Consul, CockroachDB, TiKV
+```
+
+---
+
+## 10. Diagram: Hệ Thống Thực Tế
+
+```
+                    ┌────────────────────────────────┐
+DNS Round Robin ───►│         CDN (CloudFront)        │
+                    └────────────────┬───────────────┘
+                                     │ Cache miss
+                                     ▼
+                    ┌────────────────────────────────┐
+                    │    Load Balancer (L7/Nginx)     │
+                    └────────────────┬───────────────┘
+                                     │
+                      ┌──────────────┼──────────────┐
+                      ▼              ▼              ▼
+              ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+              │  API Server  │ │  API Server  │ │  API Server  │
+              │  Instance 1  │ │  Instance 2  │ │  Instance 3  │
+              └──────┬───────┘ └──────┬───────┘ └──────┬───────┘
+                     │                │                │
+                     └────────────────┼────────────────┘
+                                      │
+                         ┌────────────┼────────────┐
+                         ▼            ▼            ▼
+                   ┌──────────┐ ┌──────────┐ ┌──────────┐
+                   │  Redis   │ │  Kafka   │ │  Master  │
+                   │  Cache   │ │  Queue   │ │    DB    │
+                   └──────────┘ └──────────┘ └────┬─────┘
+                                                   │ Replication
+                                          ┌────────┴────────┐
+                                          ▼                 ▼
+                                    ┌──────────┐     ┌──────────┐
+                                    │ Replica 1│     │ Replica 2│
+                                    └──────────┘     └──────────┘
+```
+
+---
+
+## Tài Liệu Đề Xuất
+
+- 📖 *Designing Data-Intensive Applications* — Martin Kleppmann ⭐
+- 📖 *System Design Interview* — Alex Xu (Vol 1 & 2)
+- 🌐 [High Scalability Blog](http://highscalability.com/)
+- 🌐 [The System Design Primer](https://github.com/donnemartin/system-design-primer)

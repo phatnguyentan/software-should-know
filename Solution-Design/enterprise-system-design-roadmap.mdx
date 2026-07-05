@@ -1,0 +1,229 @@
+## Lộ Trình Học Enterprise System Design
+
+Nếu mục tiêu của bạn là thiết kế hệ thống cho doanh nghiệp (**Enterprise System Design**), thì không chỉ học System Design là đủ. Thực tế nó gồm nhiều tầng kiến thức. Dưới đây là lộ trình được sắp xếp theo **mức độ quan trọng** và **thứ tự học hợp lý**.
+
+---
+
+### Thứ Tự Học Đề Xuất
+
+```
+Business Domain
+      ↓
+Domain Modeling (DDD)
+      ↓
+Business Rule Design
+      ↓
+Database Design
+      ↓
+API Design
+      ↓
+Application Architecture
+      ↓
+Integration
+      ↓
+Distributed Systems
+      ↓
+Cloud & DevOps
+```
+
+> ⚠️ Đừng học ngược từ Distributed Systems hay Kubernetes trước. Nhiều người biết triển khai hạ tầng nhưng lại thiết kế domain, API và database chưa tốt.
+
+---
+
+### 1. Domain Modeling — Quan Trọng Nhất
+
+> Đây là thứ **phân biệt senior và architect**.
+
+Học:
+
+- **Domain-Driven Design (DDD)**
+- **Bounded Context** — phân chia ranh giới nghiệp vụ
+- **Aggregate** — đơn vị nhất quán dữ liệu
+- **Entity vs Value Object** — phân biệt đối tượng theo danh tính vs giá trị
+- **Domain Event** — sự kiện xảy ra trong domain
+- **Ubiquitous Language** — ngôn ngữ chung giữa dev và business
+
+Nếu model domain sai thì:
+- API sẽ xấu
+- DB sẽ lộn xộn
+- Business rule nằm khắp nơi
+
+📖 **Tài liệu đề xuất**: *Domain-Driven Design* — Eric Evans
+
+---
+
+### 2. Business Rule Design
+
+> Đây là phần **rất ít người học**, nhưng cực kỳ quan trọng với hệ thống doanh nghiệp.
+
+Học:
+
+- **Rule Engine** — động cơ xử lý luật kinh doanh
+- **Workflow Engine** — quản lý luồng công việc
+- **State Machine** — máy trạng thái cho các quy trình phức tạp
+- **Policy Pattern** — đóng gói chính sách nghiệp vụ
+- **Specification Pattern** — điều kiện nghiệp vụ có thể tái sử dụng
+- **Strategy Pattern** — thay đổi thuật toán linh hoạt
+- **Provider Pattern** — trừu tượng hóa nguồn cung cấp dịch vụ
+
+---
+
+### 3. Database Design
+
+> Rất nhiều dev chỉ biết CRUD — đây là phần cần đào sâu.
+
+#### Relational (SQL)
+- ER Diagram
+- Normalization (1NF → 3NF → BCNF)
+- Index & Query Optimization
+- Constraint (PK, FK, UNIQUE, CHECK)
+- Transaction & ACID
+- Lock (Optimistic vs Pessimistic)
+- MVCC (Multi-Version Concurrency Control)
+
+#### NoSQL
+- **Document** (MongoDB) — dữ liệu phi cấu trúc
+- **Key-value** (Redis) — caching, session
+- **Time Series** (InfluxDB) — metrics, logs
+- **Search Engine** (Elasticsearch) — full-text search
+- **Graph Database** (Neo4j) — quan hệ phức tạp
+
+#### Enterprise Patterns
+- **Partition** — chia dữ liệu theo logic
+- **Sharding** — chia dữ liệu theo node
+- **Replication** — sao chép dữ liệu
+- **CQRS** — tách đọc/ghi
+- **Event Sourcing** — lưu trữ theo sự kiện
+
+---
+
+### 4. API Design
+
+Học:
+
+- **REST API Design** — nguyên tắc thiết kế RESTful
+- **RPC vs REST vs GraphQL** — khi nào dùng gì
+- **Versioning** — quản lý phiên bản API
+- **Pagination, Filtering, Sorting** — truy vấn dữ liệu hiệu quả
+- **Error Handling** — chuẩn hóa lỗi
+- **Authentication & Authorization** — xác thực và phân quyền
+- **Idempotency** — đảm bảo an toàn khi retry
+- **Async API** — xử lý bất đồng bộ
+- **Webhook** — thông báo sự kiện cho bên ngoài
+
+📖 **Tài liệu đề xuất**: *API Design Patterns* — JJ Geewax
+
+---
+
+### 5. Application Architecture
+
+#### Kiến trúc ứng dụng
+- **Layered Architecture** — tầng trình bày / nghiệp vụ / dữ liệu
+- **Hexagonal (Ports & Adapters)** — tách logic khỏi hạ tầng
+- **Clean Architecture** — Uncle Bob
+- **Onion Architecture** — domain ở trung tâm
+- **Modular Monolith** — monolith có cấu trúc rõ ràng
+- **Microservices** — chia nhỏ dịch vụ độc lập
+- **Event Driven Architecture** — giao tiếp qua sự kiện
+
+#### Design Patterns quan trọng
+- **Repository** — trừu tượng hóa truy cập dữ liệu
+- **Unit of Work** — gom nhóm thao tác DB
+- **Saga** — giao dịch phân tán
+- **Outbox Pattern** — đảm bảo at-least-once delivery
+- **Circuit Breaker** — ngắt mạch khi service lỗi
+- **Retry** — tự động thử lại
+- **Bulkhead** — cô lập lỗi giữa các service
+- **Cache Aside** — cache song song với DB
+
+---
+
+### 6. Integration
+
+> Enterprise rất nhiều tích hợp — cần nắm vững.
+
+Học:
+
+- **Message Queue** — giao tiếp bất đồng bộ
+- **Event Bus** — pub/sub trong hệ thống
+- **Apache Kafka** — streaming platform quy mô lớn
+- **RabbitMQ** — message broker linh hoạt
+- **gRPC** — RPC hiệu năng cao
+- **File Integration** — xử lý file giữa hệ thống
+- **ETL (Extract, Transform, Load)** — đồng bộ dữ liệu
+- **CDC (Change Data Capture)** — bắt thay đổi dữ liệu real-time
+
+---
+
+### 7. System Design (Distributed Systems)
+
+> Đây là thứ mọi người hay nói, nhưng cần nền tảng trước.
+
+Bao gồm:
+
+- **Load Balancer** — phân phối tải
+- **Cache** — Redis, Memcached
+- **Queue** — xử lý bất đồng bộ quy mô lớn
+- **CDN** — phân phối nội dung toàn cầu
+- **Object Storage** — S3, GCS
+- **Search Engine** — Elasticsearch
+- **Rate Limit** — giới hạn tốc độ gọi API
+- **Distributed Lock** — khóa phân tán
+- **Distributed Transaction** — giao dịch nhiều node
+- **Consensus** — Raft, Paxos
+- **CAP Theorem** — đánh đổi giữa Consistency, Availability, Partition Tolerance
+
+---
+
+### 8. DevOps
+
+- **Docker** — containerization
+- **Kubernetes** — container orchestration
+- **CI/CD** — tự động hóa deploy
+- **Logging** — ELK Stack (Elasticsearch, Logstash, Kibana)
+- **Metrics** — Prometheus, Grafana
+- **Tracing** — Jaeger, Zipkin (distributed tracing)
+- **Secret Management** — Vault, AWS Secrets Manager
+
+---
+
+### 9. Security
+
+- **OAuth2** — ủy quyền
+- **JWT** — token xác thực
+- **OIDC** — xác thực danh tính
+- **RBAC** — phân quyền theo vai trò
+- **ABAC** — phân quyền theo thuộc tính
+- **Encryption** — mã hóa dữ liệu
+- **Audit Log** — nhật ký kiểm tra
+
+---
+
+### 10. Scalability
+
+- **Horizontal Scaling** — thêm node
+- **Vertical Scaling** — nâng cấp phần cứng
+- **Database Scaling** — read replica, sharding
+- **Cache Strategy** — TTL, eviction policy
+- **Queue Strategy** — dead letter queue, priority queue
+- **Multi-region** — triển khai đa vùng
+- **Disaster Recovery** — RTO, RPO, backup strategy
+
+---
+
+### Tổng Kết
+
+| Giai đoạn | Chủ đề | Ưu tiên |
+|-----------|--------|---------|
+| 1 | Domain Modeling (DDD) | ⭐⭐⭐⭐⭐ |
+| 2 | Business Rule Design | ⭐⭐⭐⭐⭐ |
+| 3 | Database Design | ⭐⭐⭐⭐⭐ |
+| 4 | API Design | ⭐⭐⭐⭐ |
+| 5 | Application Architecture | ⭐⭐⭐⭐ |
+| 6 | Integration | ⭐⭐⭐⭐ |
+| 7 | System Design | ⭐⭐⭐ |
+| 8 | DevOps | ⭐⭐⭐ |
+| 9 | Security | ⭐⭐⭐ |
+| 10 | Scalability | ⭐⭐⭐ |
+
+> 💡 **Gợi ý**: Với mục tiêu xây dựng AI agent harness và hệ thống doanh nghiệp, hãy bắt đầu từ **Domain Modeling → Business Rule Design → Database Design**. Khi nền tảng này vững, việc áp dụng AI agent vào hệ thống doanh nghiệp sẽ tự nhiên và hiệu quả hơn.

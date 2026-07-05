@@ -1,0 +1,387 @@
+# 03. Database Design
+
+> **Mức độ quan trọng**: ⭐⭐⭐⭐⭐ — Rất nhiều dev chỉ biết CRUD. Đây là phần cần đào sâu.
+
+---
+
+## Khái Niệm
+
+**Database Design** là quá trình thiết kế cấu trúc lưu trữ dữ liệu để đảm bảo:
+- **Tính đúng đắn** (Correctness) — dữ liệu nhất quán, không mâu thuẫn
+- **Hiệu năng** (Performance) — truy vấn nhanh
+- **Khả năng mở rộng** (Scalability) — xử lý được dữ liệu lớn
+- **Độ bền** (Durability) — dữ liệu không mất khi có sự cố
+
+---
+
+## PHẦN 1: Relational Database (SQL)
+
+### 1.1 ER Diagram (Entity-Relationship Diagram)
+
+Biểu đồ quan hệ thực thể — công cụ thiết kế cấu trúc DB trực quan.
+
+```
+┌──────────────┐       ┌───────────────┐       ┌──────────────┐
+│   Customer   │       │     Order     │       │   Product    │
+├──────────────┤       ├───────────────┤       ├──────────────┤
+│ PK id        │1     N│ PK id         │       │ PK id        │
+│    name      ├───────┤    customerId │       │    name      │
+│    email     │       │    status     │       │    price     │
+│    phone     │       │    createdAt  │       │    stock     │
+└──────────────┘       └──────┬────────┘       └──────────────┘
+                              │ 1                       │
+                              │ N                       │
+                       ┌──────┴────────┐               │
+                       │  OrderItem    │               │
+                       ├───────────────┤               │
+                       │ PK id         │               │
+                       │ FK orderId    │               │
+                       │ FK productId  ├───────────────┘ N
+                       │    quantity   │
+                       │    unitPrice  │
+                       └───────────────┘
+```
+
+**Các loại quan hệ**:
+| Quan hệ | Ví dụ |
+|---------|-------|
+| One-to-One (1:1) | User — Profile |
+| One-to-Many (1:N) | Customer — Orders |
+| Many-to-Many (M:N) | Order — Products (qua OrderItem) |
+
+---
+
+### 1.2 Normalization (Chuẩn Hóa)
+
+Quá trình tổ chức dữ liệu để giảm redundancy và đảm bảo tính nhất quán.
+
+#### 1NF — Mỗi cột chứa giá trị nguyên tử
+```
+❌ Vi phạm 1NF:
+| orderId | items                        |
+|---------|------------------------------|
+| 1       | "Apple x2, Banana x3"        |
+
+✅ Đúng 1NF:
+| orderId | productName | quantity |
+|---------|-------------|----------|
+| 1       | Apple       | 2        |
+| 1       | Banana      | 3        |
+```
+
+#### 2NF — Không có Partial Dependency
+```
+❌ Vi phạm 2NF (PK = orderId + productId):
+| orderId | productId | quantity | productName |
+                                  ↑ phụ thuộc productId, không cần orderId
+
+✅ Đúng 2NF:
+Table order_items: (orderId, productId, quantity)
+Table products:    (productId, productName, price)
+```
+
+#### 3NF — Không có Transitive Dependency
+```
+❌ Vi phạm 3NF:
+| orderId | customerId | customerCity | customerZip |
+                                       ↑ zip → city (transitive)
+
+✅ Đúng 3NF:
+Table orders:    (orderId, customerId)
+Table customers: (customerId, city, zip)
+```
+
+---
+
+### 1.3 Index (Chỉ Mục)
+
+Cấu trúc dữ liệu bổ sung giúp tăng tốc truy vấn.
+
+```
+Không có index:
+SELECT * FROM orders WHERE customerId = 'abc'
+→ Full Table Scan: duyệt qua TẤT CẢ rows → O(n)
+
+Có index trên customerId:
+→ B-Tree lookup → O(log n)
+```
+
+**Các loại Index**:
+```
+B-Tree Index (mặc định):
+→ Tốt cho: =, <, >, BETWEEN, ORDER BY, LIKE 'prefix%'
+
+Hash Index:
+→ Chỉ tốt cho: =
+→ Không hỗ trợ: range queries, ORDER BY
+
+GIN Index:
+→ Tốt cho: array, full-text search, JSONB
+```
+
+**Index Strategy**:
+```sql
+-- Composite index — thứ tự quan trọng
+CREATE INDEX idx_orders_status_created ON orders(status, createdAt);
+
+-- Covering index — bao gồm cả cột SELECT
+CREATE INDEX idx_orders_customer_covering
+  ON orders(customerId) INCLUDE (status, totalAmount);
+```
+
+---
+
+### 1.4 Transaction & ACID
+
+```
+A — Atomicity   : Tất cả hoặc không
+C — Consistency : DB luôn ở trạng thái hợp lệ
+I — Isolation   : Transactions độc lập nhau
+D — Durability  : Committed data không mất
+```
+
+**Ví dụ Transfer tiền**:
+```sql
+BEGIN TRANSACTION;
+  UPDATE accounts SET balance = balance - 100 WHERE id = 'A';
+  UPDATE accounts SET balance = balance + 100 WHERE id = 'B';
+COMMIT;
+-- Nếu bước 2 fail → rollback cả 2 (Atomicity)
+```
+
+---
+
+### 1.5 Isolation Levels & Lock
+
+```
+┌──────────────────────┬──────────────┬──────────────┬───────────────┐
+│ Level                │ Dirty Read   │ Non-repeat.  │ Phantom Read  │
+├──────────────────────┼──────────────┼──────────────┼───────────────┤
+│ READ UNCOMMITTED     │ Có thể       │ Có thể       │ Có thể        │
+│ READ COMMITTED       │ Không        │ Có thể       │ Có thể        │
+│ REPEATABLE READ      │ Không        │ Không        │ Có thể        │
+│ SERIALIZABLE         │ Không        │ Không        │ Không         │
+└──────────────────────┴──────────────┴──────────────┴───────────────┘
+```
+
+**Optimistic vs Pessimistic Lock**:
+```
+Pessimistic Lock (SELECT FOR UPDATE):
+→ Transaction A locks row → Transaction B waits
+→ Tốt cho: high contention, critical operations
+→ Xấu: deadlock risk, low throughput
+
+Optimistic Lock (version column):
+UPDATE orders SET status='CONFIRMED', version=2
+WHERE id=1 AND version=1  ← kiểm tra version
+→ 0 rows affected = conflict → retry
+→ Tốt cho: low contention, high read workloads
+```
+
+---
+
+### 1.6 MVCC (Multi-Version Concurrency Control)
+
+```
+Không dùng lock để đọc — mỗi transaction thấy "snapshot" của dữ liệu.
+
+T=1: Transaction A bắt đầu (thấy version 1)
+T=2: Transaction B cập nhật row → tạo version 2
+T=3: Transaction A đọc lại → vẫn thấy version 1 (snapshot isolation)
+T=4: Transaction A commit → bây giờ thấy version 2
+
+→ Readers don't block writers
+→ Writers don't block readers
+→ PostgreSQL, Oracle, MySQL InnoDB đều dùng MVCC
+```
+
+---
+
+## PHẦN 2: NoSQL Databases
+
+### 2.1 Khi Nào Dùng NoSQL
+
+```
+SQL:
+✅ Dữ liệu có cấu trúc rõ ràng
+✅ Cần ACID transactions
+✅ Quan hệ phức tạp giữa các entities
+
+NoSQL:
+✅ Schema linh hoạt, thay đổi thường xuyên
+✅ Cần scale horizontal dễ dàng
+✅ Throughput cực cao (write-heavy)
+```
+
+### 2.2 Document Store (MongoDB)
+```json
+{
+  "_id": "order123",
+  "customerId": "cust456",
+  "status": "CONFIRMED",
+  "items": [
+    { "productId": "prod1", "name": "Apple", "qty": 2, "price": 10000 },
+    { "productId": "prod2", "name": "Banana", "qty": 3, "price": 5000 }
+  ],
+  "shippingAddress": {
+    "street": "123 Nguyen Hue",
+    "city": "Ho Chi Minh City"
+  }
+}
+```
+
+### 2.3 Key-Value Store (Redis)
+```
+Dùng cho: caching, session, rate limiting, distributed lock
+
+SET user:123:session "token..." EX 3600
+INCR rate_limit:user:123:2024-01-01-10:00
+```
+
+### 2.4 Time Series (InfluxDB)
+```
+Tối ưu cho: metrics, IoT, logs, financial data
+
+measurement: cpu_usage
+tags:        host=server1
+fields:      value=75.2
+timestamp:   2024-01-01T10:00:00Z
+```
+
+### 2.5 Search Engine (Elasticsearch)
+```json
+POST /products/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "điện thoại samsung",
+      "fields": ["name^3", "description", "tags"]
+    }
+  }
+}
+```
+
+### 2.6 Graph Database (Neo4j)
+```cypher
+-- Tìm users mua sản phẩm giống tôi (collaborative filtering)
+MATCH (u:User)-[:PURCHASED]->(p:Product)<-[:PURCHASED]-(other:User)
+WHERE u.id = 1
+RETURN other, COUNT(p) as commonPurchases
+ORDER BY commonPurchases DESC
+LIMIT 10
+```
+
+---
+
+## PHẦN 3: Enterprise Patterns
+
+### 3.1 Partitioning vs Sharding
+
+```
+Partitioning (một DB node, nhiều partitions):
+┌─────────────────────────────────────────────────────┐
+│               Single DB Server                      │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │
+│  │ Partition 1 │  │ Partition 2 │  │ Partition 3 │ │
+│  │ Jan-Mar     │  │ Apr-Jun     │  │ Jul-Sep     │ │
+│  └─────────────┘  └─────────────┘  └─────────────┘ │
+└─────────────────────────────────────────────────────┘
+→ Tốt cho: time-series data, archive partitions cũ
+
+Sharding (nhiều DB nodes):
+┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+│  Shard 1    │  │  Shard 2    │  │  Shard 3    │
+│  userId 0-33│  │ userId 33-66│  │ userId 67-99│
+└─────────────┘  └─────────────┘  └─────────────┘
+→ Tốt cho: horizontal scale, very large datasets
+```
+
+### 3.2 Replication
+
+```
+Master-Replica Setup:
+
+   WRITE ──────────► Master
+                        │ Replication
+                ┌───────┴───────┐
+                ▼               ▼
+   READ ──────► Replica 1    Replica 2 ◄────── READ
+
+Lợi ích: Scale read workload, High availability
+```
+
+### 3.3 CQRS (Command Query Responsibility Segregation)
+
+```
+     Client ──Command──► Write Service ──► Write DB (Postgres, normalized)
+                               │
+                               │ Sync via Events
+                               ▼
+     Client ──Query───► Read Service  ──► Read DB  (MongoDB/Redis, denormalized)
+```
+
+### 3.4 Event Sourcing
+
+```
+Thay vì lưu state → lưu TẤT CẢ sự kiện đã xảy ra
+
+events table:
+│ aggregateId │ type           │ data              │ timestamp  │
+│ order:1     │ OrderCreated   │ {customerId: ...} │ 10:00:00   │
+│ order:1     │ ItemAdded      │ {productId: ...}  │ 10:00:05   │
+│ order:1     │ OrderConfirmed │ {}                │ 10:01:00   │
+│ order:1     │ OrderShipped   │ {trackingNo: ...} │ 11:00:00   │
+
+Rebuild state = replay events từ đầu
+
+✅ Full audit trail
+✅ Time travel (xem state tại bất kỳ thời điểm)
+✅ Tự nhiên với Domain Events
+❌ Query state hiện tại cần projection (CQRS)
+```
+
+---
+
+## Diagram: Chọn Database Phù Hợp
+
+```
+Cần query phức tạp + ACID?
+   YES → SQL (Postgres, MySQL)
+
+Cần tốc độ cực cao, cache?
+   YES → Key-Value (Redis)
+
+Schema linh hoạt, document?
+   YES → Document (MongoDB)
+
+Full-text search?
+   YES → Search Engine (Elasticsearch)
+
+Quan hệ phức tạp (graph)?
+   YES → Graph DB (Neo4j)
+
+Time-series metrics?
+   YES → Time Series (InfluxDB, TimescaleDB)
+```
+
+---
+
+## Best Practices
+
+| Do ✅ | Don't ❌ |
+|-------|---------|
+| Thiết kế schema theo access patterns | Thiết kế schema rồi mới nghĩ đến queries |
+| Dùng index có chọn lọc | Index tất cả cột |
+| Dùng connection pooling | Tạo connection mới cho mỗi request |
+| Cursor pagination | OFFSET lớn |
+| Soft delete (deletedAt) | Hard delete data quan trọng |
+| Migrate schema có version | Sửa trực tiếp production schema |
+
+---
+
+## Tài Liệu Đề Xuất
+
+- 📖 *Designing Data-Intensive Applications* — Martin Kleppmann ⭐ (must read)
+- 📖 *Database Internals* — Alex Petrov
+- 📖 *SQL Performance Explained* — Markus Winand
+- 🌐 [use-the-index-luke.com](https://use-the-index-luke.com)

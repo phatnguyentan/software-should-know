@@ -1,0 +1,340 @@
+# 09. Security
+
+> **Mức độ quan trọng**: ⭐⭐⭐ — Security không phải afterthought — phải thiết kế từ đầu.
+
+---
+
+## Khái Niệm
+
+**Security** trong hệ thống doanh nghiệp bao gồm:
+- **Authentication** — Xác thực danh tính
+- **Authorization** — Phân quyền truy cập
+- **Data Protection** — Bảo vệ dữ liệu
+- **Audit** — Theo dõi ai làm gì
+
+---
+
+## 1. OAuth2
+
+### Khái Niệm
+Framework ủy quyền (authorization) cho phép ứng dụng third-party truy cập tài nguyên thay mặt người dùng mà không cần biết password.
+
+### Diagram: Authorization Code Flow
+```
+┌──────────┐                                        ┌──────────────┐
+│  Client  │                                        │ Auth Server  │
+│  App     │                                        │ (Google,FB)  │
+└────┬─────┘                                        └──────┬───────┘
+     │                                                     │
+     │  1. Redirect user to auth server                    │
+     │──────────────────────────────────────────────────► │
+     │                                                     │
+     │  2. User logs in + grants permission                │
+     │◄────────────────────────────────────────────────── │
+     │  (authorization code)                               │
+     │                                                     │
+     │  3. Exchange code for tokens (server-to-server)     │
+     │──────────────────────────────────────────────────► │
+     │◄────────────────────────────────────────────────── │
+     │  { access_token, refresh_token }                    │
+     │                                                     │
+     │  4. Use access_token to call API                    │
+     │─────────────────────────────────────────────────── ► Resource Server
+```
+
+### Grant Types
+```
+Authorization Code + PKCE: Web apps, mobile (most secure)
+Client Credentials:         Service-to-service (M2M)
+Device Code:                TV, IoT devices
+Implicit:                   ❌ Deprecated
+Resource Owner Password:    ❌ Deprecated
+```
+
+---
+
+## 2. JWT (JSON Web Token)
+
+### Structure
+```
+Header.Payload.Signature
+
+Header (Base64):
+{ "alg": "RS256", "typ": "JWT" }
+
+Payload (Base64):
+{
+  "sub": "user-123",       ← Subject (user ID)
+  "email": "user@ex.com",
+  "roles": ["USER", "ADMIN"],
+  "iat": 1704067200,       ← Issued At
+  "exp": 1704070800,       ← Expiry (1 hour)
+  "jti": "unique-token-id" ← JWT ID (for revocation)
+}
+
+Signature: RSASHA256(base64Header + "." + base64Payload, privateKey)
+```
+
+### JWT Security Best Practices
+```
+✅ Dùng RS256 (asymmetric) thay vì HS256 (symmetric)
+   → Chỉ Auth Server cần private key
+   → Resource Servers chỉ cần public key để verify
+
+✅ Short expiry for access_token (15-60 minutes)
+✅ Long expiry for refresh_token (days/weeks), store securely
+✅ Include jti for token revocation
+✅ Validate exp, iat, iss, aud
+
+❌ Không lưu sensitive data trong payload (JWT không encrypted, chỉ signed)
+❌ Không lưu JWT trong localStorage (XSS risk) → Dùng httpOnly cookie
+```
+
+---
+
+## 3. OIDC (OpenID Connect)
+
+```
+OAuth2 = Authorization (bạn được làm gì?)
+OIDC   = OAuth2 + Authentication (bạn là ai?)
+
+OIDC thêm:
+- id_token (JWT chứa user info)
+- /userinfo endpoint
+- Discovery document (/.well-known/openid-configuration)
+
+Thực tế:
+OAuth2 → "Google cho phép app đọc email của tôi"
+OIDC   → "Đăng nhập bằng Google" (SSO)
+```
+
+---
+
+## 4. RBAC (Role-Based Access Control)
+
+### Khái Niệm
+Phân quyền dựa trên **vai trò** (role). User được gán roles, roles có permissions.
+
+### Diagram
+```
+┌──────────┐    ┌──────────────┐    ┌──────────────────────────┐
+│  User    │───►│    Role      │───►│       Permission         │
+│ alice    │    │ ADMIN        │    │ orders:read              │
+│ bob      │    │ USER         │    │ orders:write             │
+│          │    │ ACCOUNTANT   │    │ orders:delete            │
+└──────────┘    └──────────────┘    │ reports:read             │
+                                    │ users:manage             │
+                                    └──────────────────────────┘
+
+Role assignments:
+alice  → ADMIN, USER
+bob    → USER
+carol  → ACCOUNTANT, USER
+
+Permission matrix:
+              │ orders:read │ orders:write │ orders:delete │ reports:read │
+ADMIN         │     ✅      │      ✅      │      ✅       │     ✅       │
+USER          │     ✅      │      ✅      │      ❌       │     ❌       │
+ACCOUNTANT    │     ✅      │      ❌      │      ❌       │     ✅       │
+```
+
+### Implementation
+```typescript
+// Middleware
+function requirePermission(permission: string) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const userPermissions = req.user.roles.flatMap(
+      role => rolePermissions[role]
+    );
+    if (!userPermissions.includes(permission)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    next();
+  };
+}
+
+// Usage
+router.delete('/orders/:id',
+  authenticate,
+  requirePermission('orders:delete'),
+  deleteOrderHandler
+);
+```
+
+---
+
+## 5. ABAC (Attribute-Based Access Control)
+
+### Khái Niệm
+Phân quyền dựa trên **thuộc tính** của user, resource, và context. Linh hoạt hơn RBAC.
+
+### So Sánh RBAC vs ABAC
+```
+RBAC:
+"Admins can edit all orders"
+
+ABAC:
+"Users can edit orders IF
+  - order.status = 'PENDING'
+  - order.createdBy = currentUser
+  - currentTime < order.createdAt + 1 hour
+  - user.department = order.department"
+
+RBAC: Simple, fast, easy to understand
+ABAC: Flexible, fine-grained, complex
+→ Thường dùng RBAC + thêm ABAC checks khi cần
+```
+
+### Implementation
+```typescript
+interface AccessPolicy {
+  resource: string;
+  action: string;
+  condition?: (user: User, resource: any) => boolean;
+}
+
+const policies: AccessPolicy[] = [
+  {
+    resource: 'Order',
+    action: 'update',
+    condition: (user, order) =>
+      order.status === OrderStatus.Pending &&
+      order.createdById === user.id
+  },
+  {
+    resource: 'Report',
+    action: 'read',
+    condition: (user, report) =>
+      user.department === report.department ||
+      user.roles.includes('ADMIN')
+  }
+];
+```
+
+---
+
+## 6. Encryption
+
+### In Transit (TLS/HTTPS)
+```
+HTTP:  Data sent in plaintext → Can be intercepted
+HTTPS: Data encrypted with TLS → Safe
+
+TLS Handshake:
+Client                          Server
+  │── ClientHello ──────────────►│
+  │◄── ServerHello + Cert ───────│
+  │  (verify cert with CA)       │
+  │── Key Exchange ─────────────►│
+  │◄── Encrypted Session ────────│
+  │═══ Encrypted Data ══════════ │
+```
+
+### At Rest
+```
+Database encryption:
+- Transparent Data Encryption (TDE) — entire DB files
+- Column-level encryption — specific sensitive columns
+
+Field-level encryption (most secure for PII):
+// Store encrypted
+const encrypted = await encrypt(creditCardNumber, masterKey);
+await db.save({ userId, encryptedCreditCard: encrypted });
+
+// Retrieve
+const encrypted = await db.findOne(userId);
+const creditCard = await decrypt(encrypted, masterKey);
+
+Key Management:
+❌ Hardcode encryption key
+❌ Store key next to data
+✅ Key Management Service (AWS KMS, HashiCorp Vault)
+✅ Key rotation
+```
+
+### Hashing vs Encryption
+```
+Hashing (one-way, for passwords):
+password → bcrypt(password, salt, cost=12) → hash
+→ Cannot reverse
+→ Use bcrypt, argon2, scrypt (NOT MD5, SHA1)
+
+Encryption (two-way, for data you need to read):
+data + key → ciphertext
+ciphertext + key → data
+→ Use AES-256-GCM for symmetric encryption
+```
+
+---
+
+## 7. Audit Log
+
+### Khái Niệm
+Ghi lại ai đã làm gì với dữ liệu nào, khi nào, từ đâu.
+
+### Design
+```
+audit_logs table:
+┌──────────────┬──────────────┬────────────────┬───────────────┬────────────────────┐
+│ id           │ userId       │ action         │ resourceType  │ resourceId         │
+├──────────────┼──────────────┼────────────────┼───────────────┼────────────────────┤
+│ uuid         │ user-123     │ ORDER_CONFIRMED │ Order         │ order-456          │
+│ uuid         │ user-456     │ PRICE_UPDATED  │ Product       │ product-789        │
+│ uuid         │ admin-001    │ USER_DELETED   │ User          │ user-999           │
+└──────────────┴──────────────┴────────────────┴───────────────┴────────────────────┘
++ timestamp, ipAddress, userAgent, oldValue, newValue, metadata
+
+Best practices:
+✅ Audit logs are IMMUTABLE — append only
+✅ Store in separate, highly available storage
+✅ Index by userId, resourceId, timestamp
+✅ Retention policy (compliance: 7 years for financial)
+✅ Alert on suspicious patterns
+```
+
+---
+
+## Security Checklist
+
+```
+Authentication:
+☐ Dùng OAuth2/OIDC, không tự build auth
+☐ MFA cho admin accounts
+☐ Secure password hashing (bcrypt/argon2)
+☐ Account lockout sau N failed attempts
+
+Authorization:
+☐ Least privilege principle
+☐ Validate permissions server-side (không trust client)
+☐ Check resource ownership (user chỉ đọc data của mình)
+
+Data Protection:
+☐ HTTPS everywhere
+☐ Encrypt sensitive data at rest
+☐ Mask/redact PII in logs
+☐ Secure secret management (no hardcoded secrets)
+
+Input Validation:
+☐ Validate và sanitize tất cả input
+☐ SQL injection prevention (parameterized queries)
+☐ XSS prevention (output encoding)
+
+Headers (HTTP):
+☐ Strict-Transport-Security (HSTS)
+☐ Content-Security-Policy (CSP)
+☐ X-Content-Type-Options: nosniff
+
+Monitoring:
+☐ Failed login attempts alerting
+☐ Audit logging
+☐ Anomaly detection
+```
+
+---
+
+## Tài Liệu Đề Xuất
+
+- 🌐 [OWASP Top 10](https://owasp.org/www-project-top-ten/) — must read
+- 🌐 [OAuth 2.0 Security Best Practices](https://oauth.net/2/security-best-practices/)
+- 📖 *The Web Application Hacker's Handbook*
+- 🌐 [auth0.com/docs](https://auth0.com/docs) — practical guides

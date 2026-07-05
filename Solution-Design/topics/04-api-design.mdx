@@ -1,0 +1,345 @@
+# 04. API Design
+
+> **Mức độ quan trọng**: ⭐⭐⭐⭐ — API là "giao diện" giữa các hệ thống và giữa frontend/backend.
+
+---
+
+## Khái Niệm
+
+**API (Application Programming Interface)** là hợp đồng (contract) giữa hai hệ thống, định nghĩa cách chúng giao tiếp với nhau.
+
+Một API được thiết kế tốt:
+- **Intuitive** — dễ hiểu, dễ sử dụng
+- **Consistent** — nhất quán về naming, error format, pagination
+- **Hard to misuse** — khó dùng sai
+- **Evolvable** — dễ thay đổi mà không breaking
+
+---
+
+## 1. RPC vs REST vs GraphQL
+
+```
+┌────────────────┬───────────────────┬───────────────────┬───────────────────┐
+│                │       RPC         │       REST        │     GraphQL       │
+├────────────────┼───────────────────┼───────────────────┼───────────────────┤
+│ Mô hình        │ Function call     │ Resource-based    │ Query language    │
+│ Transport      │ HTTP/2, TCP       │ HTTP              │ HTTP              │
+│ Format         │ Protobuf, JSON    │ JSON, XML         │ JSON              │
+│ Schema         │ .proto file       │ OpenAPI/Swagger   │ GraphQL Schema    │
+│ Over-fetching  │ Không             │ Có thể            │ Không             │
+│ Under-fetching │ Không             │ Có thể            │ Không             │
+│ Dùng cho       │ Internal services │ Public API        │ Complex data      │
+└────────────────┴───────────────────┴───────────────────┴───────────────────┘
+```
+
+### REST — Resource-Based
+```
+Resource = Danh từ (noun)
+Action = HTTP Method (verb)
+
+GET    /orders          → Lấy danh sách orders
+POST   /orders          → Tạo order mới
+GET    /orders/{id}     → Lấy order theo id
+PUT    /orders/{id}     → Cập nhật toàn bộ order
+PATCH  /orders/{id}     → Cập nhật một phần order
+DELETE /orders/{id}     → Xóa order
+
+Nested resources:
+GET    /orders/{id}/items
+POST   /orders/{id}/items
+DELETE /orders/{id}/items/{itemId}
+```
+
+### gRPC — Function Call
+```protobuf
+service OrderService {
+  rpc CreateOrder (CreateOrderRequest) returns (CreateOrderResponse);
+  rpc GetOrder (GetOrderRequest) returns (Order);
+  rpc ListOrders (ListOrdersRequest) returns (stream Order);
+}
+
+message CreateOrderRequest {
+  string customer_id = 1;
+  repeated OrderItem items = 2;
+}
+```
+
+### GraphQL — Query Language
+```graphql
+# Client chọn chính xác dữ liệu cần
+query GetOrderWithCustomer {
+  order(id: "order123") {
+    id
+    status
+    totalAmount
+    customer {
+      name
+      email
+    }
+    items {
+      product { name }
+      quantity
+    }
+  }
+}
+
+mutation ConfirmOrder {
+  confirmOrder(id: "order123") {
+    id
+    status
+    confirmedAt
+  }
+}
+```
+
+---
+
+## 2. REST API Design Best Practices
+
+### Naming Conventions
+```
+✅ Dùng danh từ số nhiều:
+GET /users
+GET /orders/{id}
+
+❌ Không dùng động từ trong URL:
+GET /getUsers       ← sai
+POST /createOrder   ← sai
+GET /orders/delete  ← sai
+
+✅ Phân cấp resource hợp lý (max 2 cấp):
+GET /customers/{customerId}/orders/{orderId}
+```
+
+### HTTP Methods & Status Codes
+```
+Method   │ Idempotent │ Safe │ Dùng cho
+─────────┼────────────┼──────┼──────────────────────
+GET      │ Yes        │ Yes  │ Đọc resource
+POST     │ No         │ No   │ Tạo resource, actions
+PUT      │ Yes        │ No   │ Replace toàn bộ resource
+PATCH    │ No         │ No   │ Update một phần resource
+DELETE   │ Yes        │ No   │ Xóa resource
+
+2xx: 200 OK, 201 Created, 202 Accepted, 204 No Content
+4xx: 400 Bad Request, 401 Unauthorized, 403 Forbidden,
+     404 Not Found, 409 Conflict, 422 Unprocessable, 429 Too Many Requests
+5xx: 500 Internal Server Error, 503 Service Unavailable
+```
+
+---
+
+## 3. Versioning
+
+```
+Các cách versioning:
+
+1. URL versioning (phổ biến nhất):
+   GET /api/v1/orders
+   GET /api/v2/orders
+
+2. Header versioning:
+   GET /api/orders
+   Accept: application/vnd.myapi.v2+json
+
+3. Query parameter:
+   GET /api/orders?version=2
+
+→ Khuyến nghị: URL versioning — rõ ràng, dễ test, cache friendly
+```
+
+---
+
+## 4. Pagination, Filtering, Sorting
+
+### Cursor Pagination (ưu tiên dùng)
+```
+❌ Offset Pagination — không ổn định khi data thay đổi:
+GET /orders?page=2&limit=20
+SELECT * FROM orders OFFSET 20 LIMIT 20
+
+✅ Cursor Pagination — stable, scalable:
+GET /orders?cursor=eyJpZCI6MTAwfQ&limit=20
+Response: {
+  "data": [...],
+  "nextCursor": "eyJpZCI6MTIwfQ",
+  "hasMore": true
+}
+```
+
+### Filtering & Sorting
+```
+GET /orders?status=PENDING&createdAfter=2024-01-01&sort=-createdAt
+
+Conventions:
+- sort=-field    → Descending
+- sort=+field    → Ascending (default)
+- price[gte]=100000&price[lte]=500000
+```
+
+---
+
+## 5. Error Handling
+
+### RFC 7807 — Problem Details
+```json
+HTTP/1.1 422 Unprocessable Entity
+Content-Type: application/problem+json
+
+{
+  "type": "https://api.example.com/errors/validation",
+  "title": "Validation Error",
+  "status": 422,
+  "detail": "One or more fields failed validation",
+  "errors": [
+    {
+      "field": "items",
+      "code": "REQUIRED",
+      "message": "Order must have at least one item"
+    }
+  ],
+  "traceId": "abc-123-def"
+}
+```
+
+### Không Để Lộ Internal Errors
+```json
+❌ Đừng trả về:
+{ "error": "NullPointerException at OrderService.java:145" }
+
+✅ Generic message + log detail phía server:
+{
+  "title": "Internal Server Error",
+  "status": 500,
+  "traceId": "abc-123"
+}
+```
+
+---
+
+## 6. Authentication & Authorization
+
+```
+Flow:
+Client → POST /auth/login → Auth Service → { accessToken, refreshToken }
+Client → GET /orders
+         Authorization: ******
+         → API Service → Verify JWT → Check permissions → Response
+```
+
+### JWT Structure
+```
+Header.Payload.Signature
+
+Payload:
+{
+  "sub": "user123",
+  "roles": ["USER", "ADMIN"],
+  "exp": 1735689600,
+  "jti": "unique-token-id"
+}
+```
+
+---
+
+## 7. Idempotency
+
+```
+Vấn đề:
+Client gửi POST /orders → Timeout → Retry → Tạo 2 orders!
+
+Giải pháp: Idempotency Key
+
+Client:
+POST /orders
+Idempotency-Key: "client-generated-uuid-123"
+
+Server:
+IF key "uuid-123" tồn tại → Return cached response
+ELSE → Process + lưu key → Return result
+
+→ Gọi lại với cùng key → không tạo order mới
+```
+
+---
+
+## 8. Async API & Webhook
+
+### Async API (cho long-running operations)
+```
+1. Submit:
+POST /exports  →  202 Accepted
+{ "jobId": "job123", "statusUrl": "/exports/job123" }
+
+2. Poll:
+GET /exports/job123  →  { "status": "PROCESSING", "progress": 45 }
+GET /exports/job123  →  { "status": "COMPLETED", "downloadUrl": "..." }
+```
+
+### Webhook
+```
+Client đăng ký:
+POST /webhooks
+{
+  "url": "https://client.example.com/webhook",
+  "events": ["order.confirmed", "order.shipped"],
+  "secret": "signing-secret"
+}
+
+Server notify:
+POST https://client.example.com/webhook
+X-Signature: sha256=abc123  ← HMAC để verify
+{
+  "event": "order.confirmed",
+  "data": { "orderId": "123" }
+}
+```
+
+---
+
+## 9. Diagram: API Architecture
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                       API Gateway                        │
+│   Auth │ Rate Limit │ Load Balance │ Cache │ Transform   │
+└──────────────────────────┬───────────────────────────────┘
+                           │
+              ┌────────────┴───────────────┐
+              │                            │
+    ┌─────────▼──────────┐     ┌──────────▼─────────┐
+    │  Order Service     │     │  Product Service    │
+    │  REST / gRPC       │     │  REST / gRPC        │
+    └─────────┬──────────┘     └──────────┬──────────┘
+              │                            │
+    ┌─────────▼──────────┐     ┌──────────▼─────────┐
+    │   Order DB         │     │  Product DB         │
+    └────────────────────┘     └────────────────────┘
+```
+
+---
+
+## Checklist API Review
+
+```
+☐ URLs dùng danh từ, không dùng động từ
+☐ HTTP methods đúng semantic
+☐ Status codes phù hợp
+☐ Versioning strategy rõ ràng
+☐ Error response format nhất quán (RFC 7807)
+☐ Authentication/Authorization đúng
+☐ Pagination cho list endpoints
+☐ Input validation đầy đủ
+☐ Rate limiting
+☐ Idempotency cho mutations
+☐ API documentation (OpenAPI/Swagger)
+```
+
+---
+
+## Tài Liệu Đề Xuất
+
+- 📖 *API Design Patterns* — JJ Geewax
+- 🌐 [Microsoft REST API Guidelines](https://github.com/microsoft/api-guidelines)
+- 🌐 [Google API Design Guide](https://cloud.google.com/apis/design)
+- 🌐 [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)

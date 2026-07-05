@@ -1,0 +1,328 @@
+# 01. Domain Modeling (DDD)
+
+> **Mức độ quan trọng**: ⭐⭐⭐⭐⭐ — Đây là thứ phân biệt Senior Developer và Architect.
+
+---
+
+## Khái Niệm
+
+**Domain Modeling** là quá trình xây dựng mô hình phần mềm phản ánh chính xác nghiệp vụ (business domain) mà hệ thống giải quyết.
+
+**Domain-Driven Design (DDD)** là tập hợp các pattern và nguyên tắc do Eric Evans đề xuất, giúp đặt nghiệp vụ vào trung tâm của thiết kế phần mềm.
+
+---
+
+## Tại Sao Quan Trọng
+
+Nếu model domain **sai**:
+- ❌ API sẽ xấu, thiếu ngữ nghĩa nghiệp vụ
+- ❌ Database lộn xộn, khó mở rộng
+- ❌ Business rule nằm rải rác khắp nơi
+- ❌ Code và ngôn ngữ business không đồng nhất
+
+Nếu model domain **đúng**:
+- ✅ Code tự document theo ngôn ngữ nghiệp vụ
+- ✅ Dễ thay đổi khi business thay đổi
+- ✅ Giảm bug do hiểu sai yêu cầu
+
+---
+
+## Các Khái Niệm Cốt Lõi
+
+### 1. Ubiquitous Language (Ngôn Ngữ Chung)
+
+> Ngôn ngữ chung giữa developer và domain expert — dùng **cùng một từ** cho **cùng một khái niệm**.
+
+**Ví dụ xấu** (developer dùng ngôn ngữ kỹ thuật):
+```
+Table: user_orders
+Column: order_status_id → 1=pending, 2=confirmed, 3=shipped
+```
+
+**Ví dụ tốt** (dùng ubiquitous language):
+```
+Class: Order
+Property: status → OrderStatus.Pending | OrderStatus.Confirmed | OrderStatus.Shipped
+```
+
+---
+
+### 2. Entity (Thực Thể)
+
+> Đối tượng có **danh tính duy nhất** (identity) — dù thuộc tính thay đổi, nó vẫn là cùng một thực thể.
+
+```
+┌─────────────────────────────┐
+│           Order             │
+├─────────────────────────────┤
+│ id: UUID (identity)         │ ← Định danh duy nhất
+│ customerId: UUID            │
+│ status: OrderStatus         │ ← Có thể thay đổi
+│ totalAmount: Money          │ ← Có thể thay đổi
+│ createdAt: DateTime         │
+└─────────────────────────────┘
+```
+
+**Code ví dụ (TypeScript)**:
+```typescript
+class Order {
+  constructor(
+    private readonly id: OrderId,       // Identity — không bao giờ thay đổi
+    private customerId: CustomerId,
+    private status: OrderStatus,
+    private items: OrderItem[]
+  ) {}
+
+  confirm(): void {
+    if (this.status !== OrderStatus.Pending) {
+      throw new Error('Only pending orders can be confirmed');
+    }
+    this.status = OrderStatus.Confirmed;
+    this.addEvent(new OrderConfirmed(this.id));
+  }
+}
+```
+
+---
+
+### 3. Value Object (Đối Tượng Giá Trị)
+
+> Đối tượng **không có danh tính**, được định nghĩa bởi **giá trị của nó**. Immutable.
+
+```
+┌─────────────────────────────┐
+│            Money            │
+├─────────────────────────────┤
+│ amount: Decimal             │
+│ currency: Currency          │
+└─────────────────────────────┘
+   ↑ Không có id
+   ↑ Money(100, USD) == Money(100, USD)
+   ↑ Immutable — không thay đổi, tạo mới
+```
+
+**Code ví dụ**:
+```typescript
+class Money {
+  constructor(
+    private readonly amount: number,
+    private readonly currency: Currency
+  ) {
+    if (amount < 0) throw new Error('Amount cannot be negative');
+  }
+
+  add(other: Money): Money {
+    if (this.currency !== other.currency) throw new Error('Currency mismatch');
+    return new Money(this.amount + other.amount, this.currency); // Tạo mới, không mutate
+  }
+
+  equals(other: Money): boolean {
+    return this.amount === other.amount && this.currency === other.currency;
+  }
+}
+```
+
+**Ví dụ Value Objects phổ biến**: `Money`, `Address`, `Email`, `PhoneNumber`, `DateRange`, `Coordinates`
+
+---
+
+### 4. Aggregate (Tập Hợp)
+
+> Nhóm các Entity và Value Object liên quan, có **một Aggregate Root** duy nhất làm điểm vào. Bên ngoài chỉ được truy cập qua Root.
+
+```
+┌─────────────────────────────────────────────┐
+│              Order Aggregate                │
+│                                             │
+│  ┌────────────────────┐                     │
+│  │   Order (Root)     │ ← Điểm vào duy nhất │
+│  │   id: OrderId      │                     │
+│  └────────┬───────────┘                     │
+│           │                                 │
+│    ┌──────┴──────┐                          │
+│    ▼             ▼                          │
+│ ┌──────────┐  ┌──────────────┐              │
+│ │OrderItem │  │ShippingAddress│             │
+│ │(Entity)  │  │(Value Object)│              │
+│ └──────────┘  └──────────────┘              │
+└─────────────────────────────────────────────┘
+     ↑ Bên ngoài KHÔNG truy cập OrderItem trực tiếp
+     ↑ Chỉ gọi order.addItem(...), order.removeItem(...)
+```
+
+**Quy tắc Aggregate**:
+- Mỗi Aggregate có một Root (entry point)
+- Transaction chỉ thay đổi **một Aggregate** tại một thời điểm
+- Tham chiếu sang Aggregate khác chỉ qua **ID**, không qua object reference
+
+---
+
+### 5. Domain Event (Sự Kiện Domain)
+
+> Điều gì đó quan trọng đã xảy ra trong domain. Dùng thì quá khứ.
+
+```
+Ví dụ: OrderPlaced, OrderConfirmed, PaymentProcessed, ItemShipped
+```
+
+```
+Client → Order.confirm()
+              │
+              ▼
+        Status = Confirmed
+              │
+              ▼
+        Raise: OrderConfirmed
+              │
+        ┌─────┴───────────────────┐
+        ▼                         ▼
+  Send email               Update inventory
+  (Notification Service)   (Inventory Service)
+```
+
+**Code ví dụ**:
+```typescript
+class OrderConfirmed {
+  constructor(
+    public readonly orderId: OrderId,
+    public readonly confirmedAt: Date,
+    public readonly customerId: CustomerId
+  ) {}
+}
+
+class SendOrderConfirmationEmail {
+  handle(event: OrderConfirmed): void {
+    // gửi email
+  }
+}
+```
+
+---
+
+### 6. Bounded Context (Ngữ Cảnh Giới Hạn)
+
+> Ranh giới rõ ràng trong đó một mô hình domain cụ thể được áp dụng. Mỗi context có ngôn ngữ và model riêng.
+
+```
+┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
+│   Sales Context     │     │  Shipping Context   │     │  Billing Context    │
+│                     │     │                     │     │                     │
+│  Customer           │     │  Recipient          │     │  Payer              │
+│  (name, email,      │     │  (name, address,    │     │  (name, billing     │
+│   preferences)      │     │   phone)            │     │   address, payment) │
+│                     │     │                     │     │                     │
+│  Order              │     │  Shipment           │     │  Invoice            │
+│  (items, discount)  │     │  (trackingNo, ETA)  │     │  (amount, dueDate)  │
+└─────────────────────┘     └─────────────────────┘     └─────────────────────┘
+      ↑ "Customer" trong mỗi context có nghĩa KHÁC NHAU — và đó là điều bình thường
+```
+
+**Context Map** — các kiểu quan hệ giữa Bounded Contexts:
+| Kiểu | Mô tả |
+|------|-------|
+| **Shared Kernel** | Hai context dùng chung một phần model |
+| **Customer/Supplier** | Upstream context cung cấp cho downstream |
+| **Anti-Corruption Layer** | Dịch model của context khác sang model của mình |
+| **Open Host Service** | Cung cấp API chuẩn cho nhiều context |
+
+---
+
+## Diagram: Toàn Cảnh DDD
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                       Business Domain                            │
+│                                                                  │
+│  ┌──────────────────────────┐   ┌──────────────────────────┐    │
+│  │    Sales Context         │   │   Inventory Context      │    │
+│  │                          │   │                          │    │
+│  │  ┌──────────────────┐   │   │  ┌──────────────────┐    │    │
+│  │  │ Order Aggregate  │   │   │  │ Product Aggregate│    │    │
+│  │  │ ┌────────┐       │   │   │  │ ┌─────────┐      │    │    │
+│  │  │ │ Order  │(Root) │   │   │  │ │ Product │(Root)│    │    │
+│  │  │ └───┬────┘       │   │   │  │ └────┬────┘      │    │    │
+│  │  │     │            │   │   │  │      │            │    │    │
+│  │  │ ┌───▼────────┐   │   │   │  │ ┌────▼──────┐    │    │    │
+│  │  │ │ OrderItem  │   │   │   │  │ │ StockItem │    │    │    │
+│  │  │ └────────────┘   │   │   │  │ └───────────┘    │    │    │
+│  │  └──────────────────┘   │   │  └──────────────────┘    │    │
+│  │                          │   │                          │    │
+│  │  Domain Events:          │   │  Domain Events:          │    │
+│  │  - OrderPlaced           │──►│  - InventoryReserved     │    │
+│  │  - OrderConfirmed        │   │  - StockLow              │    │
+│  └──────────────────────────┘   └──────────────────────────┘    │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Ví Dụ Thực Tế: E-Commerce Order System
+
+### Sai (Anemic Domain Model):
+```typescript
+// ❌ Domain object chỉ là data container — logic nằm ở Service
+class Order {
+  id: string;
+  status: string;
+  items: any[];
+}
+
+class OrderService {
+  confirm(order: Order) {
+    if (order.status !== 'pending') throw new Error('...');
+    order.status = 'confirmed';           // Logic trong service
+    emailService.send(order.customerId);  // Side effect trong service
+    inventoryService.reserve(order.items); // Coupling với service khác
+  }
+}
+```
+
+### Đúng (Rich Domain Model):
+```typescript
+// ✅ Domain object tự chứa business logic
+class Order {
+  private events: DomainEvent[] = [];
+
+  confirm(): void {
+    this.ensureStatus(OrderStatus.Pending);
+    this.status = OrderStatus.Confirmed;
+    this.events.push(new OrderConfirmed(this.id, this.customerId));
+    // Side effects xử lý qua domain event — Order không biết về email/inventory
+  }
+
+  addItem(productId: ProductId, quantity: Quantity, price: Money): void {
+    this.ensureStatus(OrderStatus.Pending);
+    const item = new OrderItem(productId, quantity, price);
+    this.items.push(item);
+    this.recalculateTotal();
+  }
+
+  private ensureStatus(expected: OrderStatus): void {
+    if (this.status !== expected) {
+      throw new OrderStatusException(this.id, expected, this.status);
+    }
+  }
+}
+```
+
+---
+
+## Best Practices
+
+| Do ✅ | Don't ❌ |
+|-------|---------|
+| Đặt business logic trong Entity/Aggregate | Đặt logic trong Service (Anemic Model) |
+| Dùng Value Objects cho concepts có giá trị | Dùng primitive (string, number) cho mọi thứ |
+| Một transaction = một Aggregate | Modify nhiều Aggregate trong một transaction |
+| Communicate qua Domain Events | Gọi trực tiếp service khác từ trong domain |
+| Dùng Ubiquitous Language trong code | Đặt tên kỹ thuật không phản ánh business |
+
+---
+
+## Tài Liệu Đề Xuất
+
+- 📖 *Domain-Driven Design* — Eric Evans (Blue Book)
+- 📖 *Implementing Domain-Driven Design* — Vaughn Vernon (Red Book)
+- 📖 *Domain Modeling Made Functional* — Scott Wlaschin
+- 🌐 [ddd-crew/ddd-starter-modelling-process](https://github.com/ddd-crew/ddd-starter-modelling-process)

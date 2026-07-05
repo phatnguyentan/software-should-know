@@ -1,0 +1,390 @@
+# 05. Application Architecture
+
+> **Mức độ quan trọng**: ⭐⭐⭐⭐ — Kiến trúc ứng dụng quyết định khả năng bảo trì và mở rộng dài hạn.
+
+---
+
+## Khái Niệm
+
+**Application Architecture** là cách tổ chức code, tách biệt concerns, và định nghĩa luồng dữ liệu trong một ứng dụng.
+
+---
+
+## PHẦN 1: Kiến Trúc Ứng Dụng
+
+### 1. Layered Architecture (Kiến Trúc Phân Tầng)
+
+```
+┌──────────────────────────────────────┐
+│          Presentation Layer          │  ← Controller, API endpoints
+│        (HTTP, CLI, Queue Consumer)   │
+├──────────────────────────────────────┤
+│          Application Layer           │  ← Use cases, Application Services
+│      (Orchestrates domain logic)     │
+├──────────────────────────────────────┤
+│            Domain Layer              │  ← Entities, Aggregates, Domain Services
+│        (Core business logic)         │
+├──────────────────────────────────────┤
+│        Infrastructure Layer          │  ← DB, External APIs, Email, Cache
+│    (Technical implementations)       │
+└──────────────────────────────────────┘
+
+Dependency direction: ↓ (top depends on bottom)
+```
+
+**Vấn đề**: Domain Layer phụ thuộc vào Infrastructure (DB) → khó test, khó thay đổi DB.
+
+---
+
+### 2. Hexagonal Architecture (Ports & Adapters)
+
+```
+                    ┌─────────────────────────────────┐
+    HTTP Request    │                                 │
+    ────────────── ►│  ┌─────────────────────────┐   │
+                    │  │                         │   │
+    CLI Command     │  │       Application       │   │
+    ────────────── ►│  │                         │   │
+                    │  │  (Business Logic Core)  │   │
+    Queue Message   │  │                         │   │
+    ────────────── ►│  └──────────┬──────────────┘   │
+                    │             │ Port              │
+                    │        ┌────▼────┐              │
+                    │        │Adapter  │              │
+                    │        └────┬────┘              │
+                    └─────────────│────────────────── ┘
+                                  │
+                         ┌────────▼────────┐
+                         │  Database /     │
+                         │  Email / APIs   │
+                         └─────────────────┘
+
+- Port: Interface định nghĩa bởi Application Core
+- Adapter: Implementation cụ thể (Postgres, Redis, SMTP...)
+- Core không biết gì về infrastructure
+```
+
+**Code ví dụ**:
+```typescript
+// Port (interface) — defined by domain
+interface OrderRepository {
+  findById(id: OrderId): Promise<Order | null>;
+  save(order: Order): Promise<void>;
+}
+
+// Adapter (implementation) — in infrastructure layer
+class PostgresOrderRepository implements OrderRepository {
+  async findById(id: OrderId): Promise<Order | null> {
+    const row = await this.db.query('SELECT * FROM orders WHERE id = $1', [id.value]);
+    return row ? OrderMapper.toDomain(row) : null;
+  }
+
+  async save(order: Order): Promise<void> {
+    const data = OrderMapper.toPersistence(order);
+    await this.db.query('INSERT INTO orders ... ON CONFLICT DO UPDATE ...', data);
+  }
+}
+
+// Application Core — chỉ biết về Port
+class ConfirmOrderUseCase {
+  constructor(
+    private orderRepo: OrderRepository, // Port — không phải Postgres
+    private eventBus: EventBus
+  ) {}
+
+  async execute(orderId: string): Promise<void> {
+    const order = await this.orderRepo.findById(new OrderId(orderId));
+    order.confirm();
+    await this.orderRepo.save(order);
+    await this.eventBus.publish(order.pullEvents());
+  }
+}
+```
+
+---
+
+### 3. Clean Architecture
+
+```
+         ┌───────────────────────────────────────────┐
+         │              Frameworks & Drivers          │  ← Web, DB, UI
+         │   ┌─────────────────────────────────┐     │
+         │   │         Interface Adapters       │     │  ← Controllers, Gateways
+         │   │   ┌─────────────────────────┐   │     │
+         │   │   │     Application          │   │     │  ← Use Cases
+         │   │   │  ┌───────────────────┐   │   │     │
+         │   │   │  │     Entities      │   │   │     │  ← Business Rules
+         │   │   │  └───────────────────┘   │   │     │
+         │   │   └─────────────────────────┘   │     │
+         │   └─────────────────────────────────┘     │
+         └───────────────────────────────────────────┘
+
+Dependency Rule: Dependencies chỉ trỏ vào TRONG
+Inner circles không biết gì về outer circles
+```
+
+**Tương tự Hexagonal** nhưng định nghĩa rõ hơn các tầng:
+- **Entities** — Enterprise business rules (Domain objects)
+- **Use Cases** — Application business rules
+- **Interface Adapters** — Controllers, Presenters, Gateways
+- **Frameworks** — DB, Web framework, UI
+
+---
+
+### 4. Modular Monolith
+
+```
+Monolith: Tất cả trong một process — nhưng được tổ chức thành modules rõ ràng.
+
+src/
+├── modules/
+│   ├── orders/           ← Orders module
+│   │   ├── domain/
+│   │   ├── application/
+│   │   ├── infrastructure/
+│   │   └── index.ts      ← Public API của module
+│   ├── inventory/        ← Inventory module
+│   │   ├── domain/
+│   │   ├── application/
+│   │   ├── infrastructure/
+│   │   └── index.ts
+│   └── customers/        ← Customer module
+│       └── ...
+└── shared/               ← Shared kernel
+
+Quy tắc:
+- Module chỉ giao tiếp qua public API (index.ts)
+- Không truy cập trực tiếp vào internals của module khác
+- Có thể tách thành microservices sau nếu cần
+```
+
+---
+
+### 5. Microservices
+
+```
+                    ┌─────────────────┐
+                    │   API Gateway   │
+                    └────────┬────────┘
+                             │
+        ┌────────────────────┼────────────────────┐
+        │                    │                    │
+┌───────▼───────┐  ┌────────▼────────┐  ┌────────▼────────┐
+│ Order Service │  │Customer Service │  │Product Service  │
+│ - own DB      │  │ - own DB        │  │ - own DB        │
+│ - own deploy  │  │ - own deploy    │  │ - own deploy    │
+└───────┬───────┘  └─────────────────┘  └─────────────────┘
+        │
+        │ via Message Queue
+        ▼
+┌───────────────┐
+│Notification   │
+│Service        │
+└───────────────┘
+
+Lợi ích:
+✅ Scale từng service độc lập
+✅ Deploy độc lập
+✅ Technology diversity
+
+Nhược điểm:
+❌ Distributed system complexity
+❌ Network latency, failures
+❌ Data consistency khó hơn
+❌ Overhead: monitoring, service discovery
+```
+
+---
+
+### 6. Event-Driven Architecture
+
+```
+Producer ──publishes──► Event Bus ──routes──► Consumer
+
+┌────────────┐      OrderConfirmed      ┌──────────────────┐
+│   Order    │─────────────────────────►│  Email Service   │
+│  Service   │                          └──────────────────┘
+│            │      OrderConfirmed      ┌──────────────────┐
+│            │─────────────────────────►│Inventory Service │
+│            │                          └──────────────────┘
+│            │      OrderConfirmed      ┌──────────────────┐
+│            │─────────────────────────►│Analytics Service │
+└────────────┘                          └──────────────────┘
+
+Publisher không biết ai subscribe — loose coupling
+```
+
+---
+
+## PHẦN 2: Design Patterns
+
+### Repository Pattern
+
+```typescript
+// Abstract away data access
+interface ProductRepository {
+  findById(id: ProductId): Promise<Product | null>;
+  findByCategory(category: Category): Promise<Product[]>;
+  save(product: Product): Promise<void>;
+  delete(id: ProductId): Promise<void>;
+}
+
+// Use case chỉ biết interface, không biết DB cụ thể
+class GetProductUseCase {
+  constructor(private repo: ProductRepository) {}
+  async execute(id: string): Promise<ProductDto> {
+    const product = await this.repo.findById(new ProductId(id));
+    if (!product) throw new ProductNotFoundError(id);
+    return ProductMapper.toDto(product);
+  }
+}
+```
+
+### Unit of Work Pattern
+
+```typescript
+// Gom nhóm nhiều thao tác DB vào một transaction
+interface UnitOfWork {
+  orders: OrderRepository;
+  inventory: InventoryRepository;
+  commit(): Promise<void>;
+  rollback(): Promise<void>;
+}
+
+class PlaceOrderUseCase {
+  async execute(command: PlaceOrderCommand): Promise<void> {
+    const uow = await this.uowFactory.create();
+    try {
+      const order = Order.place(command);
+      await uow.orders.save(order);
+
+      await uow.inventory.reserve(order.items);  // Cùng transaction
+
+      await uow.commit();
+    } catch (error) {
+      await uow.rollback();
+      throw error;
+    }
+  }
+}
+```
+
+### Saga Pattern (Distributed Transactions)
+
+```
+Khi một business process trải dài nhiều services:
+
+Choreography Saga (Event-driven):
+Order Service         Inventory Service      Payment Service
+     │                       │                      │
+     │── OrderCreated ───────►│                      │
+     │                        │── InventoryReserved─►│
+     │                        │                      │── PaymentProcessed
+     │◄─────────────────────────────────────────────│
+     │── OrderConfirmed ──────►│                      │
+
+Orchestration Saga (Central coordinator):
+┌─────────────────┐
+│  Saga Orchestr. │──► Reserve Inventory ──► Success
+│  (State Machine)│──► Process Payment   ──► Success
+│                 │──► Confirm Order     ──► Done
+└─────────────────┘
+If any step fails → Compensating transactions
+```
+
+### Outbox Pattern
+
+```
+Vấn đề: Làm sao đảm bảo DB save VÀ event publish đều thành công?
+
+❌ Không dùng Outbox:
+1. Save order to DB   ← Success
+2. Publish event      ← Fail! Event lost!
+
+✅ Dùng Outbox:
+1. Begin transaction
+2. Save order to orders table
+3. Save event to outbox table (cùng transaction)
+4. Commit
+5. Background job: read outbox → publish → delete
+
+┌─────────────────────────────────────────────┐
+│              Database Transaction            │
+│  ┌──────────┐    ┌────────────────────────┐ │
+│  │ orders   │    │ outbox                 │ │
+│  │ id: 123  │    │ event: OrderConfirmed  │ │
+│  │ status:  │    │ status: PENDING        │ │
+│  │ CONFIRMED│    └────────────────────────┘ │
+│  └──────────┘                               │
+└─────────────────────────────────────────────┘
+         ↑                   │
+         │           Background Publisher
+         │                   │
+         │                   ▼
+         │              Message Queue
+         │            (Kafka, RabbitMQ)
+```
+
+### Circuit Breaker Pattern
+
+```
+Trạng thái Circuit Breaker:
+
+CLOSED (Normal) → OPEN (Fail-fast) → HALF-OPEN (Test)
+                                           │
+                               Success → CLOSED
+                               Fail    → OPEN
+
+┌────────────────────────────────────────────────────────┐
+│                                                        │
+│   CLOSED:                                              │
+│   Requests pass through. Count failures.              │
+│   If failures > threshold → OPEN                       │
+│                                                        │
+│   OPEN:                                                │
+│   Requests fail immediately (no network call).        │
+│   After timeout → HALF-OPEN                           │
+│                                                        │
+│   HALF-OPEN:                                           │
+│   Allow limited requests through to test.             │
+│   Success → CLOSED; Failure → OPEN                    │
+└────────────────────────────────────────────────────────┘
+```
+
+### Bulkhead Pattern
+
+```
+Cô lập lỗi: nếu một service chậm → không ảnh hưởng toàn bộ hệ thống
+
+Without Bulkhead:
+All services share one thread pool
+  Slow service X consumes all threads → Everything hangs
+
+With Bulkhead:
+┌────────────────┐ ┌────────────────┐ ┌────────────────┐
+│  Service A     │ │  Service B     │ │  Service C     │
+│  ThreadPool: 20│ │  ThreadPool: 20│ │  ThreadPool: 10│
+└────────────────┘ └────────────────┘ └────────────────┘
+  Service B hangs → Only B's pool exhausted, A and C still work
+```
+
+---
+
+## Khi Nào Dùng Kiến Trúc Nào
+
+| Kiến trúc | Dùng khi |
+|-----------|----------|
+| **Layered** | Small/medium app, team nhỏ |
+| **Hexagonal/Clean** | Domain phức tạp, cần testability cao |
+| **Modular Monolith** | Khi chưa cần microservices, muốn tổ chức tốt |
+| **Microservices** | Scale độc lập, team lớn, domain rõ ràng |
+| **Event-Driven** | Loose coupling, async processing, nhiều consumers |
+
+---
+
+## Tài Liệu Đề Xuất
+
+- 📖 *Clean Architecture* — Robert C. Martin (Uncle Bob)
+- 📖 *Patterns of Enterprise Application Architecture* — Martin Fowler
+- 📖 *Building Microservices* — Sam Newman
+- 🌐 [Hexagonal Architecture — Alistair Cockburn](https://alistair.cockburn.us/hexagonal-architecture/)

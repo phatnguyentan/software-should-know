@@ -1,0 +1,505 @@
+# 02. Business Rule Design
+
+> **Mức độ quan trọng**: ⭐⭐⭐⭐⭐ — Phần rất ít người học, nhưng cực kỳ quan trọng với hệ thống doanh nghiệp.
+
+---
+
+## Khái Niệm
+
+**Business Rule** là các quy tắc, điều kiện, và quy trình phản ánh logic nghiệp vụ của tổ chức. Ví dụ:
+- "Đơn hàng trên 500k được giảm 10%"
+- "Nhân viên làm thêm giờ phải được phê duyệt bởi quản lý cấp trên"
+- "Tài khoản bị khóa sau 5 lần đăng nhập sai"
+
+**Business Rule Design** là cách tổ chức và triển khai các quy tắc này một cách có cấu trúc, dễ thay đổi và dễ kiểm thử.
+
+---
+
+## Tại Sao Quan Trọng
+
+Không có cấu trúc → Business rules nằm rải rác:
+```
+❌ if trong controller
+❌ if trong service
+❌ if trong repository
+❌ if trong SQL stored procedure
+→ Khi business thay đổi, phải tìm và sửa ở nhiều nơi → Bug, regression
+```
+
+Có cấu trúc → Rules tập trung, dễ quản lý:
+```
+✅ Rule thay đổi → sửa một chỗ
+✅ Có thể test rule độc lập
+✅ Non-technical người đọc cũng hiểu được rule
+```
+
+---
+
+## 1. State Machine (Máy Trạng Thái)
+
+### Khái Niệm
+Mô hình hóa vòng đời của một đối tượng qua các **trạng thái** và **chuyển đổi** hợp lệ.
+
+### Diagram
+```
+                    ┌─────────┐
+         ┌─────────►│ PENDING │◄────────────────┐
+         │          └────┬────┘                 │
+         │               │ confirm()             │
+         │               ▼                      │
+         │          ┌─────────┐                 │
+         │          │CONFIRMED│                 │
+         │          └────┬────┘                 │
+         │               │ ship()               │
+         │               ▼                      │
+         │          ┌─────────┐   return()      │
+         │          │ SHIPPED │────────────────►│
+         │          └────┬────┘             ┌───┴───┐
+         │               │ deliver()        │RETURN │
+         │               ▼                  │ED     │
+         │          ┌─────────┐             └───────┘
+         │          │DELIVERED│
+         │          └─────────┘
+         │
+  cancel()│ (chỉ từ PENDING hoặc CONFIRMED)
+```
+
+### Ví Dụ Code
+```typescript
+enum OrderStatus {
+  Pending = 'PENDING',
+  Confirmed = 'CONFIRMED',
+  Shipped = 'SHIPPED',
+  Delivered = 'DELIVERED',
+  Cancelled = 'CANCELLED',
+  Returned = 'RETURNED'
+}
+
+const validTransitions: Record<OrderStatus, OrderStatus[]> = {
+  [OrderStatus.Pending]:    [OrderStatus.Confirmed, OrderStatus.Cancelled],
+  [OrderStatus.Confirmed]:  [OrderStatus.Shipped,   OrderStatus.Cancelled],
+  [OrderStatus.Shipped]:    [OrderStatus.Delivered, OrderStatus.Returned],
+  [OrderStatus.Delivered]:  [OrderStatus.Returned],
+  [OrderStatus.Cancelled]:  [],
+  [OrderStatus.Returned]:   [],
+};
+
+class OrderStateMachine {
+  transition(order: Order, targetStatus: OrderStatus): void {
+    const allowed = validTransitions[order.status];
+    if (!allowed.includes(targetStatus)) {
+      throw new InvalidTransitionError(order.status, targetStatus);
+    }
+    order.status = targetStatus;
+  }
+}
+```
+
+### Khi Nào Dùng
+- Đối tượng có vòng đời rõ ràng: Order, Task, Ticket, Loan Application
+- Cần kiểm soát chặt chẽ các chuyển đổi trạng thái
+- Muốn ngăn chặn trạng thái không hợp lệ
+
+---
+
+## 2. Specification Pattern (Mẫu Đặc Tả)
+
+### Khái Niệm
+Đóng gói một điều kiện business thành một object có thể **kết hợp** (AND, OR, NOT) và **tái sử dụng**.
+
+### Diagram
+```
+┌─────────────────────────────────────────────────────────┐
+│                   Specification<T>                       │
+│   + isSatisfiedBy(candidate: T): boolean                │
+│   + and(other): Specification<T>                        │
+│   + or(other): Specification<T>                         │
+│   + not(): Specification<T>                             │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+           ┌───────────────┼───────────────┐
+           ▼               ▼               ▼
+  ┌────────────────┐ ┌───────────┐ ┌────────────────┐
+  │IsEligibleForDis│ │IsVIPCust. │ │HasMinimumOrder │
+  │count           │ │           │ │Amount          │
+  └────────────────┘ └───────────┘ └────────────────┘
+           │               │               │
+           └───────────────┴───────────────┘
+                   Có thể kết hợp:
+    IsEligibleForDiscount
+      .and(IsVIPCustomer)
+      .or(HasMinimumOrderAmount)
+```
+
+### Ví Dụ Code
+```typescript
+interface Specification<T> {
+  isSatisfiedBy(candidate: T): boolean;
+  and(other: Specification<T>): Specification<T>;
+  or(other: Specification<T>): Specification<T>;
+  not(): Specification<T>;
+}
+
+abstract class CompositeSpecification<T> implements Specification<T> {
+  abstract isSatisfiedBy(candidate: T): boolean;
+
+  and(other: Specification<T>): Specification<T> {
+    return new AndSpecification(this, other);
+  }
+  or(other: Specification<T>): Specification<T> {
+    return new OrSpecification(this, other);
+  }
+  not(): Specification<T> {
+    return new NotSpecification(this);
+  }
+}
+
+class IsVIPCustomer extends CompositeSpecification<Customer> {
+  isSatisfiedBy(customer: Customer): boolean {
+    return customer.totalPurchases > 10_000_000;
+  }
+}
+
+class HasMinimumOrderAmount extends CompositeSpecification<Order> {
+  constructor(private minimum: Money) { super(); }
+  isSatisfiedBy(order: Order): boolean {
+    return order.totalAmount.isGreaterThanOrEqual(this.minimum);
+  }
+}
+
+// Usage
+const discountSpec = new IsVIPCustomer()
+  .or(new HasMinimumOrderAmount(new Money(500_000, 'VND')));
+
+if (discountSpec.isSatisfiedBy(customer)) {
+  order.applyDiscount(10);
+}
+```
+
+---
+
+## 3. Strategy Pattern (Mẫu Chiến Lược)
+
+### Khái Niệm
+Định nghĩa một họ thuật toán/chiến lược, đóng gói từng cái, và làm cho chúng có thể hoán đổi cho nhau.
+
+### Diagram
+```
+┌─────────────────────────────┐
+│      DiscountCalculator     │
+│  - strategy: DiscountStrategy│
+│  + calculate(order): Money  │
+└──────────────┬──────────────┘
+               │ uses
+               ▼
+    ┌──────────────────────┐
+    │   DiscountStrategy   │ (interface)
+    │ + calculate(order)   │
+    └──────────┬───────────┘
+               │
+  ┌────────────┼─────────────────────┐
+  ▼            ▼                     ▼
+┌──────────┐ ┌──────────────────┐ ┌────────────────────┐
+│NoDiscount│ │PercentageDiscount│ │BuyOneGetOneDiscount│
+│Strategy  │ │Strategy          │ │Strategy            │
+└──────────┘ └──────────────────┘ └────────────────────┘
+```
+
+### Ví Dụ Code
+```typescript
+interface DiscountStrategy {
+  calculate(order: Order): Money;
+}
+
+class PercentageDiscountStrategy implements DiscountStrategy {
+  constructor(private percentage: number) {}
+  calculate(order: Order): Money {
+    return order.subtotal.multiply(this.percentage / 100);
+  }
+}
+
+class BuyTwoGetOneFreeStrategy implements DiscountStrategy {
+  calculate(order: Order): Money {
+    const cheapestItem = order.items
+      .sort((a, b) => a.price.compareTo(b.price))[0];
+    return cheapestItem?.price ?? Money.zero();
+  }
+}
+
+class DiscountCalculator {
+  constructor(private strategy: DiscountStrategy) {}
+
+  setStrategy(strategy: DiscountStrategy) {
+    this.strategy = strategy;
+  }
+
+  calculate(order: Order): Money {
+    return this.strategy.calculate(order);
+  }
+}
+```
+
+---
+
+## 4. Policy Pattern (Mẫu Chính Sách)
+
+### Khái Niệm
+Đóng gói một quyết định hoặc tập hợp quy tắc nghiệp vụ vào một class riêng biệt có tên rõ ràng theo ngôn ngữ nghiệp vụ.
+
+### Ví Dụ Code
+```typescript
+// ❌ Logic ẩn trong service
+class OrderService {
+  canApplyExpress(order: Order, customer: Customer): boolean {
+    return customer.membershipLevel === 'GOLD'
+      && order.totalAmount.value >= 200000
+      && !order.containsFragileItems()
+      && order.destination.isWithin50km();
+  }
+}
+
+// ✅ Policy được đặt tên rõ ràng
+class ExpressDeliveryPolicy {
+  isEligible(order: Order, customer: Customer): boolean {
+    return this.isGoldMember(customer)
+      && this.meetsMinimumAmount(order)
+      && this.hasNoFragileItems(order)
+      && this.isWithinDeliveryRange(order);
+  }
+
+  private isGoldMember(customer: Customer): boolean {
+    return customer.membershipLevel === MembershipLevel.Gold;
+  }
+
+  private meetsMinimumAmount(order: Order): boolean {
+    return order.totalAmount.isGreaterThanOrEqual(new Money(200_000, 'VND'));
+  }
+
+  private hasNoFragileItems(order: Order): boolean {
+    return !order.items.some(item => item.product.isFragile);
+  }
+
+  private isWithinDeliveryRange(order: Order): boolean {
+    return order.deliveryAddress.distanceFromWarehouse <= 50;
+  }
+}
+```
+
+---
+
+## 5. Rule Engine (Động Cơ Luật)
+
+### Khái Niệm
+Hệ thống cho phép định nghĩa, quản lý, và thực thi các business rules **bên ngoài code** — thường qua config file, database, hoặc UI.
+
+### Diagram
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Rule Engine                          │
+│                                                             │
+│  Input (Facts)    ┌─────────────────┐   Output (Actions)   │
+│  ┌──────────┐     │   Rule Store    │   ┌──────────────┐   │
+│  │ Order    │────►│                 │──►│ Apply 10%    │   │
+│  │ Customer │     │ IF amount > 500k│   │ discount     │   │
+│  │ Product  │     │ THEN discount   │   └──────────────┘   │
+│  └──────────┘     │ 10%             │                      │
+│                   │                 │   ┌──────────────┐   │
+│                   │ IF isVIP        │──►│ Free shipping│   │
+│                   │ THEN free ship  │   └──────────────┘   │
+│                   └─────────────────┘                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Ví Dụ Code (tự implement)
+```typescript
+interface Rule<T> {
+  name: string;
+  condition: (context: T) => boolean;
+  action: (context: T) => void;
+  priority: number;
+}
+
+class RuleEngine<T> {
+  private rules: Rule<T>[] = [];
+
+  addRule(rule: Rule<T>): this {
+    this.rules.push(rule);
+    return this;
+  }
+
+  execute(context: T): void {
+    const sortedRules = [...this.rules].sort((a, b) => b.priority - a.priority);
+    for (const rule of sortedRules) {
+      if (rule.condition(context)) {
+        rule.action(context);
+      }
+    }
+  }
+}
+
+const pricingEngine = new RuleEngine<OrderContext>();
+
+pricingEngine
+  .addRule({
+    name: 'VIP discount',
+    priority: 10,
+    condition: ctx => ctx.customer.isVIP,
+    action: ctx => ctx.order.applyDiscount(15)
+  })
+  .addRule({
+    name: 'Bulk discount',
+    priority: 5,
+    condition: ctx => ctx.order.totalAmount.value >= 500_000,
+    action: ctx => ctx.order.applyDiscount(10)
+  });
+
+pricingEngine.execute({ order, customer });
+```
+
+### Thư Viện Rule Engine
+| Thư viện | Ngôn ngữ | Mô tả |
+|----------|----------|-------|
+| **Drools** | Java | Mạnh nhất, enterprise-grade |
+| **Easy Rules** | Java | Đơn giản, nhẹ |
+| **json-rules-engine** | Node.js | Rules dạng JSON |
+| **nools** | Node.js | Rete algorithm |
+
+---
+
+## 6. Workflow Engine (Động Cơ Quy Trình)
+
+### Khái Niệm
+Quản lý các quy trình phức tạp có nhiều bước, nhiều người tham gia, và có thể dài ngày.
+
+### Diagram
+```
+Loan Application Workflow:
+
+[Submit] → [Auto Credit Check] → [Manual Review] → [Approve/Reject]
+                                        │
+                                        ├─ If amount > 500M → [Senior Review]
+                                        │
+                                        └─ If fraud detected → [Freeze]
+
+Trạng thái lưu trong DB, không mất khi server restart.
+```
+
+### Ví Dụ Code
+```typescript
+interface WorkflowStep {
+  name: string;
+  execute(context: WorkflowContext): Promise<StepResult>;
+}
+
+class WorkflowEngine {
+  async run(steps: WorkflowStep[], context: WorkflowContext): Promise<void> {
+    for (const step of steps) {
+      context.currentStep = step.name;
+      const result = await step.execute(context);
+
+      if (result.status === 'failed') {
+        await this.handleFailure(context, result);
+        break;
+      }
+      if (result.status === 'waiting') {
+        await this.saveState(context);
+        break;
+      }
+    }
+  }
+}
+```
+
+### Tools
+- **Temporal** — distributed workflow engine
+- **Apache Airflow** — data workflows
+- **Camunda** — BPMN workflow
+- **AWS Step Functions** — cloud workflow
+
+---
+
+## 7. Provider Pattern (Mẫu Nhà Cung Cấp)
+
+### Khái Niệm
+Trừu tượng hóa một dịch vụ có thể có nhiều implementations khác nhau. Caller không biết provider cụ thể nào đang được dùng.
+
+### Diagram
+```
+┌─────────────────────────────────────────────────┐
+│              PaymentService                     │
+│  + processPayment(amount, method): Result       │
+└──────────────────┬──────────────────────────────┘
+                   │ uses
+                   ▼
+        ┌──────────────────────┐
+        │   IPaymentProvider   │  (interface)
+        │ + charge(req): Result│
+        └──────────┬───────────┘
+                   │
+    ┌──────────────┼──────────────────┐
+    ▼              ▼                  ▼
+┌────────┐  ┌───────────┐  ┌──────────────────┐
+│ Stripe │  │   VNPay   │  │  MoMoProvider    │
+│Provider│  │  Provider │  │                  │
+└────────┘  └───────────┘  └──────────────────┘
+```
+
+### Ví Dụ Code
+```typescript
+interface PaymentProvider {
+  charge(amount: Money, token: string): Promise<PaymentResult>;
+  refund(transactionId: string, amount: Money): Promise<RefundResult>;
+}
+
+class StripeProvider implements PaymentProvider {
+  async charge(amount: Money, token: string): Promise<PaymentResult> {
+    // Stripe-specific implementation
+  }
+  async refund(transactionId: string, amount: Money): Promise<RefundResult> {
+    // Stripe-specific implementation
+  }
+}
+
+class VNPayProvider implements PaymentProvider {
+  async charge(amount: Money, token: string): Promise<PaymentResult> {
+    // VNPay-specific implementation
+  }
+  async refund(transactionId: string, amount: Money): Promise<RefundResult> {
+    // VNPay-specific implementation
+  }
+}
+
+class PaymentProviderFactory {
+  create(method: PaymentMethod): PaymentProvider {
+    switch (method) {
+      case PaymentMethod.Stripe: return new StripeProvider(this.config.stripe);
+      case PaymentMethod.VNPay: return new VNPayProvider(this.config.vnpay);
+      case PaymentMethod.MoMo: return new MoMoProvider(this.config.momo);
+      default: throw new UnsupportedPaymentMethodError(method);
+    }
+  }
+}
+```
+
+---
+
+## Tổng Hợp: Khi Nào Dùng Pattern Nào
+
+| Pattern | Dùng khi |
+|---------|----------|
+| **State Machine** | Đối tượng có vòng đời với các chuyển đổi hợp lệ |
+| **Specification** | Cần kết hợp nhiều điều kiện, tái sử dụng điều kiện |
+| **Strategy** | Nhiều cách tính toán, thuật toán có thể hoán đổi |
+| **Policy** | Đóng gói một quyết định business phức tạp |
+| **Rule Engine** | Rules thay đổi thường xuyên, do business team quản lý |
+| **Workflow Engine** | Quy trình dài ngày, nhiều bước, nhiều người |
+| **Provider** | Nhiều implementations của cùng một interface |
+
+---
+
+## Tài Liệu Đề Xuất
+
+- 📖 *Patterns of Enterprise Application Architecture* — Martin Fowler
+- 📖 *Domain-Driven Design* — Eric Evans (phần Business Rules)
+- 🌐 [Workflow Patterns](http://www.workflowpatterns.com/)
+- 🌐 [Rules Engine Overview — Martin Fowler](https://martinfowler.com/bliki/RulesEngine.html)
