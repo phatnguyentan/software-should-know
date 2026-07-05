@@ -1,0 +1,56 @@
+# 02.01 Entity
+
+> **Nhóm:** Giai đoạn 2 — Mô hình hóa domain
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **Entity** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **Domain Modeling (DDD)**.
+
+---
+
+## Giải thích nhanh
+
+**Entity** là khái niệm nói về đối tượng có danh tính.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về domain modeling (ddd) thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Điểm quan trọng là hiểu khi nào nên áp dụng, khi nào không, và nó tương tác với phần còn lại của kiến trúc ra sao.
+
+---
+
+## 1 sơ đồ
+
+```
+User Action
+   ↓
+Order Domain
+   ↓
+Apply Entity
+   ↓
+Consistent Business Behavior
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một hệ thống order và billing, **Entity** giúp gom đúng business logic vào model thay vì để rule bị rải rác ở controller, service và database trigger.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Biến domain model thành data container thuần CRUD.
+2. Không xác định rõ boundary giữa các aggregate/context.
+3. Dùng thuật ngữ business không nhất quán trong code.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **Entity**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **Entity**.

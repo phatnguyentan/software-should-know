@@ -1,0 +1,56 @@
+# 11.05 RBAC
+
+> **Nhóm:** Giai đoạn 11 — Bảo vệ hệ thống
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **RBAC** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **Security**.
+
+---
+
+## Giải thích nhanh
+
+**RBAC** là khái niệm nói về phân quyền theo vai trò.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về security thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Điểm quan trọng là hiểu khi nào nên áp dụng, khi nào không, và nó tương tác với phần còn lại của kiến trúc ra sao.
+
+---
+
+## 1 sơ đồ
+
+```
+User / Service
+   ↓
+Authenticate / Authorize with RBAC
+   ↓
+Protected Resource
+   ↓
+Audit Trail
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một hệ thống tài chính có yêu cầu phân quyền và audit cao, **RBAC** là một phần của chuỗi bảo mật để xác thực, phân quyền hoặc bảo vệ dữ liệu ở đúng lớp.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Chỉ xử lý security ở lớp UI.
+2. Bỏ qua auditability và nguyên tắc least privilege.
+3. Nhầm lẫn giữa authentication, authorization và secret handling.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **RBAC**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **RBAC**.

@@ -1,0 +1,56 @@
+# 16.12 Evaluation
+
+> **Nhóm:** Giai đoạn 16 — Tích hợp AI doanh nghiệp
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **Evaluation** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **AI Architecture**.
+
+---
+
+## Giải thích nhanh
+
+**Evaluation** là khái niệm nói về đánh giá chất lượng output AI.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về ai architecture thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Điểm quan trọng là hiểu khi nào nên áp dụng, khi nào không, và nó tương tác với phần còn lại của kiến trúc ra sao.
+
+---
+
+## 1 sơ đồ
+
+```
+User Prompt
+   ↓
+AI Orchestrator
+   ↓
+Use Evaluation
+   ↓
+Grounded Answer / Controlled Action
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một trợ lý AI nội bộ cần truy xuất tài liệu và gọi tool an toàn, **Evaluation** là một phần thiết kế để kiểm soát ngữ cảnh, dữ liệu và hành động của hệ thống AI.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Xem AI như chỉ là prompt thay vì một hệ thống đầy đủ.
+2. Không kiểm soát dữ liệu nguồn và quyền hành động của agent.
+3. Thiếu đánh giá định lượng cho chất lượng đầu ra.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **Evaluation**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **Evaluation**.

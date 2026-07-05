@@ -1,0 +1,56 @@
+# 08.10 At Least Once
+
+> **Nhóm:** Giai đoạn 8 — Tích hợp và bất đồng bộ
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **At Least Once** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **Messaging & Integration**.
+
+---
+
+## Giải thích nhanh
+
+**At Least Once** là khái niệm nói về đảm bảo xử lý ít nhất một lần.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về messaging & integration thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Điểm quan trọng là hiểu khi nào nên áp dụng, khi nào không, và nó tương tác với phần còn lại của kiến trúc ra sao.
+
+---
+
+## 1 sơ đồ
+
+```
+Producer Service
+   ↓
+Broker / Integration Layer
+   ↓
+Use At Least Once
+   ↓
+Consumers / External Systems
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một order platform tích hợp inventory, billing và notification, **At Least Once** giúp tách producer khỏi consumer và tăng khả năng chịu lỗi khi các hệ thống downstream bị chậm hoặc lỗi tạm thời.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Không thiết kế idempotency cho consumer.
+2. Retry không kiểm soát làm nghẽn hệ thống.
+3. Dùng sync integration cho mọi bài toán dù async phù hợp hơn.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **At Least Once**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **At Least Once**.

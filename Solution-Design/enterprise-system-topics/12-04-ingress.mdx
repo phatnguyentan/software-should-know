@@ -1,0 +1,56 @@
+# 12.04 Ingress
+
+> **Nhóm:** Giai đoạn 12 — Nền tảng triển khai
+
+---
+
+## 1 vấn đề duy nhất
+
+Hiểu đúng **Ingress** để thiết kế và vận hành hệ thống enterprise chắc hơn ở phần **Cloud**.
+
+---
+
+## Giải thích nhanh
+
+**Ingress** là khái niệm nói về điều phối traffic vào cluster.
+
+Trong bối cảnh enterprise system design, nó giúp team đưa ra quyết định đúng hơn về cloud thay vì chỉ xử lý vấn đề ở mức code cục bộ.
+
+Điểm quan trọng là hiểu khi nào nên áp dụng, khi nào không, và nó tương tác với phần còn lại của kiến trúc ra sao.
+
+---
+
+## 1 sơ đồ
+
+```
+Internet / Internal Traffic
+   ↓
+Cloud Platform
+   ↓
+Use Ingress
+   ↓
+Runtime / Network / Storage Outcome
+```
+
+---
+
+## 1 ví dụ thực tế
+
+Trong một SaaS chạy đa môi trường trên cloud, **Ingress** ảnh hưởng trực tiếp tới cách deploy service, cấp quyền, kết nối mạng và vận hành hạ tầng dài hạn.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Ôm công nghệ cloud phức tạp hơn năng lực vận hành của team.
+2. Cấp quyền quá rộng cho workload.
+3. Không tách boundary giữa tài nguyên public và private.
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của **Ingress**.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, throughput, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng **Ingress**.
