@@ -6,20 +6,20 @@
 
 ## 1 vấn đề duy nhất
 
-Nắm rõ **POSIX permission + ACL** để thiết kế file system đúng ngay từ đầu và tránh lỗi kiến trúc về sau.
+Hiểu đúng **POSIX permission + ACL** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
 
 ---
 
 ## 1 sơ đồ
 
 ```
-Client/App
-   │
-   ▼
-Kernel / File System Layer
-   │
-   ▼
-Storage Node / Disk Block
+[POSIX permission + ACL]
+      │
+      ▼
+[Quyết định thiết kế]
+      │
+      ▼
+[Tác động: hiệu năng / độ bền / chi phí]
 ```
 
 
@@ -27,21 +27,21 @@ Storage Node / Disk Block
 
 ## 1 ví dụ thực tế
 
-Khi triển khai hệ thống lưu trữ cho dịch vụ upload file nội bộ, đội kỹ thuật dùng nguyên tắc của chủ đề này để tối ưu hiệu năng và độ ổn định khi tải tăng.
+Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **POSIX permission + ACL** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
 
 ---
 
 ## 3 lỗi phổ biến
 
-1. Học khái niệm rời rạc nhưng không gắn vào luồng I/O thực tế.
-2. Tối ưu quá sớm mà chưa đo lường workload thật.
-3. Bỏ qua trường hợp lỗi (crash, retry, cạnh tranh truy cập).
+1. Nhầm phạm vi áp dụng của **POSIX permission + ACL** trong local FS và distributed FS.
+2. Không đo trước/sau khi áp dụng **POSIX permission + ACL**, dẫn tới tối ưu theo cảm tính.
+3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **POSIX permission + ACL**.
 
 ---
 
 ## 1 checklist áp dụng
 
-- [ ] Mô tả được chủ đề bằng ngôn ngữ đơn giản trong 3-5 câu.
-- [ ] Vẽ lại được sơ đồ luồng chính bằng tay.
-- [ ] Nêu được ít nhất 1 trade-off khi áp dụng vào production.
-- [ ] Xác định được metric để đo hiệu quả sau khi áp dụng.
+- [ ] Viết được 3-5 câu mô tả mục tiêu của chủ đề này.
+- [ ] Nêu được ít nhất 1 trade-off quan trọng của chủ đề.
+- [ ] Gắn chủ đề với 1 metric vận hành cụ thể (latency, IOPS, error rate, chi phí).
+- [ ] Xác định được khi nào **không nên** áp dụng chủ đề này.
