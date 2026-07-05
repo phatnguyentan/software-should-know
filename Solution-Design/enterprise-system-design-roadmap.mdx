@@ -1,47 +1,88 @@
 ## Lộ Trình Học Enterprise System Design
 
-Nếu mục tiêu của bạn là thiết kế hệ thống cho doanh nghiệp (**Enterprise System Design**), thì không chỉ học System Design là đủ. Thực tế nó gồm nhiều tầng kiến thức. Dưới đây là lộ trình được sắp xếp theo **mức độ quan trọng** và **thứ tự học hợp lý**.
+Nếu mục tiêu của bạn là **tự thiết kế toàn bộ hệ thống doanh nghiệp** (API, database, backend, frontend, AI, integration…), thì đây là roadmap khá đầy đủ. Chia theo các **khối kiến thức** giống cách các Solution Architect thường tư duy.
 
 ---
 
 ### Thứ Tự Học Đề Xuất
 
 ```
-Business Domain
-      ↓
-Domain Modeling (DDD)
-      ↓
-Business Rule Design
-      ↓
-Database Design
-      ↓
-API Design
-      ↓
-Application Architecture
-      ↓
-Integration
-      ↓
-Distributed Systems
-      ↓
-Cloud & DevOps
+1. Business Analysis
+        ↓
+2. Domain Modeling (DDD)
+        ↓
+3. Database Design
+        ↓
+4. API Design
+        ↓
+5. Backend Architecture
+        ↓
+6. Design Patterns
+        ↓
+7. Business Rule Design
+        ↓
+8. Messaging & Integration
+        ↓
+9. Distributed Systems
+        ↓
+10. Scalability
+        ↓
+11. Security
+        ↓
+12. Cloud & DevOps
+        ↓
+13. Observability
+        ↓
+14. Frontend Architecture
+        ↓
+15. AI Architecture
+        ↓
+16. Data Engineering
 ```
 
 > ⚠️ Đừng học ngược từ Distributed Systems hay Kubernetes trước. Nhiều người biết triển khai hạ tầng nhưng lại thiết kế domain, API và database chưa tốt.
 
 ---
 
-### 1. Domain Modeling — Quan Trọng Nhất
+### 1. Business Analysis
 
-> Đây là thứ **phân biệt senior và architect**.
+> Hiểu doanh nghiệp trước khi code.
 
 Học:
 
-- **Domain-Driven Design (DDD)**
-- **Bounded Context** — phân chia ranh giới nghiệp vụ
+- **Business Process** — quy trình kinh doanh
+- **BPMN** — ký hiệu mô hình hóa quy trình
+- **Event Storming** — khám phá domain qua sự kiện
+- **User Story** — mô tả yêu cầu từ góc nhìn người dùng
+- **Use Case** — các trường hợp sử dụng hệ thống
+- **Functional Requirement** — yêu cầu chức năng
+- **Non-functional Requirement** — yêu cầu phi chức năng
+- **Business Capability Mapping** — bản đồ năng lực doanh nghiệp
+- **Value Stream** — luồng tạo giá trị
+- **Stakeholder Analysis** — phân tích các bên liên quan
+
+---
+
+### 2. Domain Modeling (DDD) — Quan Trọng Nhất
+
+> Đây là **nền móng của mọi thứ** và thứ phân biệt senior và architect.
+
+Học:
+
+- **Entity** — đối tượng có danh tính
+- **Value Object** — đối tượng không có danh tính, bất biến
 - **Aggregate** — đơn vị nhất quán dữ liệu
-- **Entity vs Value Object** — phân biệt đối tượng theo danh tính vs giá trị
+- **Aggregate Root** — điểm vào duy nhất của aggregate
+- **Repository** — trừu tượng hóa truy cập dữ liệu
+- **Domain Service** — logic không thuộc về entity nào
+- **Application Service** — điều phối use case
 - **Domain Event** — sự kiện xảy ra trong domain
+- **Factory** — khởi tạo đối tượng phức tạp
+- **Specification** — điều kiện nghiệp vụ có thể tái sử dụng
 - **Ubiquitous Language** — ngôn ngữ chung giữa dev và business
+- **Bounded Context** — phân chia ranh giới nghiệp vụ
+- **Context Mapping** — mối quan hệ giữa các bounded context
+- **Anti Corruption Layer** — lớp bảo vệ domain khỏi ảnh hưởng bên ngoài
 
 Nếu model domain sai thì:
 - API sẽ xấu
@@ -52,150 +93,203 @@ Nếu model domain sai thì:
 
 ---
 
-### 2. Business Rule Design
-
-> Đây là phần **rất ít người học**, nhưng cực kỳ quan trọng với hệ thống doanh nghiệp.
-
-Học:
-
-- **Rule Engine** — động cơ xử lý luật kinh doanh
-- **Workflow Engine** — quản lý luồng công việc
-- **State Machine** — máy trạng thái cho các quy trình phức tạp
-- **Policy Pattern** — đóng gói chính sách nghiệp vụ
-- **Specification Pattern** — điều kiện nghiệp vụ có thể tái sử dụng
-- **Strategy Pattern** — thay đổi thuật toán linh hoạt
-- **Provider Pattern** — trừu tượng hóa nguồn cung cấp dịch vụ
-
----
-
 ### 3. Database Design
 
 > Rất nhiều dev chỉ biết CRUD — đây là phần cần đào sâu.
 
 #### Relational (SQL)
-- ER Diagram
-- Normalization (1NF → 3NF → BCNF)
-- Index & Query Optimization
-- Constraint (PK, FK, UNIQUE, CHECK)
-- Transaction & ACID
-- Lock (Optimistic vs Pessimistic)
-- MVCC (Multi-Version Concurrency Control)
+- **ER Diagram** — mô hình thực thể quan hệ
+- **Cardinality** — lực lượng quan hệ (1-1, 1-N, N-N)
+- **Normalization** — chuẩn hóa (1NF → 2NF → 3NF → BCNF → 4NF → 5NF)
+- **Denormalization** — phi chuẩn hóa để tăng hiệu năng đọc
+- **Foreign Key** — khóa ngoại
+- **Constraint** — ràng buộc (PK, FK, UNIQUE, CHECK, NOT NULL)
+- **Index** — chỉ mục tăng tốc truy vấn
+- **Composite Index** — chỉ mục nhiều cột
+- **Covering Index** — chỉ mục bao phủ toàn bộ truy vấn
+- **Unique Index** — chỉ mục đảm bảo tính duy nhất
+- **Partition** — chia bảng theo logic
+- **Materialized View** — view lưu kết quả tính toán
+- **Trigger** — tự động thực thi khi có sự kiện
+- **Stored Procedure** — thủ tục lưu trữ
+- **Sequence** — tạo số tuần tự
+- **Transaction** — giao dịch ACID
+- **Isolation Level** — mức độ cô lập giao dịch
+- **Locking** — khóa (Optimistic vs Pessimistic)
+- **MVCC** — Multi-Version Concurrency Control
+- **Query Optimization** — tối ưu hóa truy vấn
+- **Execution Plan** — kế hoạch thực thi truy vấn
 
 #### NoSQL
-- **Document** (MongoDB) — dữ liệu phi cấu trúc
-- **Key-value** (Redis) — caching, session
-- **Time Series** (InfluxDB) — metrics, logs
-- **Search Engine** (Elasticsearch) — full-text search
+- **Document Database** (MongoDB) — dữ liệu phi cấu trúc
+- **Key-Value** (Redis) — caching, session
+- **Wide Column** (Cassandra) — dữ liệu lớn, ghi nhiều
 - **Graph Database** (Neo4j) — quan hệ phức tạp
+- **Time Series** (InfluxDB) — metrics, logs, sensor data
+- **Search Database** (Elasticsearch) — full-text search
+- **Vector Database** (Pinecone, Weaviate) — tìm kiếm ngữ nghĩa cho AI
 
-#### Enterprise Patterns
-- **Partition** — chia dữ liệu theo logic
-- **Sharding** — chia dữ liệu theo node
+#### Distributed Database
 - **Replication** — sao chép dữ liệu
-- **CQRS** — tách đọc/ghi
-- **Event Sourcing** — lưu trữ theo sự kiện
+- **Sharding** — chia dữ liệu theo node
+- **Read Replica** — bản sao phục vụ đọc
+- **Consistency** — nhất quán dữ liệu
+- **CAP Theorem** — đánh đổi Consistency, Availability, Partition Tolerance
+- **PACELC** — mở rộng CAP với Latency và Consistency
+- **Distributed Transaction** — giao dịch nhiều node
 
 ---
 
 ### 4. API Design
 
-Học:
-
-- **REST API Design** — nguyên tắc thiết kế RESTful
-- **RPC vs REST vs GraphQL** — khi nào dùng gì
-- **Versioning** — quản lý phiên bản API
-- **Pagination, Filtering, Sorting** — truy vấn dữ liệu hiệu quả
-- **Error Handling** — chuẩn hóa lỗi
-- **Authentication & Authorization** — xác thực và phân quyền
-- **Idempotency** — đảm bảo an toàn khi retry
-- **Async API** — xử lý bất đồng bộ
-- **Webhook** — thông báo sự kiện cho bên ngoài
-
 📖 **Tài liệu đề xuất**: *API Design Patterns* — JJ Geewax
 
+#### REST
+- **RESTful Resource Design** — thiết kế tài nguyên
+- **URI Design** — cấu trúc đường dẫn
+- **HTTP Method** — GET, POST, PUT, PATCH, DELETE
+- **Status Code** — mã trạng thái HTTP
+- **Idempotency** — đảm bảo an toàn khi retry
+- **Pagination** — phân trang
+- **Filtering** — lọc dữ liệu
+- **Sorting** — sắp xếp dữ liệu
+- **Cursor Pagination** — phân trang theo con trỏ cho dữ liệu lớn
+- **Validation** — kiểm tra đầu vào
+- **Error Response** — chuẩn hóa phản hồi lỗi
+- **Versioning** — quản lý phiên bản API
+- **Rate Limit** — giới hạn tốc độ gọi API
+
+#### GraphQL
+- Query, Mutation, Subscription
+- Schema Definition
+- Resolver
+- DataLoader (N+1 problem)
+
+#### gRPC
+- Protocol Buffers
+- Unary / Server Streaming / Client Streaming / Bidirectional
+
+#### Webhook
+- Event notification đến bên ngoài
+
+#### WebSocket
+- Giao tiếp hai chiều real-time
+
+#### Server-Sent Events (SSE)
+- Push từ server xuống client một chiều
+
 ---
 
-### 5. Application Architecture
+### 5. Backend Architecture
 
-#### Kiến trúc ứng dụng
-- **Layered Architecture** — tầng trình bày / nghiệp vụ / dữ liệu
-- **Hexagonal (Ports & Adapters)** — tách logic khỏi hạ tầng
+- **Layered** — tầng trình bày / nghiệp vụ / dữ liệu
 - **Clean Architecture** — Uncle Bob
+- **Hexagonal (Ports & Adapters)** — tách logic khỏi hạ tầng
 - **Onion Architecture** — domain ở trung tâm
+- **Vertical Slice** — tổ chức theo feature thay vì layer
 - **Modular Monolith** — monolith có cấu trúc rõ ràng
-- **Microservices** — chia nhỏ dịch vụ độc lập
+- **Microservice** — chia nhỏ dịch vụ độc lập
 - **Event Driven Architecture** — giao tiếp qua sự kiện
+- **Serverless** — function-as-a-service
 
-#### Design Patterns quan trọng
+---
+
+### 6. Design Patterns
+
+#### Creational
+- **Factory** — tạo đối tượng không cần biết class cụ thể
+- **Abstract Factory** — tạo họ đối tượng liên quan
+- **Builder** — xây dựng đối tượng phức tạp từng bước
+- **Prototype** — clone đối tượng
+- **Singleton** — đảm bảo chỉ có một instance
+
+#### Structural
+- **Adapter** — chuyển đổi interface
+- **Decorator** — thêm chức năng động
+- **Composite** — cấu trúc cây
+- **Proxy** — kiểm soát truy cập
+- **Bridge** — tách abstraction khỏi implementation
+- **Facade** — giao diện đơn giản cho hệ thống phức tạp
+
+#### Behavioral
+- **Strategy** — thay đổi thuật toán linh hoạt
+- **State** — thay đổi hành vi theo trạng thái
+- **Chain of Responsibility** — chuỗi xử lý
+- **Command** — đóng gói yêu cầu thành đối tượng
+- **Observer** — thông báo khi trạng thái thay đổi
+- **Visitor** — thêm thao tác mà không sửa class
+- **Mediator** — điều phối giao tiếp giữa các đối tượng
+- **Template Method** — định nghĩa khung thuật toán
+
+#### Enterprise Patterns
 - **Repository** — trừu tượng hóa truy cập dữ liệu
 - **Unit of Work** — gom nhóm thao tác DB
+- **CQRS** — tách đọc/ghi
+- **Event Sourcing** — lưu trữ theo sự kiện
 - **Saga** — giao dịch phân tán
-- **Outbox Pattern** — đảm bảo at-least-once delivery
-- **Circuit Breaker** — ngắt mạch khi service lỗi
-- **Retry** — tự động thử lại
-- **Bulkhead** — cô lập lỗi giữa các service
-- **Cache Aside** — cache song song với DB
+- **Outbox** — đảm bảo at-least-once delivery
+- **Inbox** — đảm bảo idempotent consumer
+- **Specification** — điều kiện nghiệp vụ có thể kết hợp
+- **Provider** — trừu tượng hóa nguồn cung cấp dịch vụ
+- **Rule Engine** — động cơ xử lý luật kinh doanh
+- **State Machine** — máy trạng thái
 
 ---
 
-### 6. Integration
+### 7. Business Rule Design
+
+> Đây là phần **rất ít người học**, nhưng cực kỳ quan trọng với hệ thống doanh nghiệp lớn.
+
+Học:
+
+- **Rule Engine** — động cơ xử lý luật kinh doanh động
+- **Decision Table** — bảng quyết định
+- **Decision Tree** — cây quyết định
+- **Policy Pattern** — đóng gói chính sách nghiệp vụ
+- **Workflow Engine** — quản lý luồng công việc
+- **BPM Engine** — Business Process Management
+- **State Machine** — máy trạng thái cho quy trình phức tạp
+- **Approval Engine** — luồng phê duyệt
+- **Validation Engine** — engine kiểm tra dữ liệu
+- **Feature Flag** — bật/tắt tính năng mà không deploy lại
+- **Config Driven Design** — thiết kế điều khiển bởi cấu hình
+
+---
+
+### 8. Messaging & Integration
 
 > Enterprise rất nhiều tích hợp — cần nắm vững.
 
-Học:
-
-- **Message Queue** — giao tiếp bất đồng bộ
-- **Event Bus** — pub/sub trong hệ thống
-- **Apache Kafka** — streaming platform quy mô lớn
-- **RabbitMQ** — message broker linh hoạt
-- **gRPC** — RPC hiệu năng cao
-- **File Integration** — xử lý file giữa hệ thống
-- **ETL (Extract, Transform, Load)** — đồng bộ dữ liệu
-- **CDC (Change Data Capture)** — bắt thay đổi dữ liệu real-time
+- **Queue** — hàng đợi bất đồng bộ
+- **Topic** — nhóm tin nhắn theo chủ đề
+- **Pub/Sub** — publish/subscribe pattern
+- **Event Bus** — bus sự kiện trong hệ thống
+- **Message Broker** — Apache Kafka, RabbitMQ
+- **Dead Letter Queue** — hàng đợi chứa message lỗi
+- **Retry** — tự động thử lại
+- **Backoff** — tăng dần thời gian chờ giữa các lần retry
+- **Exactly Once** — đảm bảo xử lý đúng một lần
+- **At Least Once** — đảm bảo xử lý ít nhất một lần
+- **At Most Once** — đảm bảo xử lý tối đa một lần
+- **Idempotent Consumer** — consumer an toàn khi nhận message trùng
 
 ---
 
-### 7. System Design (Distributed Systems)
+### 9. Distributed Systems
 
 > Đây là thứ mọi người hay nói, nhưng cần nền tảng trước.
 
-Bao gồm:
-
-- **Load Balancer** — phân phối tải
-- **Cache** — Redis, Memcached
-- **Queue** — xử lý bất đồng bộ quy mô lớn
-- **CDN** — phân phối nội dung toàn cầu
-- **Object Storage** — S3, GCS
-- **Search Engine** — Elasticsearch
-- **Rate Limit** — giới hạn tốc độ gọi API
+- **CAP Theorem** — đánh đổi Consistency, Availability, Partition Tolerance
+- **Consensus** — đồng thuận giữa các node
+- **Raft** — thuật toán đồng thuận phổ biến
+- **Paxos** — thuật toán đồng thuận kinh điển
+- **Leader Election** — bầu chọn node chủ
 - **Distributed Lock** — khóa phân tán
-- **Distributed Transaction** — giao dịch nhiều node
-- **Consensus** — Raft, Paxos
-- **CAP Theorem** — đánh đổi giữa Consistency, Availability, Partition Tolerance
-
----
-
-### 8. DevOps
-
-- **Docker** — containerization
-- **Kubernetes** — container orchestration
-- **CI/CD** — tự động hóa deploy
-- **Logging** — ELK Stack (Elasticsearch, Logstash, Kibana)
-- **Metrics** — Prometheus, Grafana
-- **Tracing** — Jaeger, Zipkin (distributed tracing)
-- **Secret Management** — Vault, AWS Secrets Manager
-
----
-
-### 9. Security
-
-- **OAuth2** — ủy quyền
-- **JWT** — token xác thực
-- **OIDC** — xác thực danh tính
-- **RBAC** — phân quyền theo vai trò
-- **ABAC** — phân quyền theo thuộc tính
-- **Encryption** — mã hóa dữ liệu
-- **Audit Log** — nhật ký kiểm tra
+- **Clock** — đồng hồ logic và vật lý
+- **Time Sync** — đồng bộ thời gian (NTP, Vector Clock)
+- **Eventual Consistency** — nhất quán cuối cùng
+- **Strong Consistency** — nhất quán mạnh
+- **Quorum** — đa số đồng thuận
 
 ---
 
@@ -203,11 +297,141 @@ Bao gồm:
 
 - **Horizontal Scaling** — thêm node
 - **Vertical Scaling** — nâng cấp phần cứng
-- **Database Scaling** — read replica, sharding
-- **Cache Strategy** — TTL, eviction policy
-- **Queue Strategy** — dead letter queue, priority queue
-- **Multi-region** — triển khai đa vùng
-- **Disaster Recovery** — RTO, RPO, backup strategy
+- **Cache** — Redis, Memcached
+- **Cache Aside** — cache song song với DB
+- **Read Through** — đọc qua cache
+- **Write Through** — ghi qua cache
+- **Write Behind** — ghi bất đồng bộ vào DB
+- **CDN** — phân phối nội dung toàn cầu
+- **Load Balancer** — phân phối tải
+- **Reverse Proxy** — proxy ngược
+- **API Gateway** — cổng vào duy nhất
+- **Service Discovery** — khám phá service động
+
+---
+
+### 11. Security
+
+- **OAuth2** — ủy quyền
+- **OpenID Connect** — xác thực danh tính
+- **JWT** — token xác thực không trạng thái
+- **Session** — xác thực có trạng thái
+- **RBAC** — phân quyền theo vai trò
+- **ABAC** — phân quyền theo thuộc tính
+- **PBAC** — phân quyền theo chính sách
+- **Encryption** — mã hóa dữ liệu (at rest & in transit)
+- **TLS** — bảo mật truyền thông
+- **Secret Management** — Vault, AWS Secrets Manager
+- **Audit Log** — nhật ký kiểm tra
+
+---
+
+### 12. Cloud
+
+- **Containers** — Docker
+- **Kubernetes** — container orchestration
+- **Docker** — containerization
+- **Ingress** — điều phối traffic vào cluster
+- **Service Mesh** — Istio, Linkerd
+- **Auto Scaling** — tự động mở rộng
+- **Object Storage** — S3, GCS
+- **IAM** — Identity and Access Management
+- **VPC** — Virtual Private Cloud
+- **CDN** — phân phối nội dung
+
+---
+
+### 13. Observability
+
+- **Logging** — ghi log có cấu trúc
+- **Metrics** — Prometheus, Grafana
+- **Tracing** — Jaeger, Zipkin (distributed tracing)
+- **OpenTelemetry** — chuẩn thống nhất cho observability
+- **Monitoring** — giám sát hệ thống
+- **Alerting** — cảnh báo tự động
+- **Health Check** — kiểm tra sức khỏe service
+- **SLI** — Service Level Indicator
+- **SLO** — Service Level Objective
+- **SLA** — Service Level Agreement
+
+---
+
+### 14. DevOps
+
+- **Git Flow** — quy trình quản lý nhánh
+- **CI** — Continuous Integration
+- **CD** — Continuous Deployment
+- **Infrastructure as Code** — Terraform, Pulumi
+- **Blue Green** — triển khai không downtime
+- **Canary** — triển khai dần dần
+- **Rollback** — quay lại phiên bản trước
+- **Feature Toggle** — bật/tắt tính năng không cần deploy
+
+---
+
+### 15. Frontend Architecture
+
+- **Component Design** — thiết kế component tái sử dụng
+- **State Management** — Redux, Zustand, Pinia
+- **Routing** — điều hướng client-side
+- **Theme System** — hệ thống theme nhất quán
+- **Design System** — thư viện component chuẩn hóa
+- **Atomic Design** — phân cấp component từ nhỏ đến lớn
+- **Accessibility** — khả năng tiếp cận (WCAG)
+- **Offline First** — hoạt động khi không có mạng
+- **Caching** — cache dữ liệu phía client
+
+---
+
+### 16. AI Architecture
+
+> Đặc biệt phù hợp với hướng AI doanh nghiệp.
+
+- **RAG** — Retrieval-Augmented Generation
+- **Agent Architecture** — kiến trúc agent tự chủ
+- **MCP** — Model Context Protocol
+- **Tool Calling** — agent gọi công cụ bên ngoài
+- **Prompt Engineering** — kỹ thuật viết prompt hiệu quả
+- **Memory** — bộ nhớ ngắn hạn và dài hạn cho agent
+- **Context Engineering** — quản lý ngữ cảnh cho LLM
+- **Knowledge Graph** — đồ thị tri thức
+- **Vector Search** — tìm kiếm ngữ nghĩa
+- **Multi-Agent** — hệ thống nhiều agent phối hợp
+- **AI Workflow** — luồng công việc tích hợp AI
+- **Evaluation** — đánh giá chất lượng output AI
+- **Guardrails** — giới hạn và kiểm soát output AI
+
+---
+
+### 17. Data Engineering
+
+- **ETL** — Extract, Transform, Load
+- **ELT** — Extract, Load, Transform
+- **CDC** — Change Data Capture
+- **Data Warehouse** — kho dữ liệu phân tích
+- **Data Lake** — hồ dữ liệu thô
+- **Data Mart** — kho dữ liệu theo chủ đề
+- **OLTP** — Online Transaction Processing
+- **OLAP** — Online Analytical Processing
+- **Batch Processing** — xử lý theo lô
+- **Stream Processing** — xử lý luồng dữ liệu real-time
+
+---
+
+### 18. Software Engineering
+
+- **SOLID** — 5 nguyên tắc thiết kế hướng đối tượng
+- **GRASP** — General Responsibility Assignment Software Patterns
+- **KISS** — Keep It Simple, Stupid
+- **DRY** — Don't Repeat Yourself
+- **YAGNI** — You Aren't Gonna Need It
+- **Refactoring** — cải thiện code không thay đổi hành vi
+- **Test Pyramid** — kim tự tháp kiểm thử
+- **TDD** — Test-Driven Development
+- **BDD** — Behavior-Driven Development
+- **Integration Testing** — kiểm thử tích hợp
+- **Contract Testing** — kiểm thử hợp đồng giữa service
+- **Architecture Decision Records (ADR)** — ghi lại quyết định kiến trúc
 
 ---
 
@@ -215,15 +439,23 @@ Bao gồm:
 
 | Giai đoạn | Chủ đề | Ưu tiên |
 |-----------|--------|---------|
-| 1 | Domain Modeling (DDD) | ⭐⭐⭐⭐⭐ |
-| 2 | Business Rule Design | ⭐⭐⭐⭐⭐ |
+| 1 | Business Analysis | ⭐⭐⭐⭐ |
+| 2 | Domain Modeling (DDD) | ⭐⭐⭐⭐⭐ |
 | 3 | Database Design | ⭐⭐⭐⭐⭐ |
 | 4 | API Design | ⭐⭐⭐⭐ |
-| 5 | Application Architecture | ⭐⭐⭐⭐ |
-| 6 | Integration | ⭐⭐⭐⭐ |
-| 7 | System Design | ⭐⭐⭐ |
-| 8 | DevOps | ⭐⭐⭐ |
-| 9 | Security | ⭐⭐⭐ |
+| 5 | Backend Architecture | ⭐⭐⭐⭐ |
+| 6 | Design Patterns | ⭐⭐⭐⭐ |
+| 7 | Business Rule Design | ⭐⭐⭐⭐⭐ |
+| 8 | Messaging & Integration | ⭐⭐⭐⭐ |
+| 9 | Distributed Systems | ⭐⭐⭐ |
 | 10 | Scalability | ⭐⭐⭐ |
+| 11 | Security | ⭐⭐⭐⭐ |
+| 12 | Cloud | ⭐⭐⭐ |
+| 13 | Observability | ⭐⭐⭐ |
+| 14 | DevOps | ⭐⭐⭐ |
+| 15 | Frontend Architecture | ⭐⭐⭐ |
+| 16 | AI Architecture | ⭐⭐⭐⭐⭐ |
+| 17 | Data Engineering | ⭐⭐⭐ |
+| 18 | Software Engineering | ⭐⭐⭐⭐ |
 
-> 💡 **Gợi ý**: Với mục tiêu xây dựng AI agent harness và hệ thống doanh nghiệp, hãy bắt đầu từ **Domain Modeling → Business Rule Design → Database Design**. Khi nền tảng này vững, việc áp dụng AI agent vào hệ thống doanh nghiệp sẽ tự nhiên và hiệu quả hơn.
+> 💡 **Nhấn mạnh đặc biệt**: Với nền tảng senior backend, đang xây dựng AI harness, quan tâm workflow/rule engine/state machine và muốn phát triển AI cho tài chính — hãy ưu tiên chuỗi **DDD → Business Rule Design → API Design → Messaging & Integration → AI Architecture**. Đây là chuỗi kiến thức tạo lợi thế lớn hơn so với việc chỉ tập trung vào microservices hay Kubernetes, vì nó giúp thiết kế được những hệ thống doanh nghiệp linh hoạt và dễ mở rộng từ gốc.
