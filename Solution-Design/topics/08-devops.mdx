@@ -1,0 +1,420 @@
+# 08. DevOps
+
+> **Mức độ quan trọng**: ⭐⭐⭐ — Nền tảng để deploy, vận hành và quan sát hệ thống.
+
+---
+
+## Khái Niệm
+
+**DevOps** là văn hóa và bộ practices kết hợp Development và Operations để:
+- Rút ngắn vòng phản hồi từ code đến production
+- Tự động hóa build, test, deploy
+- Đảm bảo hệ thống ổn định, có thể quan sát
+
+---
+
+## 1. Docker (Containerization)
+
+### Khái Niệm
+Đóng gói application và tất cả dependencies vào một container. **"Works on my machine"** → **"Works everywhere"**.
+
+### Diagram
+```
+Traditional:                    Docker:
+┌────────────────────┐          ┌────────────────────────┐
+│  Host OS           │          │  Host OS               │
+│  ┌──────────────┐  │          │  ┌──────────────────┐   │
+│  │ App + Deps   │  │          │  │  Docker Engine   │   │
+│  │ (tightly     │  │          │  └────────┬─────────┘   │
+│  │  coupled)    │  │          │           │              │
+│  └──────────────┘  │          │  ┌────────┴──────┐       │
+└────────────────────┘          │  │  Container    │       │
+                                │  │  App + Deps   │       │
+                                │  │  Isolated     │       │
+                                │  └───────────────┘       │
+                                └────────────────────────┘
+```
+
+### Dockerfile
+```dockerfile
+# Multi-stage build
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+RUN npm run build
+
+# Production image — nhỏ hơn
+FROM node:20-alpine AS production
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+
+EXPOSE 3000
+USER node  # Security: không chạy as root
+CMD ["node", "dist/main.js"]
+```
+
+### Docker Compose (Local Development)
+```yaml
+version: '3.8'
+services:
+  api:
+    build: .
+    ports: ["3000:3000"]
+    environment:
+      DATABASE_URL: ******db:5432/mydb
+      REDIS_URL: redis://redis:6379
+    depends_on: [db, redis]
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes: [postgres_data:/var/lib/postgresql/data]
+
+  redis:
+    image: redis:7-alpine
+
+volumes:
+  postgres_data:
+```
+
+---
+
+## 2. Kubernetes (Container Orchestration)
+
+### Khái Niệm
+Tự động deploy, scale, và quản lý containers ở quy mô lớn.
+
+### Diagram
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                      Kubernetes Cluster                          │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                    Control Plane                        │    │
+│  │  API Server │ Scheduler │ etcd │ Controller Manager     │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                                                                  │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────┐  │
+│  │     Node 1       │  │     Node 2       │  │    Node 3    │  │
+│  │  ┌────┐  ┌────┐  │  │  ┌────┐  ┌────┐  │  │  ┌────┐     │  │
+│  │  │Pod │  │Pod │  │  │  │Pod │  │Pod │  │  │  │Pod │     │  │
+│  │  └────┘  └────┘  │  │  └────┘  └────┘  │  │  └────┘     │  │
+│  └──────────────────┘  └──────────────────┘  └──────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Key Concepts
+```
+Pod: Đơn vị nhỏ nhất — 1+ containers cùng network/storage
+Deployment: Quản lý replica set, rolling updates
+Service: Stable endpoint cho pods (load balance)
+Ingress: HTTP routing vào cluster
+ConfigMap: Non-secret config
+Secret: Sensitive config (credentials)
+PVC: Persistent storage
+HPA: Horizontal Pod Autoscaler
+```
+
+### Deployment YAML
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: order-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+      - name: order-service
+        image: myregistry/order-service:v1.2.0
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          periodSeconds: 30
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: password
+```
+
+---
+
+## 3. CI/CD Pipeline
+
+### Diagram
+```
+Developer Push Code
+        │
+        ▼
+┌───────────────────────────────────────────────────────────────┐
+│                         CI Pipeline                           │
+│                                                               │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐ │
+│  │  Build   │─►│   Test   │─►│   Lint   │─►│Security Scan │ │
+│  │(compile, │  │(unit,    │  │(eslint,  │  │(Snyk, SAST)  │ │
+│  │ docker)  │  │integration│  │ sonar)  │  │              │ │
+│  └──────────┘  └──────────┘  └──────────┘  └──────┬───────┘ │
+└─────────────────────────────────────────────────── │ ────────┘
+                                                     │ All passed
+                                                     ▼
+┌───────────────────────────────────────────────────────────────┐
+│                         CD Pipeline                           │
+│                                                               │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐   │
+│  │  Deploy to   │───►│  Deploy to   │───►│  Deploy to   │   │
+│  │  Staging     │    │  UAT         │    │  Production  │   │
+│  │  (auto)      │    │  (auto)      │    │  (manual     │   │
+│  └──────────────┘    └──────────────┘    │   approval)  │   │
+│                                          └──────────────┘   │
+└───────────────────────────────────────────────────────────────┘
+```
+
+### GitHub Actions Example
+```yaml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test -- --coverage
+      - run: npm run lint
+
+  build-and-push:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t myapp:${{ github.sha }} .
+      - name: Push to registry
+        run: |
+          docker tag myapp:${{ github.sha }} registry/myapp:${{ github.sha }}
+          docker push registry/myapp:${{ github.sha }}
+
+  deploy-staging:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl set image deployment/order-service \
+            order-service=registry/myapp:${{ github.sha }}
+          kubectl rollout status deployment/order-service
+```
+
+### Deployment Strategies
+```
+Recreate:
+Old: ████████████  Stop all old
+New: ████████████  Start all new
+→ Downtime!
+
+Rolling Update:
+Old: ██████░░░░░░
+New: ░░░░░░██████
+→ Gradual, no downtime
+
+Blue-Green:
+Blue (current): ████████████  ← all traffic
+Green (new):    ████████████  ← test
+Switch: traffic → Green
+
+Canary:
+Old: ████████████  90% traffic
+New: ████░░░░░░░░  10% traffic
+→ Gradually increase if stable
+```
+
+---
+
+## 4. Observability: Logging, Metrics, Tracing
+
+### The Three Pillars
+```
+Logging: "Chuyện gì đã xảy ra?"
+Metrics: "Hệ thống khỏe không?"
+Tracing: "Request đi qua đâu?"
+```
+
+### Logging
+```
+Structured logging (JSON):
+{
+  "timestamp": "2024-01-01T10:00:00Z",
+  "level": "ERROR",
+  "service": "order-service",
+  "traceId": "abc-123",
+  "message": "Failed to confirm order",
+  "orderId": "order-456",
+  "error": "Inventory not available",
+  "userId": "user-789"
+}
+
+Stack: ELK (Elasticsearch + Logstash + Kibana)
+         Grafana Loki (simpler, cheaper)
+
+Log Levels:
+ERROR: Lỗi cần attention ngay
+WARN:  Điều không mong muốn nhưng không fatal
+INFO:  Thông tin về flow bình thường
+DEBUG: Chi tiết để debug (chỉ dev environment)
+```
+
+### Metrics
+```
+Types:
+Counter:   Tổng số requests, errors (only goes up)
+Gauge:     Current value — CPU%, memory, active connections
+Histogram: Distribution — request latency percentiles (p50, p95, p99)
+Summary:   Similar to histogram
+
+Prometheus + Grafana:
+┌──────────────┐    scrape    ┌──────────────┐    ┌──────────────┐
+│  App exposes │◄─────────────│  Prometheus  │───►│   Grafana    │
+│  /metrics    │              │  (store)     │    │  (visualize) │
+└──────────────┘              └──────────────┘    └──────────────┘
+
+Key metrics to monitor:
+- Request rate (req/s)
+- Error rate (%)
+- Latency (p95, p99)
+- CPU, Memory, Disk utilization
+- DB connections, query time
+```
+
+### Distributed Tracing
+```
+Request qua nhiều services → khó debug mà không có tracing
+
+Without tracing:                With tracing:
+"API chậm" → Không biết ở đâu  TraceId: abc-123
+                                  ├── API Gateway:     5ms
+                                  ├── Order Service:  200ms
+                                  │     ├── DB Query: 180ms  ← BOTTLENECK!
+                                  │     └── Cache:     5ms
+                                  └── Email Service:   10ms
+
+OpenTelemetry → Jaeger / Zipkin / AWS X-Ray
+
+// Instrument code
+const span = tracer.startSpan('confirm-order');
+span.setAttribute('orderId', orderId);
+try {
+  await orderRepo.findById(orderId);
+  span.setStatus({ code: SpanStatusCode.OK });
+} catch (err) {
+  span.recordException(err);
+  span.setStatus({ code: SpanStatusCode.ERROR });
+} finally {
+  span.end();
+}
+```
+
+---
+
+## 5. Secret Management
+
+```
+❌ Không làm:
+DATABASE_URL=******db:5432/prod
+
+✅ Dùng:
+1. Environment variables (từ secure source)
+2. Kubernetes Secrets (encrypted at rest)
+3. HashiCorp Vault (most secure)
+4. AWS Secrets Manager / Azure Key Vault
+
+// HashiCorp Vault
+const secret = await vault.read('secret/database');
+const db = new Database({
+  password: secret.data.password
+});
+
+// Rotation: Vault có thể tự động rotate credentials
+// Audit: Mọi lần read đều được log
+```
+
+---
+
+## Diagram: DevOps Pipeline Hoàn Chỉnh
+
+```
+Code Push
+    │
+    ▼
+CI: Build → Unit Test → Integration Test → Security Scan → Docker Build
+    │
+    ▼ All passed
+Container Registry (image tagged with git sha)
+    │
+    ▼
+CD to Staging → Smoke Tests → CD to Production (manual gate)
+    │
+    ▼
+Production
+    ├── Prometheus scrapes /metrics
+    ├── Loki collects structured logs
+    └── Jaeger receives traces
+    │
+    ▼
+Grafana Dashboards + Alerts → PagerDuty/Slack on error spike
+```
+
+---
+
+## Tài Liệu Đề Xuất
+
+- 📖 *The DevOps Handbook* — Gene Kim
+- 📖 *Kubernetes in Action* — Marko Luksa
+- 🌐 [12factor.net](https://12factor.net) — 12-Factor App methodology
+- 🌐 [OpenTelemetry](https://opentelemetry.io/) — Observability standard

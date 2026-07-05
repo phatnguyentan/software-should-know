@@ -1,0 +1,343 @@
+# 06. Integration
+
+> **Mức độ quan trọng**: ⭐⭐⭐⭐ — Enterprise rất nhiều tích hợp. Đây là xương sống của hệ thống phân tán.
+
+---
+
+## Khái Niệm
+
+**Integration** là quá trình kết nối các hệ thống khác nhau để chúng có thể chia sẻ dữ liệu và phối hợp hoạt động.
+
+Các kiểu tích hợp:
+- **Synchronous** — gọi và chờ kết quả (REST, gRPC)
+- **Asynchronous** — gửi và quên, xử lý sau (Message Queue, Event Bus)
+- **Batch** — xử lý theo lô (ETL, file transfer)
+- **Real-time streaming** — dữ liệu liên tục (Kafka Streams, CDC)
+
+---
+
+## 1. Message Queue
+
+### Khái Niệm
+Hàng đợi tin nhắn cho phép giao tiếp **bất đồng bộ** giữa các hệ thống. Producer đặt message vào queue, Consumer xử lý khi sẵn sàng.
+
+### Diagram
+```
+┌────────────────┐    ┌──────────────┐    ┌────────────────┐
+│    Producer    │───►│    Queue     │───►│    Consumer    │
+│  (Order Svc)   │    │              │    │  (Email Svc)   │
+└────────────────┘    └──────────────┘    └────────────────┘
+
+Lợi ích:
+✅ Decoupling — Producer không cần biết Consumer
+✅ Load leveling — Consumer xử lý theo tốc độ của mình
+✅ Resilience — nếu Consumer down, message vẫn an toàn trong queue
+✅ Retry — failed messages có thể được retry
+
+Dead Letter Queue (DLQ):
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│ Producer │───►│  Queue   │───►│Consumer  │───►│   DLQ    │
+└──────────┘    └──────────┘    └──────────┘    └──────────┘
+                                  │ fail N times      ↑
+                                  └──────────────────┘
+```
+
+### Point-to-Point vs Pub/Sub
+```
+Point-to-Point (Queue):
+Producer → [Queue] → Consumer A (chỉ một consumer xử lý)
+
+Pub/Sub (Topic):
+Producer → [Topic] → Consumer A (tất cả subscribers nhận)
+                  └──► Consumer B
+                  └──► Consumer C
+```
+
+---
+
+## 2. Apache Kafka
+
+### Khái Niệm
+Distributed streaming platform. Không chỉ là message queue — là **persistent event log**.
+
+### Diagram
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                          Kafka Cluster                           │
+│                                                                  │
+│  Topic: "orders"                                                 │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌────────────────┐ │
+│  │   Partition 0    │  │   Partition 1    │  │  Partition 2   │ │
+│  │ [msg0][msg1][msg2│  │ [msg0][msg1][msg2│  │ [msg0][msg1]   │ │
+│  └──────────────────┘  └──────────────────┘  └────────────────┘ │
+│         ↑ Messages are RETAINED (configurable retention period)  │
+└──────────────────────────────────────────────────────────────────┘
+
+Producers ──────────────────────────────────────────────────► Partitions
+                                                                    │
+Consumer Group A (Email Service):                                   │
+  Consumer 1 ← Partition 0                                         │
+  Consumer 2 ← Partition 1                                         │
+  Consumer 3 ← Partition 2                                         │
+
+Consumer Group B (Analytics Service):                               │
+  Consumer 1 ← All Partitions (reads independently)
+```
+
+### Kafka Key Concepts
+```
+Topic: Danh mục message (như table trong DB)
+Partition: Phân vùng song song của topic (scale out)
+Offset: Vị trí của message trong partition
+Consumer Group: Nhóm consumers cùng xử lý một topic
+Retention: Kafka giữ message X ngày (không xóa sau khi đọc)
+
+Ordering guarantee:
+- Messages trong cùng partition: có thứ tự
+- Messages qua nhiều partitions: không đảm bảo
+→ Dùng same key → same partition cho related messages
+```
+
+### Ví Dụ Code (Node.js với KafkaJS)
+```typescript
+// Producer
+const producer = kafka.producer();
+await producer.connect();
+
+await producer.send({
+  topic: 'orders',
+  messages: [
+    {
+      key: orderId,         // Same key → same partition → ordered
+      value: JSON.stringify({
+        event: 'OrderConfirmed',
+        orderId,
+        customerId,
+        timestamp: new Date().toISOString()
+      })
+    }
+  ]
+});
+
+// Consumer
+const consumer = kafka.consumer({ groupId: 'email-service' });
+await consumer.subscribe({ topic: 'orders', fromBeginning: false });
+
+await consumer.run({
+  eachMessage: async ({ topic, partition, message }) => {
+    const event = JSON.parse(message.value!.toString());
+    if (event.event === 'OrderConfirmed') {
+      await emailService.sendConfirmation(event.customerId);
+    }
+  }
+});
+```
+
+---
+
+## 3. RabbitMQ
+
+### Khái Niệm
+Traditional message broker với routing linh hoạt qua Exchange và Binding.
+
+### Diagram
+```
+Producer ──► Exchange ──► Queue ──► Consumer
+
+Exchange types:
+┌─────────────────────────────────────────────────────────┐
+│ Direct Exchange:                                        │
+│ routing_key="email" ──► Email Queue ──► Email Consumer  │
+│                                                         │
+│ Fanout Exchange:                                        │
+│ ──► Email Queue    ──► Email Consumer                   │
+│ ──► SMS Queue      ──► SMS Consumer                     │
+│ ──► Analytics Queue──► Analytics Consumer               │
+│                                                         │
+│ Topic Exchange:                                         │
+│ "order.confirmed"  ──► order.* Queue                    │
+│ "order.shipped"    ──► order.* Queue                    │
+│ "payment.failed"   ──► #.failed Queue                   │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Kafka vs RabbitMQ
+| | Kafka | RabbitMQ |
+|--|-------|----------|
+| **Model** | Pull (consumer polls) | Push (broker pushes) |
+| **Retention** | Log (days/weeks) | Queue (until consumed) |
+| **Throughput** | Cực cao (millions/sec) | Cao (tens of thousands/sec) |
+| **Routing** | Topic + Partition | Exchange + Binding (linh hoạt) |
+| **Replay** | Có (từ offset bất kỳ) | Không (consumed = gone) |
+| **Dùng cho** | Event streaming, audit | Task queue, RPC, routing |
+
+---
+
+## 4. gRPC
+
+### Khái Niệm
+High-performance RPC framework dùng HTTP/2 và Protocol Buffers.
+
+### Diagram
+```
+Client (Go)                    Server (Java)
+     │                               │
+     │  HTTP/2 + Protobuf            │
+     │──────────────────────────────►│
+     │                               │
+     │  Streaming support:           │
+     │  - Unary RPC                  │
+     │  - Server streaming           │
+     │  - Client streaming           │
+     │  - Bidirectional streaming    │
+     │◄──────────────────────────────│
+```
+
+### Ưu Điểm vs REST
+```
+gRPC:
+✅ Protobuf nhỏ hơn JSON 3-10x
+✅ HTTP/2 multiplexing, header compression
+✅ Strongly typed — compile-time errors
+✅ Streaming built-in
+✅ Language agnostic (30+ languages)
+
+REST:
+✅ Human readable (JSON)
+✅ Dễ debug hơn
+✅ Browser support tốt hơn
+✅ Không cần .proto file
+```
+
+---
+
+## 5. ETL (Extract, Transform, Load)
+
+### Khái Niệm
+Quy trình đồng bộ và chuyển đổi dữ liệu giữa các hệ thống.
+
+### Diagram
+```
+Source Systems               ETL Pipeline              Target Systems
+┌─────────────┐              ┌──────────────────┐      ┌─────────────┐
+│  Orders DB  │──Extract────►│                  │      │  Data       │
+└─────────────┘              │    Transform:    │─────►│  Warehouse  │
+┌─────────────┐              │  - Clean data    │      └─────────────┘
+│ CRM System  │──Extract────►│  - Normalize     │
+└─────────────┘              │  - Join datasets │      ┌─────────────┐
+┌─────────────┐              │  - Aggregate     │─────►│  Analytics  │
+│  ERP System │──Extract────►│                  │      │  Dashboard  │
+└─────────────┘              └──────────────────┘      └─────────────┘
+```
+
+### Tools
+- **Apache Spark** — distributed processing
+- **Apache Airflow** — workflow orchestration
+- **dbt** — data transformation in SQL
+- **Fivetran, Airbyte** — managed ETL
+
+---
+
+## 6. CDC (Change Data Capture)
+
+### Khái Niệm
+Bắt thay đổi dữ liệu từ database **real-time** dựa trên transaction log, không cần polling.
+
+### Diagram
+```
+┌─────────────────┐    Read WAL/Binlog    ┌─────────────────┐
+│  Source DB      │──────────────────────►│  Debezium/CDC   │
+│  (Postgres)     │                        │  Connector      │
+│                 │                        └────────┬────────┘
+│  WAL (Write     │                                 │ Publish events
+│  Ahead Log):    │                                 ▼
+│  INSERT order   │                        ┌─────────────────┐
+│  UPDATE status  │                        │   Kafka Topic   │
+│  DELETE item    │                        │   "db.orders"   │
+└─────────────────┘                        └────────┬────────┘
+                                                    │
+                                    ┌───────────────┼───────────────┐
+                                    ▼               ▼               ▼
+                             ┌──────────┐   ┌──────────┐   ┌──────────┐
+                             │  Search  │   │  Cache   │   │Analytics │
+                             │  Index   │   │ Update   │   │ Service  │
+                             └──────────┘   └──────────┘   └──────────┘
+
+CDC vs Polling:
+❌ Polling: SELECT WHERE updatedAt > lastCheck → Missed deletes, overhead
+✅ CDC: Đọc DB transaction log → Zero overhead, catches all changes
+```
+
+### Tools
+- **Debezium** — open-source CDC (Postgres, MySQL, MongoDB, SQL Server)
+- **AWS DMS** — managed CDC
+- **Maxwell's Daemon** — MySQL CDC
+
+---
+
+## 7. File Integration
+
+### Pattern
+```
+┌────────────────────────────────────────────────────────────┐
+│               File Integration Patterns                    │
+│                                                            │
+│  File Transfer:                                            │
+│  System A ──► FTP/SFTP/S3 ──► System B                   │
+│                                                            │
+│  Batch Processing:                                         │
+│  Overnight job → Export CSV → Process → Import → DB       │
+│                                                            │
+│  EDI (Electronic Data Interchange):                        │
+│  B2B format: X12, EDIFACT                                 │
+│  e.g., Purchase Order → Supplier                          │
+└────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 8. Diagram: Integration Patterns Tổng Hợp
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                     Enterprise Integration                          │
+│                                                                     │
+│  Synchronous (real-time):                                           │
+│  Service A ──REST/gRPC──► Service B (chờ response)                 │
+│                                                                     │
+│  Asynchronous (decoupled):                                          │
+│  Service A ──► Kafka ──► Service B, C, D (không chờ)               │
+│                                                                     │
+│  Batch (scheduled):                                                 │
+│  Cron Job ──► ETL Pipeline ──► Data Warehouse                       │
+│                                                                     │
+│  Real-time sync (CDC):                                              │
+│  DB Changes ──► Debezium ──► Kafka ──► Elasticsearch/Cache          │
+│                                                                     │
+│  File-based:                                                        │
+│  ERP ──► S3 ──► Lambda ──► Processed ──► Target DB                 │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Khi Nào Dùng Gì
+
+| Cần | Dùng |
+|-----|------|
+| Real-time, cần response ngay | REST / gRPC |
+| Decouple services, xử lý async | RabbitMQ / Kafka |
+| High throughput, event replay | Kafka |
+| Complex routing | RabbitMQ |
+| Sync data sang analytics | ETL (Airflow + dbt) |
+| Sync real-time với zero overhead | CDC (Debezium) |
+| B2B data exchange | File Integration / EDI |
+
+---
+
+## Tài Liệu Đề Xuất
+
+- 📖 *Enterprise Integration Patterns* — Gregor Hohpe, Bobby Woolf ⭐
+- 📖 *Kafka: The Definitive Guide* — Confluent
+- 🌐 [Debezium Documentation](https://debezium.io/documentation/)
+- 🌐 [RabbitMQ Tutorials](https://www.rabbitmq.com/tutorials)

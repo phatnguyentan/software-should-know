@@ -1,0 +1,86 @@
+# Enterprise System Design — Index
+
+Lộ trình học Enterprise System Design được chia thành 10 topic, mỗi topic có đầy đủ: **khái niệm, giải thích, diagram, code ví dụ, và best practices**.
+
+---
+
+## Thứ Tự Học Đề Xuất
+
+```
+Business Domain
+      ↓
+Domain Modeling (DDD)          → 01-domain-modeling.mdx
+      ↓
+Business Rule Design           → 02-business-rule-design.mdx
+      ↓
+Database Design                → 03-database-design.mdx
+      ↓
+API Design                     → 04-api-design.mdx
+      ↓
+Application Architecture       → 05-application-architecture.mdx
+      ↓
+Integration                    → 06-integration.mdx
+      ↓
+System Design (Distributed)    → 07-system-design.mdx
+      ↓
+DevOps                         → 08-devops.mdx
+      ↓
+Security                       → 09-security.mdx
+      ↓
+Scalability                    → 10-scalability.mdx
+```
+
+---
+
+## Tổng Quan Các Topic
+
+| # | Topic | Ưu tiên | Nội dung chính |
+|---|-------|---------|----------------|
+| 01 | **Domain Modeling (DDD)** | ⭐⭐⭐⭐⭐ | Entity, Value Object, Aggregate, Domain Event, Bounded Context |
+| 02 | **Business Rule Design** | ⭐⭐⭐⭐⭐ | State Machine, Specification, Strategy, Policy, Rule Engine, Workflow |
+| 03 | **Database Design** | ⭐⭐⭐⭐⭐ | Normalization, Index, ACID, MVCC, NoSQL, CQRS, Event Sourcing |
+| 04 | **API Design** | ⭐⭐⭐⭐ | REST, gRPC, GraphQL, Versioning, Pagination, Error Handling, Idempotency |
+| 05 | **Application Architecture** | ⭐⭐⭐⭐ | Hexagonal, Clean, Modular Monolith, Microservices, Saga, Outbox |
+| 06 | **Integration** | ⭐⭐⭐⭐ | Message Queue, Kafka, RabbitMQ, gRPC, ETL, CDC |
+| 07 | **System Design** | ⭐⭐⭐ | Load Balancer, Cache, CDN, Rate Limit, Distributed Lock, CAP Theorem |
+| 08 | **DevOps** | ⭐⭐⭐ | Docker, Kubernetes, CI/CD, Logging, Metrics, Tracing |
+| 09 | **Security** | ⭐⭐⭐ | OAuth2, JWT, OIDC, RBAC, ABAC, Encryption, Audit Log |
+| 10 | **Scalability** | ⭐⭐⭐ | Horizontal/Vertical Scaling, DB Scaling, Cache Strategy, Multi-region, DR |
+
+---
+
+## Mỗi Topic Bao Gồm
+
+- 📖 **Khái niệm** — Định nghĩa và mục đích
+- 💡 **Tại sao quan trọng** — Lý do học topic này
+- 📊 **Diagram** — Hình ảnh hóa kiến trúc và flow
+- 💻 **Code ví dụ** — TypeScript/SQL/YAML thực tế
+- ✅ **Best practices** — Do's và Don'ts
+- 📚 **Tài liệu đề xuất** — Sách và resources
+
+---
+
+## Lộ Trình Với Mục Tiêu Cụ Thể
+
+### Nếu bạn đang xây dựng AI Agent Harness:
+1. Domain Modeling → Thiết kế Agent, Task, Workflow domain
+2. Business Rule Design → State Machine cho agent lifecycle, Rule Engine
+3. Application Architecture → Event-Driven để orchestrate agents
+4. Integration → Message Queue để coordinate agents
+5. Database Design → Store agent state, event history (Event Sourcing)
+
+### Nếu bạn đang phỏng vấn System Design:
+1. System Design (topic 07) — Load Balancer, Cache, Queue, CDN
+2. Database Design (topic 03) — CQRS, Sharding, Replication
+3. Scalability (topic 10)
+4. API Design (topic 04)
+
+### Nếu bạn đang refactor một legacy system:
+1. Domain Modeling → Tìm hiểu bounded contexts
+2. Application Architecture → Strangler Fig pattern
+3. Database Design → Migration strategy
+4. Integration → Event-driven decoupling
+
+---
+
+> 💡 **Ghi nhớ**: Đừng học Kubernetes trước khi Domain Modeling vững. Infrastructure là detail, Business Logic là cốt lõi.

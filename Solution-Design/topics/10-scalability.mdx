@@ -1,0 +1,362 @@
+# 10. Scalability
+
+> **Mức độ quan trọng**: ⭐⭐⭐ — Khả năng mở rộng để handle growth mà không rebuild từ đầu.
+
+---
+
+## Khái Niệm
+
+**Scalability** là khả năng hệ thống xử lý tăng tải (users, data, transactions) bằng cách thêm tài nguyên.
+
+Hai chiều mở rộng:
+- **Scale Up** (Vertical) — Mạnh hơn
+- **Scale Out** (Horizontal) — Nhiều hơn
+
+---
+
+## 1. Horizontal vs Vertical Scaling
+
+### Diagram
+```
+Vertical Scaling (Scale Up):
+┌──────────┐         ┌──────────────┐
+│ Server   │  ──────►│   Server     │
+│ 4 CPU    │  bigger │   32 CPU     │
+│ 8GB RAM  │         │   128GB RAM  │
+└──────────┘         └──────────────┘
++ Simple — không cần change code
++ Good for databases
+- Hardware limit
+- Single point of failure
+- Expensive, diminishing returns
+
+Horizontal Scaling (Scale Out):
+┌──────────┐         ┌──────────┐  ┌──────────┐  ┌──────────┐
+│ Server   │  ──────►│ Server 1 │  │ Server 2 │  │ Server 3 │
+│ 4 CPU    │  more   │ 4 CPU    │  │ 4 CPU    │  │ 4 CPU    │
+└──────────┘         └──────────┘  └──────────┘  └──────────┘
++ Theoretically unlimited scale
++ No single point of failure
++ Cost-effective (commodity hardware)
+- Need stateless application design
+- Need load balancer
+- Distributed system complexity
+```
+
+---
+
+## 2. Database Scaling
+
+### Read Scaling: Read Replicas
+```
+Write traffic (20%):
+┌────────────────────────────────────────────────┐
+│   Application                                   │
+│     │ Writes                                    │
+│     ▼                                           │
+│   Primary DB ──replication──► Replica 1         │
+│                             ──replication──► Replica 2│
+│     ▲ Reads                                     │
+│     │                                           │
+│   Connection Pool (read from replicas)          │
+└────────────────────────────────────────────────┘
+
+Read traffic (80%):
+→ Distributed across replicas
+→ Primary handles only writes
+```
+
+### Write Scaling: Sharding
+```
+Horizontal partitioning of data across multiple DB instances
+
+Hash Sharding:
+shard = hash(userId) % numShards
+
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│  Shard 0        │  │  Shard 1        │  │  Shard 2        │
+│  Users 0,3,6... │  │  Users 1,4,7... │  │  Users 2,5,8... │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
+
+Range Sharding:
+Shard 0: userId 1-1M
+Shard 1: userId 1M-2M
+Shard 2: userId 2M+
+
+Directory Sharding:
+Lookup table: userId → shardId
+→ Most flexible, but lookup overhead
+
+⚠️ Sharding challenges:
+- Cross-shard queries are expensive
+- Re-sharding is painful
+- Transactions across shards are complex
+→ Avoid sharding as long as possible!
+```
+
+### Connection Pooling
+```
+Without pooling:
+Each request → New DB connection (expensive: ~50ms)
+1000 concurrent requests → 1000 connections → DB crashes
+
+With pooling (PgBouncer, HikariCP):
+┌──────────────────────────────────────────────┐
+│              Connection Pool                 │
+│  Request → borrow connection from pool       │
+│  Done    → return connection to pool         │
+│  Pool size: 20 connections                   │
+│  Serve: 1000 concurrent requests efficiently │
+└──────────────────────────────────────────────┘
+```
+
+---
+
+## 3. Cache Strategy
+
+### Cache Hierarchy
+```
+L1 (In-process): Application memory (~1ms)
+  - Python/Java dict, Node.js Map
+  - Node-local, lost on restart
+  - Size limited by app memory
+
+L2 (Distributed): Redis/Memcached (~2-5ms)
+  - Shared across all instances
+  - Survives restarts
+  - Can be clustered
+
+L3 (CDN): Static assets (~10-50ms from edge)
+  - Images, CSS/JS, HTML
+
+L4 (Database Query Cache): Built-in DB cache
+  - Last resort
+```
+
+### Cache Invalidation Strategies
+```
+TTL (Time-To-Live):
+SET product:123 {...} EX 300  ← Expire after 5 minutes
+→ Simple, eventual consistency
+
+Event-Driven Invalidation:
+When product updated:
+  1. Save to DB
+  2. DEL product:123 from cache
+  3. Next request → cache miss → fetch from DB → recache
+→ Stronger consistency
+
+Write-Through:
+On write → update both cache and DB simultaneously
+→ No stale data, higher write latency
+
+Cache-Aside (Lazy):
+On read miss → fetch from DB → store in cache
+→ Most common pattern
+```
+
+### Cache Patterns for Scale
+```
+Cache warming: Preload cache on startup/deploy
+Read-heavy: Cache aggressively (TTL = hours/days)
+Write-heavy: Consider write-through or write-behind
+
+Cache stampede prevention:
+Multiple processes detect cache miss simultaneously
+→ All query DB → thundering herd
+
+Solution: Mutex / probabilistic early expiration
+Lock lock = redis.lock('product:123:lock')
+if (lock.acquire()) {
+  data = await db.fetch()
+  cache.set('product:123', data, TTL)
+  lock.release()
+} else {
+  wait and retry  // Another process is fetching
+}
+```
+
+---
+
+## 4. Queue Strategy
+
+### Load Leveling
+```
+Without queue:
+Peak: 10,000 req/s → Backend: 100 req/s → 9,900 fail!
+
+With queue:
+Peak: 10,000 msg → Queue buffer → Backend: 100 msg/s (sustainable)
+
+┌─────────────────────────────────────────────────────┐
+│                                                     │
+│  Producers                Queue          Consumers  │
+│  (1000/s) ──────────────► ████████  ──► (100/s)    │
+│                            ████████                 │
+│                            ████████  ← messages    │
+│                           accumulate                │
+│                           during peak               │
+└─────────────────────────────────────────────────────┘
+```
+
+### Priority Queue
+```
+Critical tasks processed before non-critical:
+
+Queue: HIGH [urgent-task-1, urgent-task-2]
+Queue: MEDIUM [regular-task-1, regular-task-2]
+Queue: LOW [background-task-1]
+
+Consumer: Always drain HIGH first
+→ Payment processing > analytics > reports
+```
+
+### Dead Letter Queue
+```
+Normal flow:
+Producer → Queue → Consumer (success)
+
+Failure flow:
+Producer → Queue → Consumer (fail)
+                       → Retry (3x)
+                       → DLQ (for analysis/manual replay)
+
+┌──────────────────────────────────────────────────────┐
+│ DLQ benefits:                                        │
+│ - Failed messages not lost                           │
+│ - Can inspect and debug                              │
+│ - Replay after fix                                   │
+│ - Alert on DLQ depth                                 │
+└──────────────────────────────────────────────────────┘
+```
+
+---
+
+## 5. Multi-Region Deployment
+
+### Diagram
+```
+                    Global DNS (Route 53)
+                         │
+          ┌──────────────┼──────────────┐
+          ▼              ▼              ▼
+     ┌─────────┐    ┌─────────┐   ┌─────────┐
+     │ Region  │    │ Region  │   │ Region  │
+     │  US     │    │  EU     │   │  APAC   │
+     │         │    │         │   │         │
+     │ Full    │    │ Full    │   │ Full    │
+     │ Stack   │    │ Stack   │   │ Stack   │
+     └────┬────┘    └────┬────┘   └────┬────┘
+          │              │              │
+          └──────────────┴──────────────┘
+                   DB Cross-region
+                   Replication
+
+Routing strategies:
+- Latency-based: Route to nearest region
+- Geolocation: EU users → EU region (GDPR)
+- Active-Active: All regions serve traffic
+- Active-Passive: Standby region for failover
+```
+
+---
+
+## 6. Disaster Recovery
+
+### Key Metrics
+```
+RTO (Recovery Time Objective):
+"Bao lâu hệ thống có thể down?" → Mục tiêu phục hồi
+  
+RPO (Recovery Point Objective):
+"Mất bao nhiêu data là chấp nhận được?" → Mục tiêu điểm phục hồi
+
+                    Disaster
+                       │
+T = 0 ─────────────── │ ─────────────────────────────────► Time
+                       │                    │
+                       │◄──── RTO ─────────►│
+                       │                    │ System recovered
+                       │
+├──── RPO ────────────►│
+│ Last backup          │ Data loss window
+```
+
+### DR Tiers
+```
+Tier 1 — Active/Active (Highest cost, RTO≈0, RPO≈0):
+- Multiple regions active simultaneously
+- DNS failover
+- Data replicated synchronously
+- Example: Financial trading systems
+
+Tier 2 — Warm Standby (Medium cost, RTO<15min, RPO<minutes):
+- Standby region with scaled-down infrastructure
+- Data replicated asynchronously
+- Scale up on failover
+
+Tier 3 — Pilot Light (Lower cost, RTO<1h, RPO<hours):
+- Only core components running in standby
+- Start up resources on failover
+
+Tier 4 — Backup & Restore (Lowest cost, RTO<24h, RPO<24h):
+- Regular backups to S3/storage
+- Restore from backup on disaster
+```
+
+---
+
+## 7. Scalability Patterns Summary
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                  Scalability Toolkit                           │
+│                                                                │
+│  Compute:                                                      │
+│  - Horizontal scaling (stateless apps)                        │
+│  - Auto-scaling (HPA in Kubernetes)                           │
+│  - Serverless (Lambda for spiky workloads)                    │
+│                                                                │
+│  Data:                                                         │
+│  - Read replicas (read scaling)                               │
+│  - Sharding (write scaling)                                   │
+│  - CQRS (separate read/write models)                          │
+│  - Data archival (move old data to cold storage)              │
+│                                                                │
+│  Caching:                                                      │
+│  - Cache at every layer (CDN, app, DB)                        │
+│  - Invalidate properly                                        │
+│                                                                │
+│  Async Processing:                                             │
+│  - Move heavy work to background queues                       │
+│  - Decouple with message queues                               │
+│                                                                │
+│  Geographic:                                                   │
+│  - Multi-region for global users                              │
+│  - CDN for static assets                                      │
+│  - Edge computing for low latency                             │
+└────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Common Bottlenecks & Solutions
+
+| Bottleneck | Symptom | Solution |
+|-----------|---------|---------|
+| **DB CPU** | Slow queries | Query optimization, indexes, read replicas |
+| **DB connections** | Connection timeout | Connection pooling, reduce connection count |
+| **App CPU** | High CPU% | Horizontal scale, optimize hot paths |
+| **Memory** | OOM errors | Fix memory leaks, increase RAM, scale out |
+| **Network I/O** | High latency | CDN, caching, reduce payload size |
+| **Single service** | Bottleneck in pipeline | Identify, scale independently (microservices) |
+| **Disk I/O** | Slow writes | SSD, write-ahead log, async writes |
+
+---
+
+## Tài Liệu Đề Xuất
+
+- 📖 *Designing Data-Intensive Applications* — Martin Kleppmann ⭐
+- 📖 *System Design Interview* — Alex Xu
+- 🌐 [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
+- 🌐 [Google SRE Book](https://sre.google/sre-book/table-of-contents/) — free online
