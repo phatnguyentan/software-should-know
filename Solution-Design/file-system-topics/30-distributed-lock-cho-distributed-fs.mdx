@@ -6,36 +6,30 @@
 
 ## 1 vấn đề duy nhất
 
-Hiểu đúng **Distributed lock cho distributed FS** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+Nhiều node cập nhật cùng metadata file có thể tạo ghi đè lẫn nhau nếu không có cơ chế khóa phân tán.
 
 ---
 
 ## 1 sơ đồ
 
 ```
-[Distributed lock cho distributed FS]
-      │
-      ▼
-[Quyết định thiết kế]
-      │
-      ▼
-[Tác động: hiệu năng / độ bền / chi phí]
+Node A -> acquire lock(file-123) -> update metadata -> release
+Node B -> wait/retry until lock released
 ```
-
 
 ---
 
 ## 1 ví dụ thực tế
 
-Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **Distributed lock cho distributed FS** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
+Metadata service dùng Redis/etcd lock để đảm bảo chỉ một node đổi owner hoặc rename tại một thời điểm.
 
 ---
 
 ## 3 lỗi phổ biến
 
-1. Nhầm phạm vi áp dụng của **Distributed lock cho distributed FS** trong local FS và distributed FS.
-2. Không đo trước/sau khi áp dụng **Distributed lock cho distributed FS**, dẫn tới tối ưu theo cảm tính.
-3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **Distributed lock cho distributed FS**.
+1. Không gắn lease/TTL cho lock nên node chết để lại lock mồ côi.
+2. Release lock không kiểm tra owner token gây unlock nhầm phiên khác.
+3. Không thiết kế idempotency cho retry sau timeout lock.
 
 ---
 

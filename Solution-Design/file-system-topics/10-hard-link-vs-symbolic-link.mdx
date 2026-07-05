@@ -6,36 +6,30 @@
 
 ## 1 vấn đề duy nhất
 
-Hiểu đúng **Hard link vs symbolic link** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+Cần chia sẻ dữ liệu mà không copy file, nhưng vẫn phải kiểm soát hành vi khi xóa/di chuyển file gốc.
 
 ---
 
 ## 1 sơ đồ
 
 ```
-[Hard link vs symbolic link]
-      │
-      ▼
-[Quyết định thiết kế]
-      │
-      ▼
-[Tác động: hiệu năng / độ bền / chi phí]
+Hard link: /a/report -> inode 1024 <- /b/report
+Symlink:   /c/report -> "/a/report" (path pointer)
 ```
-
 
 ---
 
 ## 1 ví dụ thực tế
 
-Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **Hard link vs symbolic link** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
+Kho artifact tạo hard link cho file release giữa nhiều thư mục để tiết kiệm dung lượng; symlink chỉ dùng cho shortcut cấu hình.
 
 ---
 
 ## 3 lỗi phổ biến
 
-1. Nhầm phạm vi áp dụng của **Hard link vs symbolic link** trong local FS và distributed FS.
-2. Không đo trước/sau khi áp dụng **Hard link vs symbolic link**, dẫn tới tối ưu theo cảm tính.
-3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **Hard link vs symbolic link**.
+1. Dùng symlink cho tài liệu quan trọng rồi bị gãy link khi đổi path deploy.
+2. Xóa một hard link và tưởng đã giải phóng dung lượng ngay.
+3. Không giới hạn quyền ghi trên file được chia sẻ qua hard link.
 
 ---
 

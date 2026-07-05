@@ -6,36 +6,30 @@
 
 ## 1 vấn đề duy nhất
 
-Hiểu đúng **Read-ahead và write-back** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+Tối ưu đọc/ghi cần cân bằng giữa latency tức thời và throughput tổng thể của hệ thống.
 
 ---
 
 ## 1 sơ đồ
 
 ```
-[Read-ahead và write-back]
-      │
-      ▼
-[Quyết định thiết kế]
-      │
-      ▼
-[Tác động: hiệu năng / độ bền / chi phí]
+Sequential read -> Read-ahead window (N blocks)
+Write request    -> Page cache dirty -> Flush (write-back)
 ```
-
 
 ---
 
 ## 1 ví dụ thực tế
 
-Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **Read-ahead và write-back** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
+Dịch vụ stream video tăng read-ahead để giảm cache miss; ngược lại hệ thống thanh toán giảm write-back delay để hạn chế mất dữ liệu khi sự cố.
 
 ---
 
 ## 3 lỗi phổ biến
 
-1. Nhầm phạm vi áp dụng của **Read-ahead và write-back** trong local FS và distributed FS.
-2. Không đo trước/sau khi áp dụng **Read-ahead và write-back**, dẫn tới tối ưu theo cảm tính.
-3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **Read-ahead và write-back**.
+1. Đặt read-ahead quá lớn cho random workload làm lãng phí băng thông disk.
+2. Write-back quá chậm khiến dirty page dồn cục và gây spike flush.
+3. Không tách profile tuning giữa workload read-heavy và write-heavy.
 
 ---
 

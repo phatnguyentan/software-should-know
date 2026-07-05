@@ -6,36 +6,32 @@
 
 ## 1 vấn đề duy nhất
 
-Hiểu đúng **File locking: advisory vs mandatory** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+Nhiều tiến trình cùng ghi một file có thể gây race condition và dữ liệu hỏng nếu không có lock policy rõ ràng.
 
 ---
 
 ## 1 sơ đồ
 
 ```
-[File locking: advisory vs mandatory]
-      │
-      ▼
-[Quyết định thiết kế]
-      │
-      ▼
-[Tác động: hiệu năng / độ bền / chi phí]
+Process A --lock--> file X
+Process B --access-->
+   advisory: tự tuân thủ lock
+   mandatory: kernel chặn truy cập vi phạm
 ```
-
 
 ---
 
 ## 1 ví dụ thực tế
 
-Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **File locking: advisory vs mandatory** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
+Ứng dụng kế toán dùng mandatory lock cho file báo cáo cuối ngày, còn pipeline log dùng advisory lock để giảm overhead.
 
 ---
 
 ## 3 lỗi phổ biến
 
-1. Nhầm phạm vi áp dụng của **File locking: advisory vs mandatory** trong local FS và distributed FS.
-2. Không đo trước/sau khi áp dụng **File locking: advisory vs mandatory**, dẫn tới tối ưu theo cảm tính.
-3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **File locking: advisory vs mandatory**.
+1. Trộn advisory và mandatory trong cùng workflow khiến hành vi khó dự đoán.
+2. Không đặt timeout/retry cho lock dẫn đến treo tiến trình dây chuyền.
+3. Giữ lock quá rộng (coarse-grained) làm giảm throughput.
 
 ---
 

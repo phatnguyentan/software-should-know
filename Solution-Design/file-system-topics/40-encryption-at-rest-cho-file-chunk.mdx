@@ -6,36 +6,32 @@
 
 ## 1 vấn đề duy nhất
 
-Hiểu đúng **Encryption at rest cho file/chunk** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+Dữ liệu trên disk có thể bị lộ khi mất ổ cứng hoặc snapshot bị truy cập trái phép nếu không mã hóa khi lưu trữ.
 
 ---
 
 ## 1 sơ đồ
 
 ```
-[Encryption at rest cho file/chunk]
-      │
-      ▼
-[Quyết định thiết kế]
-      │
-      ▼
-[Tác động: hiệu năng / độ bền / chi phí]
+Write chunk -> Encrypt (DEK)
+              │
+              └-> Store DEK wrapped by KEK (KMS)
+Read chunk  <- Decrypt via KMS policy
 ```
-
 
 ---
 
 ## 1 ví dụ thực tế
 
-Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **Encryption at rest cho file/chunk** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
+Hệ thống hồ sơ y tế mã hóa chunk bằng AES-256 và quản lý key qua KMS để đáp ứng yêu cầu compliance.
 
 ---
 
 ## 3 lỗi phổ biến
 
-1. Nhầm phạm vi áp dụng của **Encryption at rest cho file/chunk** trong local FS và distributed FS.
-2. Không đo trước/sau khi áp dụng **Encryption at rest cho file/chunk**, dẫn tới tối ưu theo cảm tính.
-3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **Encryption at rest cho file/chunk**.
+1. Lưu key mã hóa cùng máy lưu dữ liệu khiến cơ chế at-rest mất ý nghĩa.
+2. Không xoay vòng key định kỳ cho dữ liệu nhạy cảm lâu năm.
+3. Bỏ qua đo overhead decrypt khi đọc file lớn.
 
 ---
 

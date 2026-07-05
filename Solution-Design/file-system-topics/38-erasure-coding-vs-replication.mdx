@@ -6,36 +6,30 @@
 
 ## 1 vấn đề duy nhất
 
-Hiểu đúng **Erasure coding vs replication** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+Phải chọn giữa tiết kiệm dung lượng và tốc độ phục hồi khi node hỏng.
 
 ---
 
 ## 1 sơ đồ
 
 ```
-[Erasure coding vs replication]
-      │
-      ▼
-[Quyết định thiết kế]
-      │
-      ▼
-[Tác động: hiệu năng / độ bền / chi phí]
+Replication (3x): Data + Copy1 + Copy2
+Erasure coding (k+m): Data shards + parity shards
 ```
-
 
 ---
 
 ## 1 ví dụ thực tế
 
-Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **Erasure coding vs replication** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
+Kho archive chọn erasure coding để giảm chi phí lưu trữ; kho giao dịch realtime vẫn dùng replication để phục hồi nhanh.
 
 ---
 
 ## 3 lỗi phổ biến
 
-1. Nhầm phạm vi áp dụng của **Erasure coding vs replication** trong local FS và distributed FS.
-2. Không đo trước/sau khi áp dụng **Erasure coding vs replication**, dẫn tới tối ưu theo cảm tính.
-3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **Erasure coding vs replication**.
+1. Dùng erasure coding cho file nhỏ và workload ghi nóng gây tốn CPU.
+2. Chọn replication factor thấp mà không tính thời gian rebuild sau failure.
+3. Không dự phòng băng thông cho quá trình reconstruct parity.
 
 ---
 

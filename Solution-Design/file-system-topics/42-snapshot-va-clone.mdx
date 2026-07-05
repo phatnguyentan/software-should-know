@@ -6,36 +6,31 @@
 
 ## 1 vấn đề duy nhất
 
-Hiểu đúng **Snapshot và clone** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+Cần tạo môi trường test hoặc rollback nhanh sau lỗi dữ liệu mà không sao chép toàn bộ volume.
 
 ---
 
 ## 1 sơ đồ
 
 ```
-[Snapshot và clone]
-      │
-      ▼
-[Quyết định thiết kế]
-      │
-      ▼
-[Tác động: hiệu năng / độ bền / chi phí]
+Volume V0
+  ├─ Snapshot S1 (point-in-time)
+  └─ Clone C1 from S1 (read/write)
 ```
-
 
 ---
 
 ## 1 ví dụ thực tế
 
-Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **Snapshot và clone** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
+Team QA clone từ snapshot production đã anonymize để chạy test regression trong vài phút thay vì restore nhiều giờ.
 
 ---
 
 ## 3 lỗi phổ biến
 
-1. Nhầm phạm vi áp dụng của **Snapshot và clone** trong local FS và distributed FS.
-2. Không đo trước/sau khi áp dụng **Snapshot và clone**, dẫn tới tối ưu theo cảm tính.
-3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **Snapshot và clone**.
+1. Coi snapshot là backup dài hạn dù vẫn phụ thuộc storage gốc.
+2. Giữ chuỗi snapshot quá dài gây tăng chi phí metadata và restore phức tạp.
+3. Clone từ snapshot không kiểm tra data consistency trước đó.
 
 ---
 

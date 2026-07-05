@@ -6,36 +6,35 @@
 
 ## 1 vấn đề duy nhất
 
-Hiểu đúng **Copy-on-write (COW) căn bản** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+Cần cập nhật dữ liệu an toàn khi crash mà không ghi đè trực tiếp lên block cũ.
 
 ---
 
 ## 1 sơ đồ
 
 ```
-[Copy-on-write (COW) căn bản]
-      │
-      ▼
-[Quyết định thiết kế]
-      │
-      ▼
-[Tác động: hiệu năng / độ bền / chi phí]
+Block A (old)
+   │ write request
+   ▼
+Copy A -> A'
+   │ modify A'
+   ▼
+Pointer switch: inode -> A'
 ```
-
 
 ---
 
 ## 1 ví dụ thực tế
 
-Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **Copy-on-write (COW) căn bản** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
+Hệ thống snapshot dùng COW để tạo bản sao tức thời: block chỉ bị copy khi có ghi mới.
 
 ---
 
 ## 3 lỗi phổ biến
 
-1. Nhầm phạm vi áp dụng của **Copy-on-write (COW) căn bản** trong local FS và distributed FS.
-2. Không đo trước/sau khi áp dụng **Copy-on-write (COW) căn bản**, dẫn tới tối ưu theo cảm tính.
-3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **Copy-on-write (COW) căn bản**.
+1. Dùng COW cho workload ghi nóng nhưng không kiểm soát phân mảnh block.
+2. Không theo dõi write amplification trên SSD khi bật COW toàn cục.
+3. Bỏ qua chi phí metadata update khi pointer đổi liên tục.
 
 ---
 

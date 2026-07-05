@@ -6,36 +6,32 @@
 
 ## 1 vấn đề duy nhất
 
-Hiểu đúng **Rebalancing dữ liệu khi thêm node** để đưa ra quyết định thiết kế file system chính xác cho workload thực tế.
+Sau khi scale-out, dữ liệu lệch tải nếu không rebalancing sẽ tạo hotspot và lãng phí node mới.
 
 ---
 
 ## 1 sơ đồ
 
 ```
-[Rebalancing dữ liệu khi thêm node]
-      │
-      ▼
-[Quyết định thiết kế]
-      │
-      ▼
-[Tác động: hiệu năng / độ bền / chi phí]
+Before: Node1 82% | Node2 79%
+Add Node3
+Rebalance chunks
+After:  Node1 55% | Node2 53% | Node3 51%
 ```
-
 
 ---
 
 ## 1 ví dụ thực tế
 
-Trong hệ thống lưu trữ tài liệu nội bộ, team dùng chủ đề **Rebalancing dữ liệu khi thêm node** để ra quyết định kỹ thuật khi tải tăng và dữ liệu tăng theo tháng.
+Cụm lưu trữ thêm 3 node nhưng latency không giảm cho đến khi scheduler di chuyển chunk nóng sang node mới.
 
 ---
 
 ## 3 lỗi phổ biến
 
-1. Nhầm phạm vi áp dụng của **Rebalancing dữ liệu khi thêm node** trong local FS và distributed FS.
-2. Không đo trước/sau khi áp dụng **Rebalancing dữ liệu khi thêm node**, dẫn tới tối ưu theo cảm tính.
-3. Bỏ qua trade-off giữa hiệu năng, độ nhất quán và chi phí vận hành của **Rebalancing dữ liệu khi thêm node**.
+1. Rebalance toàn cụm cùng lúc làm bão network nội bộ.
+2. Không giới hạn băng thông migrate khiến ảnh hưởng traffic production.
+3. Bỏ qua affinity/rack awareness khi dịch chuyển replica.
 
 ---
 
