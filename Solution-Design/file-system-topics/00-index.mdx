@@ -1,0 +1,79 @@
+# File System Design — Micro-Posts Index
+
+> Danh sách đầy đủ 46 bài nhỏ, mỗi bài tương ứng 1 mục trong roadmap.
+
+---
+
+## Điều hướng nhanh
+
+- Tài liệu tổng quan: `../file-system-design-roadmap.mdx`
+- Chỉ số này: `00-index.mdx`
+
+---
+
+## Giai đoạn 0 — Nền tảng (Beginner)
+
+- [01. File vs Block vs Object Storage](./01-file-vs-block-vs-object-storage.mdx)
+- [02. Metadata là gì (inode, permission, timestamp)](./02-metadata-inode-permission-timestamp.mdx)
+- [03. Đường dẫn tuyệt đối/tương đối và namespace](./03-duong-dan-va-namespace.mdx)
+- [04. Syscall cơ bản: open/read/write/close](./04-syscall-open-read-write-close.mdx)
+- [05. Buffer cache và page cache khác nhau thế nào](./05-buffer-cache-vs-page-cache.mdx)
+
+## Giai đoạn 1 — Cấu trúc lưu trữ cốt lõi
+
+- [06. Disk layout: superblock, inode table, data block](./06-disk-layout-superblock-inode-data-block.mdx)
+- [07. Cách ánh xạ file → block (direct/indirect block)](./07-file-to-block-mapping-direct-indirect.mdx)
+- [08. Free space management: bitmap vs free list](./08-free-space-bitmap-vs-free-list.mdx)
+- [09. Directory implementation: linear list vs hash tree](./09-directory-linear-vs-hash-tree.mdx)
+- [10. Hard link vs symbolic link](./10-hard-link-vs-symbolic-link.mdx)
+- [11. File allocation strategy: contiguous, linked, indexed](./11-file-allocation-contiguous-linked-indexed.mdx)
+
+## Giai đoạn 2 — Tính đúng đắn dữ liệu
+
+- [12. Crash consistency là gì](./12-crash-consistency-la-gi.mdx)
+- [13. Journaling mode (metadata/data/full)](./13-journaling-mode-metadata-data-full.mdx)
+- [14. Write-ahead logging trong file system](./14-write-ahead-logging-trong-file-system.mdx)
+- [15. Copy-on-write (COW) căn bản](./15-copy-on-write-co-ban.mdx)
+- [16. Checkpoint và recovery flow](./16-checkpoint-va-recovery-flow.mdx)
+- [17. Fsck hoạt động như thế nào](./17-fsck-hoat-dong-nhu-the-nao.mdx)
+
+## Giai đoạn 3 — Hiệu năng
+
+- [18. Read path end-to-end (app → kernel → disk)](./18-read-path-end-to-end.mdx)
+- [19. Write path end-to-end](./19-write-path-end-to-end.mdx)
+- [20. Read-ahead và write-back](./20-read-ahead-va-write-back.mdx)
+- [21. Caching policy: LRU/LFU trong bối cảnh FS](./21-caching-policy-lru-lfu-trong-fs.mdx)
+- [22. Fragmentation và compaction](./22-fragmentation-va-compaction.mdx)
+- [23. SSD-aware design (erase block, wear leveling)](./23-ssd-aware-design-erase-block-wear-leveling.mdx)
+- [24. Benchmark FS: throughput, IOPS, latency, p99](./24-benchmark-fs-throughput-iops-latency-p99.mdx)
+
+## Giai đoạn 4 — Đồng thời & chia sẻ
+
+- [25. File locking: advisory vs mandatory](./25-file-locking-advisory-vs-mandatory.mdx)
+- [26. Atomic rename và atomic append](./26-atomic-rename-va-atomic-append.mdx)
+- [27. Consistency khi nhiều process cùng ghi](./27-consistency-khi-nhieu-process-cung-ghi.mdx)
+- [28. NFS consistency model](./28-nfs-consistency-model.mdx)
+- [29. SMB fundamentals](./29-smb-fundamentals.mdx)
+- [30. Distributed lock cho distributed FS](./30-distributed-lock-cho-distributed-fs.mdx)
+
+## Giai đoạn 5 — Distributed File System
+
+- [31. Kiến trúc metadata server + data node](./31-kien-truc-metadata-server-data-node.mdx)
+- [32. Data chunking/chunk size trade-off](./32-data-chunking-chunk-size-trade-off.mdx)
+- [33. Replication factor và placement strategy](./33-replication-factor-va-placement-strategy.mdx)
+- [34. Quorum read/write cho file chunks](./34-quorum-read-write-cho-file-chunks.mdx)
+- [35. Rebalancing dữ liệu khi thêm node](./35-rebalancing-du-lieu-khi-them-node.mdx)
+- [36. Failure detection và self-healing](./36-failure-detection-va-self-healing.mdx)
+- [37. Hotspot file và cách xử lý](./37-hotspot-file-va-cach-xu-ly.mdx)
+- [38. Erasure coding vs replication](./38-erasure-coding-vs-replication.mdx)
+
+## Giai đoạn 6 — Bảo mật & vận hành
+
+- [39. POSIX permission + ACL](./39-posix-permission-va-acl.mdx)
+- [40. Encryption at rest cho file/chunk](./40-encryption-at-rest-cho-file-chunk.mdx)
+- [41. Encryption in transit giữa nodes](./41-encryption-in-transit-giua-nodes.mdx)
+- [42. Snapshot và clone](./42-snapshot-va-clone.mdx)
+- [43. Backup incremental vs full](./43-backup-incremental-vs-full.mdx)
+- [44. Disaster recovery (RPO/RTO cho storage)](./44-disaster-recovery-rpo-rto-cho-storage.mdx)
+- [45. Observability cho FS: metrics/log/tracing](./45-observability-cho-fs-metrics-log-tracing.mdx)
+- [46. Capacity planning và dự báo tăng trưởng](./46-capacity-planning-va-du-bao-tang-truong.mdx)

@@ -1,0 +1,47 @@
+# 09. Directory implementation: linear list vs hash tree
+
+> **Nhóm:** Giai đoạn 1 — Cấu trúc lưu trữ cốt lõi
+
+---
+
+## 1 vấn đề duy nhất
+
+Nắm rõ **Directory implementation: linear list vs hash tree** để thiết kế file system đúng ngay từ đầu và tránh lỗi kiến trúc về sau.
+
+---
+
+## 1 sơ đồ
+
+```
+Client/App
+   │
+   ▼
+Kernel / File System Layer
+   │
+   ▼
+Storage Node / Disk Block
+```
+
+
+---
+
+## 1 ví dụ thực tế
+
+Khi triển khai hệ thống lưu trữ cho dịch vụ upload file nội bộ, đội kỹ thuật dùng nguyên tắc của chủ đề này để tối ưu hiệu năng và độ ổn định khi tải tăng.
+
+---
+
+## 3 lỗi phổ biến
+
+1. Học khái niệm rời rạc nhưng không gắn vào luồng I/O thực tế.
+2. Tối ưu quá sớm mà chưa đo lường workload thật.
+3. Bỏ qua trường hợp lỗi (crash, retry, cạnh tranh truy cập).
+
+---
+
+## 1 checklist áp dụng
+
+- [ ] Mô tả được chủ đề bằng ngôn ngữ đơn giản trong 3-5 câu.
+- [ ] Vẽ lại được sơ đồ luồng chính bằng tay.
+- [ ] Nêu được ít nhất 1 trade-off khi áp dụng vào production.
+- [ ] Xác định được metric để đo hiệu quả sau khi áp dụng.
