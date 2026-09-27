@@ -1,78 +1,52 @@
-# Software Should Know — Domain Knowledge System
+# Software Should Know
 
-Repository này được chuẩn hóa theo hướng **Software Engineering Domain Knowledge System**:
+Kho tri thức này được tổ chức theo **Software Engineering Domain Knowledge System**.
 
 > Technology changes. Principles compound.
 
-Mục tiêu là giữ kiến trúc tri thức nhất quán theo **domain** thay vì theo tool rời rạc.
+## Mục tiêu
+- Chuẩn hóa toàn bộ nội dung theo domain thay vì tool rời rạc.
+- Tách rõ kiến thức nền tảng (CORE) và kiến thức thay đổi nhanh (AI-NATIVE/FRONTIER).
+- Dùng cùng một cấu trúc điều hướng để mở rộng repo bền vững.
 
 ---
 
-## 1) Cấu trúc tri thức chuẩn (canonical)
+## Cấu trúc chính của dự án
 
-```
-FOUNDATIONS
-  ├─ CS fundamentals
-  ├─ algorithms
-  ├─ programming
-  └─ systems thinking
-
-SOFTWARE ENGINEERING
-  ├─ requirements/design/implementation
-  ├─ testing/quality/evolution
-  └─ architecture/system design
-
-RUN / OPERATIONS
-  ├─ cloud/platform/devops/sre
-  └─ observability/security
-
-AI LAYER
-  ├─ AI-native engineering
-  └─ AI-assisted engineering
-
-PRODUCT / DOMAIN
-ORGANIZATION / LEADERSHIP
-BUSINESS / FOUNDER
-```
+- `00-index.mdx` — bản đồ điều hướng toàn repo
+- `Solution-Design/` — hệ thống thiết kế hệ thống, distributed, cloud, security, AI architecture
+- `Backend/` — backend engineering roadmap + chủ đề nền tảng backend
+- `Frontend/` — frontend engineering roadmap + chủ đề nền tảng frontend
+- `Tech-Stack/` — tài liệu framework/tool theo ecosystem
+- `Leader/` — kỹ năng technical leadership/organization
+- `Founder/` — business/founder competencies
+- `Codility/` — thuật toán và luyện giải bài toán
+- `Video/` — nội dung AI-native (MCP/agent)
+- `Scripts/` — script hỗ trợ tài liệu
 
 ---
 
-## 2) Mapping thư mục hiện tại vào hệ thống domain
+## Phân loại tri thức
 
-| Repository Path | Domain Layer | Classification |
-|---|---|---|
-| `Solution-Design/` | Software Engineering + System Design + Operations + AI | 🟢 CORE + 🔵 PRACTICE + 🟣 AI-NATIVE |
-| `Backend/` | Software Engineering (implementation, backend fundamentals) | 🟢 CORE + 🔵 PRACTICE |
-| `Frontend/` | Software Engineering (frontend implementation & fundamentals) | 🟢 CORE + 🔵 PRACTICE |
-| `Tech-Stack/` | Engineering Practice (framework/tool ecosystem) | 🔵 PRACTICE |
-| `Video/MCP/` | AI-native engineering (MCP, agent tooling) | 🟣 AI-NATIVE |
-| `Leader/` | Engineering leadership & organization | 🟢 CORE (leadership principles) + 🔵 PRACTICE |
-| `Founder/` | Business/founder competencies | 🟢 CORE (business principles) |
-| `Codility/` | Algorithm practice (foundations) | 🟢 CORE |
-| `Scripts/` | Tooling/automation support | 🔵 PRACTICE |
+- 🟢 **CORE**: nền tảng bền vững (CS, systems, architecture, testing, security, leadership principles)
+- 🔵 **ENGINEERING PRACTICE**: framework/platform/tooling (cloud, CI/CD, ecosystem)
+- 🟣 **AI-NATIVE**: LLM/RAG/agent/MCP/eval/guardrails
+- 🟠 **FRONTIER**: vùng thử nghiệm, không đặt nền tảng career chính
 
 ---
 
-## 3) CORE vs PRACTICE vs AI-NATIVE vs FRONTIER
+## Quy ước đóng góp
 
-- 🟢 **CORE**: nguyên lý bền vững (algorithms, systems, design, testing, security, leadership principles).
-- 🔵 **ENGINEERING PRACTICE**: ecosystem triển khai (framework, cloud, CI/CD, tooling).
-- 🟣 **AI-NATIVE**: LLM/RAG/agents/MCP/eval/guardrails, cập nhật liên tục.
-- 🟠 **FRONTIER**: công nghệ thử nghiệm, không dùng làm nền tảng career chính.
-
----
-
-## 4) Quy ước nhất quán khi thêm tài liệu mới
-
-1. Tài liệu roadmap cấp hệ thống đặt tại `Solution-Design/`.
-2. Link roadmap luôn được cập nhật tại `Solution-Design/topics/00-index.mdx` (mục **Roadmap mở rộng**).
-3. Mỗi thư mục domain nên có file `00-index.mdx` để điều hướng nội bộ.
-4. Ưu tiên đặt tên và nội dung theo domain/khái niệm, không đặt theo tool tạm thời.
+1. Mỗi domain top-level phải có `00-index.mdx` làm entry điều hướng.
+2. Roadmap cấp hệ thống đặt ở `Solution-Design/`.
+3. Link roadmap tập trung tại `Solution-Design/topics/00-index.mdx` mục **Roadmap mở rộng**.
+4. Nội dung mới phải gắn với domain layer + classification (CORE/PRACTICE/AI-NATIVE/FRONTIER).
+5. Ưu tiên nguyên lý và trade-off, không viết theo checklist tool ngắn hạn.
 
 ---
 
-## 5) Điểm vào chính
+## Điểm bắt đầu đề xuất
 
-- Domain system roadmap: `Solution-Design/software-engineering-knowledge-system-roadmap.mdx`
-- Enterprise system roadmap: `Solution-Design/enterprise-system-design-roadmap.mdx`
-- Enterprise topic index: `Solution-Design/topics/00-index.mdx`
+1. `Solution-Design/software-engineering-knowledge-system-roadmap.mdx`
+2. `00-index.mdx`
+3. Domain index tương ứng mục tiêu học (Backend/Frontend/Leader/Founder)
