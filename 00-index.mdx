@@ -1,40 +1,69 @@
-# Repository Domain Map — 00 Index
+# Repository Knowledge Map — 00 Index
 
-## Canonical Learning Flow
+## Canonical Knowledge Flow
 
 ```
-FOUNDATIONS
-    ↓
+FOUNDATIONS + HUMAN + WORLD
+            ↓
 SOFTWARE ENGINEERING
-    ↓
-SYSTEM DESIGN
-    ↓
-RUN / OPERATIONS
-    ↓
-AI-NATIVE + AI-ASSISTED
-    ↓
-PRODUCT / DOMAIN
-    ↓
-ORGANIZATION / LEADERSHIP
-    ↓
-BUSINESS / FOUNDER
+   ├─ BUILD
+   ├─ RUN
+   └─ EVOLVE
+            ↓
+PRODUCT
+            ↓
+VALUE
+            ↓
+ORGANIZATION + BUSINESS
+            ↓
+FOUNDER
 ```
 
-## Domain Navigation
+## Canonical Navigation
 
-| Domain | Path | Layer | Classification |
-|---|---|---|---|
-| Solution Design | `Solution-Design/` | Software Engineering + Systems + Operations + AI | 🟢🔵🟣 |
-| Backend | `Backend/` | Software Engineering | 🟢🔵 |
-| Frontend | `Frontend/` | Software Engineering | 🟢🔵 |
-| Tech Stack | `Tech-Stack/` | Engineering Practice | 🔵 |
-| Codility | `Codility/` | Foundations | 🟢 |
-| Video (MCP) | `Video/` | AI-Native Engineering | 🟣 |
-| Leader | `Leader/` | Organization / Leadership | 🟢🔵 |
-| Founder | `Founder/` | Business / Founder | 🟢 |
-| Scripts | `Scripts/` | Engineering Practice / Tooling | 🔵 |
+| Layer | Path | Role |
+|---|---|---|
+| Foundations | `01-foundations/` | CS, algorithms, programming, systems, security |
+| Human | `02-human/` | psychology, people, teams, leadership, communication |
+| World | `03-world/` | economics, business, industry, regulation, geopolitics |
+| Software Engineering | `04-software-engineering/` | canonical execution core |
+| Product | `05-product/` | product thinking, requirement, domain, value |
+| Organization | `06-organization/` | management, ownership, culture, leadership |
+| Business | `07-business/` | strategy, economics, finance, business model |
+| Founder | `08-founder/` | technology entrepreneur lens |
+| Tooling | `90-tooling/` | scripts and support artifacts |
+
+## Software Engineering Layers
+
+| Layer | Path | Scope |
+|---|---|---|
+| Build | `04-software-engineering/01-build/` | architecture, code, data, testing |
+| Run | `04-software-engineering/02-run/` | cloud, devops, sre, observability, production security |
+| Evolve | `04-software-engineering/03-evolve/` | AI, ML, LLM, RAG, agents, AI engineering |
+
+## Start Points
+- `04-software-engineering/00-index.mdx`
+- `04-software-engineering/01-build/00-index.mdx`
+- `04-software-engineering/02-run/00-index.mdx`
+- `04-software-engineering/03-evolve/00-index.mdx`
+- `05-product/00-index.mdx`
+
+## Legacy-to-Canonical Mapping
+
+| Legacy folder | Canonical destination |
+|---|---|
+| `Codility/` | `01-foundations/` |
+| `Backend/` | `04-software-engineering/01-build/` |
+| `Frontend/` | `04-software-engineering/01-build/` |
+| `Solution-Design/` | `04-software-engineering/` + `05-product/` |
+| `Video/` | `04-software-engineering/03-evolve/` |
+| `Leader/` | `06-organization/` |
+| `Founder/` | `07-business/` + `08-founder/` |
+| `Tech-Stack/` | build/run practice layer |
+| `Scripts/` | `90-tooling/` |
 
 ## Core Roadmaps
+- `04-software-engineering/00-index.mdx`
 - `Solution-Design/software-engineering-knowledge-system-roadmap.mdx`
 - `Solution-Design/enterprise-system-design-roadmap.mdx`
 - `Solution-Design/topics/00-index.mdx`
