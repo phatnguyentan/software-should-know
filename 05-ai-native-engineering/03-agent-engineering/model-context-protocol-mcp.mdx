@@ -1,0 +1,26 @@
+# Model Context Protocol (MCP)
+
+MCP là một shared protocol để model và agent có thể làm việc với context theo cách nhất quán hơn: biết lấy context ở đâu, dùng nó như thế nào, và chuyển nó qua lại giữa tools, sessions, và workflows.
+
+## Vì sao MCP quan trọng
+
+Khi model chỉ trả lời theo từng prompt rời rạc, nó rất mạnh ở từng khoảnh khắc nhưng yếu ở continuity. Nó không tự nhiên biết lịch sử công việc, không chia sẻ được context với agent khác, và khó trở thành một collaborator dài hạn.
+
+MCP giải quyết chỗ đó bằng cách đưa context thành một contract rõ ràng. Thay vì mỗi app tự chế một memory layer riêng, MCP cho phép ecosystem dùng chung ngôn ngữ để lưu, gọi lại, cập nhật, và truyền context.
+
+## Một cách trực quan để hiểu MCP
+
+Trước MCP, mỗi AI giống như một cá thể thông minh nhưng bị cô lập. Nó có thể trả lời rất hay, nhưng những gì nó biết thường chỉ nằm trong một phiên làm việc ngắn và biến mất khi cuộc hội thoại kết thúc.
+
+Sau MCP, nhiều model hoặc agent có thể cùng làm việc trên một bài toán với shared context. Điều này mở đường cho các workflow mà AI không chỉ trả lời, mà còn phối hợp, nhớ, và tiếp tục công việc theo thời gian.
+
+## Tác động thực tế
+
+- Làm memory bớt phụ thuộc vào từng ứng dụng riêng lẻ
+- Tạo nền tảng cho tool calling và context handoff đáng tin cậy hơn
+- Hỗ trợ multi-agent workflow, nơi nhiều agent cùng dùng chung tri thức công việc
+- Giúp AI tiến gần hơn tới vai trò collaborator thay vì chỉ là chatbot trả lời từng lượt
+
+## Điều hướng liên quan
+- `./00-index.mdx`
+- `../00-index.mdx`
