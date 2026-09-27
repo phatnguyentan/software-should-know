@@ -1,235 +1,43 @@
-### Software Leadership Interview Topics: Detailed Guide
+# Engineering Leadership Roadmap (Interview & Practice)
 
-This guide expands on the provided topics for interviewing candidates for software leadership positions (e.g., Engineering Manager, Tech Lead, or Director of Engineering). I've organized it into the original categories for consistency, but added more details under each subtopic, including key concepts to prepare for, sample interview questions, and best practices or insights drawn from industry standards. These expansions are based on common themes from engineering management interviews, emphasizing behavioral, situational, and technical aspects to assess leadership fit.
+Tài liệu này được chuẩn hóa từ danh sách interview cũ sang roadmap leadership theo Knowledge System.
 
-Where relevant, I've included sample questions that interviewers might ask or that candidates should prepare to answer, along with tips for responses.
+## 1. Technical Leadership
+- Technical vision
+- Architecture decision making under constraints
+- Quality/reliability standards
+- Technical strategy and trade-offs
 
-#### Technical Leadership
-Focuses on guiding technical direction, ensuring robust systems, and balancing innovation with practicality.
+## 2. Team & Organization
+- Team topology and ownership
+- Mentoring/coaching
+- Conflict resolution
+- Hiring and capability building
 
-- **Architecture Decision-Making Process**: Involves evaluating trade-offs like scalability, maintainability, and cost. Leaders must justify choices based on business needs and team input.  
-  *Sample Question*: "Describe a time when you led an architecture redesign— what factors influenced your decisions?"  
-  *Key Details*: Use frameworks like ADR (Architecture Decision Records) to document rationale; consider microservices vs. monoliths.
+## 3. Delivery & Operations
+- Prioritization and planning
+- Risk management
+- Incident leadership
+- Cross-team execution
 
-- **Technical Debt Management Strategies**: Identifying, prioritizing, and refactoring debt without halting progress. Strategies include allocating 20% of sprint time to debt reduction.  
-  *Sample Question*: "How do you balance addressing technical debt with delivering new features?"  
-  *Key Details*: Track debt via tools like SonarQube; involve the team in prioritization to prevent burnout.
+## 4. Communication
+- Technical writing (RFC/ADR)
+- Stakeholder communication
+- Executive communication
+- Decision transparency
 
-- **System Design and Scalability Considerations**: Designing for growth, e.g., handling high traffic with load balancers or databases like PostgreSQL.  
-  *Sample Question*: "Walk me through the high-level system design of a project you've scaled."  
-  *Key Details*: Cover horizontal/vertical scaling, caching (e.g., Redis), and monitoring with Prometheus.
+## 5. Business Alignment
+- Product impact awareness
+- Cost/performance trade-offs
+- Build/Buy/Partner decisions
+- Organizational leverage
 
-- **Code Quality Standards and Enforcement**: Establishing standards via linters (e.g., ESLint) and automated checks.  
-  *Sample Question*: "How do you implement and enforce code quality in your team?"  
-  *Key Details*: Integrate into CI/CD; use metrics like cyclomatic complexity.
+## Interview Focus Mapping
+- **Senior+**: technical depth + system trade-off judgment
+- **Staff/Principal**: cross-team architecture and influence
+- **EM/Head**: people system, execution system, business alignment
 
-- **Technology Stack Selection Criteria**: Evaluating based on team expertise, ecosystem maturity, and long-term support.  
-  *Sample Question*: "What criteria do you use to select a new technology stack?"  
-  *Key Details*: Pilot PoCs; consider open-source vs. proprietary (e.g., React vs. Vue for frontends).
-
-#### Team Management
-Emphasizes building high-performing teams through development, feedback, and efficient operations.
-
-- **Team Building and Development**: Recruiting diverse talent and fostering growth via training.  
-  *Sample Question*: "How do you build and develop a high-performing engineering team?"  
-  *Key Details*: Use team-building activities like hackathons; track progress with OKRs.
-
-- **Performance Management and Feedback**: Regular 1:1s and 360-degree reviews.  
-  *Sample Question*: "How do you handle performance reviews and feedback?"  
-  *Key Details*: Use frameworks like GROW model; focus on constructive, actionable input.
-
-- **Conflict Resolution Approaches**: Mediating disputes with empathy and root-cause analysis.  
-  *Sample Question*: "Describe a time you resolved a team conflict."  
-  *Key Details*: Employ techniques like Thomas-Kilmann model; promote open dialogue.
-
-- **Mentoring and Coaching Strategies**: Pairing juniors with seniors; providing career roadmaps.  
-  *Sample Question*: "How do you mentor and coach your team members?"  
-  *Key Details*: Set up mentorship programs; use tools like Lattice for tracking.
-
-- **Resource Allocation and Capacity Planning**: Forecasting workload with tools like Jira.  
-  *Sample Question*: "How do you allocate resources across projects?"  
-  *Key Details*: Use velocity metrics; buffer for unexpected tasks.
-
-#### Project Management
-Covers planning, execution, and adaptation in dynamic environments.
-
-- **Agile Methodologies and Implementation**: Scrum/Kanban practices, daily standups.  
-  *Sample Question*: "What is your experience with Agile methodologies?"  
-  *Key Details*: Adapt to hybrid models; certify in PMP or Scrum Master.
-
-- **Project Estimation Techniques**: Using story points or historical data.  
-  *Sample Question*: "How do you estimate project timelines?"  
-  *Key Details*: Apply Planning Poker; account for risks.
-
-- **Risk Management**: Identifying risks via SWOT analysis.  
-  *Sample Question*: "How do you manage project risks?"  
-  *Key Details*: Create mitigation plans; monitor with RAID logs.
-
-- **Deadline Management**: Breaking tasks into milestones.  
-  *Sample Question*: "How do you handle missed deadlines?"  
-  *Key Details*: Communicate early; reprioritize scope.
-
-- **Stakeholder Communication**: Regular updates via status reports.  
-  *Sample Question*: "How do you communicate project status to stakeholders?"  
-  *Key Details*: Tailor messages; use tools like Slack or Confluence.
-
-#### Problem-Solving
-Assesses handling crises and making sound decisions under pressure.
-
-- **Critical Incident Handling**: Root-cause analysis with 5 Whys.  
-  *Sample Question*: "Describe handling a critical production incident."  
-  *Key Details*: Implement blameless post-mortems.
-
-- **Production Issues Management**: On-call rotations and alerting (e.g., PagerDuty).  
-  *Sample Question*: "How do you manage production outages?"  
-  *Key Details*: Prioritize MTTR; automate recoveries.
-
-- **Decision-Making Process**: Data-driven with pros/cons lists.  
-  *Sample Question*: "Walk through a tough decision you made."  
-  *Key Details*: Involve stakeholders; document for accountability.
-
-- **Prioritization Strategies**: Eisenhower Matrix or MoSCoW method.  
-  *Sample Question*: "How do you prioritize competing tasks?"  
-  *Key Details*: Align with business impact.
-
-- **Technical Troubleshooting Approaches**: Debugging with logs and tools like New Relic.  
-  *Sample Question*: "How do you troubleshoot complex issues?"  
-  *Key Details*: Collaborate cross-functionally.
-
-#### Communication Skills
-Evaluates conveying ideas effectively across audiences.
-
-- **Stakeholder Management**: Building relationships through empathy.  
-  *Sample Question*: "How do you manage stakeholder expectations?"  
-  *Key Details*: Use RACI matrices.
-
-- **Cross-Team Collaboration**: Joint planning sessions.  
-  *Sample Question*: "Describe collaborating with non-engineering teams."  
-  *Key Details*: Bridge gaps with shared goals.
-
-- **Technical Documentation**: Maintaining wikis or READMEs.  
-  *Sample Question*: "How do you ensure good documentation?"  
-  *Key Details*: Enforce as part of code reviews.
-
-- **Team Communication Strategies**: Async tools for remote teams.  
-  *Sample Question*: "What communication strategies do you use?"  
-  *Key Details*: Promote transparency.
-
-- **Presenting Technical Concepts to Non-Technical Audiences**: Using analogies.  
-  *Sample Question*: "How do you explain tech to non-tech stakeholders?"  
-  *Key Details*: Focus on benefits, not jargon.
-
-#### Process and Development
-Optimizing workflows for efficiency and quality.
-
-- **CI/CD Implementation**: Tools like Jenkins or GitHub Actions.  
-  *Sample Question*: "How do you set up CI/CD pipelines?"  
-  *Key Details*: Automate deployments.
-
-- **Code Review Processes**: Pull requests with guidelines.  
-  *Sample Question*: "Describe your code review process."  
-  *Key Details*: Aim for quick turnaround.
-
-- **Testing Strategies**: Unit, integration, and E2E testing.  
-  *Sample Question*: "What testing approaches do you advocate?"  
-  *Key Details*: Shift-left testing.
-
-- **Release Management**: Semantic versioning and rollback plans.  
-  *Sample Question*: "How do you manage software releases?"  
-  *Key Details*: Use feature flags.
-
-- **Development Workflow Optimization**: Bottleneck analysis.  
-  *Sample Question*: "How do you optimize dev workflows?"  
-  *Key Details*: Adopt DevOps practices.
-
-#### People Skills
-Building and nurturing human capital.
-
-- **Hiring and Interviewing**: Structured interviews.  
-  *Sample Question*: "What's your hiring process?"  
-  *Key Details*: Focus on cultural fit.
-
-- **Team Motivation Techniques**: Recognition programs.  
-  *Sample Question*: "How do you motivate your team?"  
-  *Key Details*: Intrinsic/extrinsic rewards.
-
-- **Career Development Planning**: Personalized paths.  
-  *Sample Question*: "How do you plan career growth?"  
-  *Key Details*: Annual reviews.
-
-- **Managing Underperforming Team Members**: PIPs (Performance Improvement Plans).  
-  *Sample Question*: "How do you handle underperformers?"  
-  *Key Details*: Fair and supportive.
-
-- **Building Inclusive Teams**: DEI initiatives.  
-  *Sample Question*: "How do you promote inclusivity?"  
-  *Key Details*: Bias training.
-
-#### Business Acumen
-Aligning tech with business goals.
-
-- **Budget Management**: Cost tracking.  
-  *Sample Question*: "How do you manage budgets?"  
-  *Key Details*: Forecast vs. actuals.
-
-- **Resource Planning**: Demand forecasting.  
-  *Sample Question*: "How do you plan resources?"  
-  *Key Details*: Capacity models.
-
-- **Understanding Business Requirements**: Requirement gathering.  
-  *Sample Question*: "How do you translate business needs to tech?"  
-  *Key Details*: User stories.
-
-- **Cost-Benefit Analysis**: ROI calculations.  
-  *Sample Question*: "Describe a cost-benefit analysis you've done."  
-  *Key Details*: NPV/IRR metrics.
-
-- **ROI Considerations**: Measuring post-implementation.  
-  *Sample Question*: "How do you evaluate ROI for tech investments?"  
-  *Key Details*: Track KPIs.
-
-#### Cultural Leadership
-Shaping team ethos and environment.
-
-- **Fostering Innovation**: Hack days.  
-  *Sample Question*: "How do you foster innovation?"  
-  *Key Details*: Encourage experimentation.
-
-- **Building Team Culture**: Values workshops.  
-  *Sample Question*: "How do you build team culture?"  
-  *Key Details*: Remote-friendly events.
-
-- **Promoting Knowledge Sharing**: Internal wikis/sessions.  
-  *Sample Question*: "How do you promote knowledge sharing?"  
-  *Key Details*: Lunch-and-learns.
-
-- **Work-Life Balance**: Flexible hours.  
-  *Sample Question*: "How do you support work-life balance?"  
-  *Key Details*: Monitor burnout.
-
-- **Remote Team Management**: Async comm.  
-  *Sample Question*: "How do you manage remote teams?"  
-  *Key Details*: Time-zone awareness.
-
-#### Strategic Thinking
-Long-term vision and adaptation.
-
-- **Long-Term Technical Planning**: Roadmaps.  
-  *Sample Question*: "How do you create tech roadmaps?"  
-  *Key Details*: Align with business strategy.
-
-- **Technology Roadmap Development**: Quarterly reviews.  
-  *Sample Question*: "Describe developing a tech roadmap."  
-  *Key Details*: Include milestones.
-
-- **Legacy System Modernization**: Migration strategies.  
-  *Sample Question*: "How do you modernize legacy systems?"  
-  *Key Details*: Strangler pattern.
-
-- **Innovation Management**: R&D allocation.  
-  *Sample Question*: "How do you manage innovation?"  
-  *Key Details*: Balance with core work.
-
-- **Industry Trends Awareness**: Conferences/readings.  
-  *Sample Question*: "How do you stay updated on trends?"  
-  *Key Details*: Apply AI/cloud trends.
+## Điều hướng liên quan
+- `../00-index.mdx`
+- `../Solution-Design/software-engineering-knowledge-system-roadmap.mdx`
+- `./00-index.mdx`
