@@ -23,47 +23,58 @@ FOUNDER
 
 | Layer | Path | Role |
 |---|---|---|
-| Foundations | `01-foundations/` | CS, algorithms, programming, systems, security |
-| Human | `02-human/` | psychology, people, teams, leadership, communication |
-| World | `03-world/` | economics, business, industry, regulation, geopolitics |
-| Software Engineering | `04-software-engineering/` | canonical execution core |
-| Product | `05-product/` | product thinking, requirement, domain, value |
-| Organization | `06-organization/` | management, ownership, culture, leadership |
-| Business | `07-business/` | strategy, economics, finance, business model |
-| Founder | `08-founder/` | technology entrepreneur lens |
+| Foundations | `01-foundations/` | computer science + mathematics foundation |
+| Software Engineering | `02-software-engineering/` | requirements, design, implementation, testing, evolution |
+| Systems Engineering | `03-systems-engineering/` | architecture, distributed systems, scalability, reliability, performance, security |
+| Platform & Operations | `04-platform-operations/` | cloud, devops, sre, observability, platform engineering |
+| AI-Native Engineering | `05-ai-native-engineering/` | AI foundations, AI engineering, agents, AI-assisted engineering, safety |
+| Product & Domain | `06-product-domain/` | product thinking, domain knowledge, product engineering |
+| Human & Organization | `07-human-organization/` | behavior, teams, organization, leadership |
+| Business & Economics | `08-business-economics/` | economics, business, industry, technology strategy |
+| Strategy & Professional Practice | `09-strategy-professional-practice/` | engineering strategy, decision making, career, entrepreneurship |
 | Tooling | `90-tooling/` | scripts and support artifacts |
+
+## Foundations Layers
+
+| Layer | Path | Scope |
+|---|---|---|
+| Computer Science | `01-foundations/01-computer-science/` | algorithms, systems, programming, networking, databases, security |
+| Mathematics & Quantitative Thinking | `01-foundations/02-mathematics-quantitative-thinking/` | discrete math, probability, statistics, linear algebra, optimization |
 
 ## Software Engineering Layers
 
 | Layer | Path | Scope |
 |---|---|---|
-| Build | `04-software-engineering/01-build/` | architecture, code, data, testing |
-| Run | `04-software-engineering/02-run/` | cloud, devops, sre, observability, production security |
-| Evolve | `04-software-engineering/03-evolve/` | AI, ML, LLM, RAG, agents, AI engineering |
+| Requirements | `02-software-engineering/01-requirements/` | problem definition, functional/non-functional requirements, domain modeling |
+| Software Design | `02-software-engineering/02-software-design/` | abstraction, modularity, patterns, API/interface design |
+| Implementation | `02-software-engineering/03-implementation/` | clean code, version control, dependency management, refactoring |
+| Testing & Quality | `02-software-engineering/04-testing-quality/` | unit/integration/contract/e2e testing, quality engineering |
+| Software Evolution | `02-software-engineering/05-software-evolution/` | legacy, migration, compatibility, technical debt, versioning |
 
 ## Start Points
-- `04-software-engineering/00-index.mdx`
-- `04-software-engineering/01-build/00-index.mdx`
-- `04-software-engineering/02-run/00-index.mdx`
-- `04-software-engineering/03-evolve/00-index.mdx`
-- `05-product/00-index.mdx`
+- `01-foundations/00-index.mdx`
+- `02-software-engineering/00-index.mdx`
+- `03-systems-engineering/00-index.mdx`
+- `04-platform-operations/00-index.mdx`
+- `05-ai-native-engineering/00-index.mdx`
+- `06-product-domain/00-index.mdx`
 
 ## Legacy-to-Canonical Mapping
 
 | Legacy folder | Canonical destination |
 |---|---|
 | `Codility/` | `01-foundations/` |
-| `Backend/` | `04-software-engineering/01-build/` |
-| `Frontend/` | `04-software-engineering/01-build/` |
-| `Solution-Design/` | `04-software-engineering/` + `05-product/` |
-| `Video/` | `04-software-engineering/03-evolve/` |
-| `Leader/` | `06-organization/` |
-| `Founder/` | `07-business/` + `08-founder/` |
-| `Tech-Stack/` | build/run practice layer |
+| `Backend/` | `02-software-engineering/` + `03-systems-engineering/` |
+| `Frontend/` | `02-software-engineering/` |
+| `Solution-Design/` | `02-software-engineering/` + `03-systems-engineering/` + `06-product-domain/` |
+| `Video/` | `05-ai-native-engineering/` |
+| `Leader/` | `07-human-organization/` + `09-strategy-professional-practice/` |
+| `Founder/` | `08-business-economics/` + `09-strategy-professional-practice/` |
+| `Tech-Stack/` | software/platform/ai practice layer |
 | `Scripts/` | `90-tooling/` |
 
 ## Core Roadmaps
-- `04-software-engineering/00-index.mdx`
+- `02-software-engineering/00-index.mdx`
 - `Solution-Design/software-engineering-knowledge-system-roadmap.mdx`
 - `Solution-Design/enterprise-system-design-roadmap.mdx`
 - `Solution-Design/topics/00-index.mdx`
