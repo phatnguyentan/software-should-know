@@ -132,7 +132,7 @@ SOFTWARE ENGINEERING KNOWLEDGE SYSTEM
 
 ---
 
-## Existing content sources mapped into canonical folders
+## Nguồn nội dung hiện có đang được map vào cấu trúc canonical
 
 - `Codility/` → `01-foundations/`
 - `Backend/` + `Frontend/` → chủ yếu vào `02-software-engineering/` + `03-systems-engineering/`
