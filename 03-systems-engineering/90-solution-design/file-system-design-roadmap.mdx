@@ -1,0 +1,17 @@
+# File System Design Roadmap
+
+Roadmap này gom các micro-post về file system theo flow từ nền tảng lưu trữ, data correctness, performance, concurrency, distributed file system, tới security và operations.
+
+## Thứ tự học đề xuất
+1. File vs block vs object storage
+2. Disk layout, inode, block mapping, và directory structure
+3. Crash consistency, journaling, WAL, copy-on-write, recovery
+4. Read/write path, caching, fragmentation, SSD-aware design
+5. File locking, atomicity, và consistency khi nhiều process cùng ghi
+6. Distributed file system architecture, replication, quorum, rebalancing
+7. Security, backup, disaster recovery, observability, và capacity planning
+
+## Điều hướng liên quan
+- `./file-system-topics/00-index.mdx`
+- `./topics/00-index.mdx`
+- `./00-index.mdx`

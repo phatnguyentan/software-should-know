@@ -132,21 +132,18 @@ SOFTWARE ENGINEERING KNOWLEDGE SYSTEM
 
 ---
 
-## Compatibility folders còn lại sau cleanup batch 1
+## Root cleanup status
 
-Các thư mục dưới đây vẫn còn ở root như **compatibility layer tạm thời** vì nội dung còn overlap hoặc còn đóng vai trò roadmap/source lớn:
+Root hiện chỉ còn canonical folders + file entrypoint. Các content collection cũ đã được chuyển vào numbered layers tương ứng:
 
-- `Backend/` → [`02-software-engineering/00-index.mdx`](02-software-engineering/00-index.mdx), rồi mở rộng sang [`03-systems-engineering/00-index.mdx`](03-systems-engineering/00-index.mdx)
-- `Frontend/` → [`02-software-engineering/00-index.mdx`](02-software-engineering/00-index.mdx)
-- `Solution-Design/` → [`02-software-engineering/00-index.mdx`](02-software-engineering/00-index.mdx), [`03-systems-engineering/00-index.mdx`](03-systems-engineering/00-index.mdx), và [`06-product-domain/00-index.mdx`](06-product-domain/00-index.mdx)
-- `Tech-Stack/` → nếu nội dung nghiêng về coding/framework practice thì vào [`02-software-engineering/00-index.mdx`](02-software-engineering/00-index.mdx); nếu nghiêng về distributed/performance/security thì vào [`03-systems-engineering/00-index.mdx`](03-systems-engineering/00-index.mdx); nếu nghiêng về cloud/devops/platform thì vào [`04-platform-operations/00-index.mdx`](04-platform-operations/00-index.mdx); nếu nghiêng về AI workflow thì vào [`05-ai-native-engineering/00-index.mdx`](05-ai-native-engineering/00-index.mdx)
-
-## Đã canonicalize khỏi root trong batch 1
-
-- `Codility/` → [`01-foundations/01-computer-science/codility-brown-belt-practice.mdx`](01-foundations/01-computer-science/codility-brown-belt-practice.mdx)
-- `Video/` → [`05-ai-native-engineering/03-agent-engineering/model-context-protocol-mcp.mdx`](05-ai-native-engineering/03-agent-engineering/model-context-protocol-mcp.mdx)
-- `Leader/` → [`07-human-organization/04-leadership/engineering-leadership-roadmap.mdx`](07-human-organization/04-leadership/engineering-leadership-roadmap.mdx)
-- `Founder/` → [`09-strategy-professional-practice/04-technology-entrepreneurship/founder-roadmap.mdx`](09-strategy-professional-practice/04-technology-entrepreneurship/founder-roadmap.mdx)
+- `01-foundations/01-computer-science/codility-brown-belt-practice.mdx`
+- `02-software-engineering/90-backend/`
+- `02-software-engineering/91-frontend/`
+- `02-software-engineering/92-tech-stack/`
+- `03-systems-engineering/90-solution-design/`
+- `05-ai-native-engineering/03-agent-engineering/model-context-protocol-mcp.mdx`
+- `07-human-organization/04-leadership/engineering-leadership-roadmap.mdx`
+- `09-strategy-professional-practice/04-technology-entrepreneurship/founder-roadmap.mdx`
 
 ---
 
