@@ -132,9 +132,9 @@ SOFTWARE ENGINEERING KNOWLEDGE SYSTEM
 
 ---
 
-## Các thư mục nội dung cũ còn tồn tại đang được map vào cấu trúc canonical
+## Các thư mục nguồn nội dung đang được map vào cấu trúc canonical
 
-Các thư mục dưới đây vẫn còn tồn tại như **nguồn nội dung cũ**, không phải entrypoint điều hướng chính. Nếu mở các thư mục này trong repo, dùng các `00-index.mdx` canonical sau để định vị lại:
+Các thư mục dưới đây là **nguồn nội dung tham chiếu**, không phải entrypoint điều hướng chính. Nếu mở các thư mục này trong repo, dùng các `00-index.mdx` canonical sau để định vị lại:
 
 - `Codility/` → [`01-foundations/00-index.mdx`](01-foundations/00-index.mdx)
 - `Backend/` → [`02-software-engineering/00-index.mdx`](02-software-engineering/00-index.mdx), rồi mở rộng sang [`03-systems-engineering/00-index.mdx`](03-systems-engineering/00-index.mdx)
@@ -144,7 +144,6 @@ Các thư mục dưới đây vẫn còn tồn tại như **nguồn nội dung c
 - `Leader/` → [`07-human-organization/00-index.mdx`](07-human-organization/00-index.mdx) và [`09-strategy-professional-practice/00-index.mdx`](09-strategy-professional-practice/00-index.mdx)
 - `Founder/` → [`08-business-economics/00-index.mdx`](08-business-economics/00-index.mdx) và [`09-strategy-professional-practice/00-index.mdx`](09-strategy-professional-practice/00-index.mdx)
 - `Tech-Stack/` → nếu nội dung nghiêng về coding/framework practice thì vào [`02-software-engineering/00-index.mdx`](02-software-engineering/00-index.mdx); nếu nghiêng về distributed/performance/security thì vào [`03-systems-engineering/00-index.mdx`](03-systems-engineering/00-index.mdx); nếu nghiêng về cloud/devops/platform thì vào [`04-platform-operations/00-index.mdx`](04-platform-operations/00-index.mdx); nếu nghiêng về AI workflow thì vào [`05-ai-native-engineering/00-index.mdx`](05-ai-native-engineering/00-index.mdx)
-- `Scripts/` → [`90-tooling/00-index.mdx`](90-tooling/00-index.mdx)
 
 ---
 
