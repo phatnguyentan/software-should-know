@@ -132,9 +132,9 @@ SOFTWARE ENGINEERING KNOWLEDGE SYSTEM
 
 ---
 
-## Nguồn nội dung hiện có đang được map vào cấu trúc canonical
+## Các thư mục nội dung cũ còn tồn tại đang được map vào cấu trúc canonical
 
-Các folder dưới đây là **nguồn nội dung cũ**, không phải entrypoint điều hướng chính. Nếu gặp chúng trong repo, dùng các `00-index.mdx` canonical sau để định vị lại:
+Các thư mục dưới đây vẫn còn tồn tại như **nguồn nội dung cũ**, không phải entrypoint điều hướng chính. Nếu mở các thư mục này trong repo, dùng các `00-index.mdx` canonical sau để định vị lại:
 
 - `Codility/` → `01-foundations/00-index.mdx`
 - `Backend/` → `02-software-engineering/00-index.mdx`, rồi mở rộng sang `03-systems-engineering/00-index.mdx`
