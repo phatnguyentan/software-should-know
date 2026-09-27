@@ -135,12 +135,13 @@ SOFTWARE ENGINEERING KNOWLEDGE SYSTEM
 ## Nguồn nội dung hiện có đang được map vào cấu trúc canonical
 
 - `Codility/` → bắt đầu ở `01-foundations/00-index.mdx`
-- `Backend/` + `Frontend/` → bắt đầu ở `02-software-engineering/00-index.mdx`, rồi mở rộng sang `03-systems-engineering/00-index.mdx`
+- `Backend/` → bắt đầu ở `02-software-engineering/00-index.mdx`, rồi mở rộng sang `03-systems-engineering/00-index.mdx`
+- `Frontend/` → bắt đầu ở `02-software-engineering/00-index.mdx`
 - `Solution-Design/` → bắt đầu ở `02-software-engineering/00-index.mdx`, `03-systems-engineering/00-index.mdx`, và `06-product-domain/00-index.mdx`
 - `Video/` → bắt đầu ở `05-ai-native-engineering/00-index.mdx`
 - `Leader/` → bắt đầu ở `07-human-organization/00-index.mdx` và `09-strategy-professional-practice/00-index.mdx`
 - `Founder/` → bắt đầu ở `08-business-economics/00-index.mdx` và `09-strategy-professional-practice/00-index.mdx`
-- `Tech-Stack/` → bắt đầu ở `02-software-engineering/00-index.mdx`, `04-platform-operations/00-index.mdx`, hoặc `05-ai-native-engineering/00-index.mdx` tùy chủ đề
+- `Tech-Stack/` → bắt đầu ở `04-platform-operations/00-index.mdx`; nếu nội dung nghiêng về coding practice thì đi tiếp sang `02-software-engineering/00-index.mdx`, còn nếu nghiêng về AI workflow thì đi tiếp sang `05-ai-native-engineering/00-index.mdx`
 - `Scripts/` → bắt đầu ở `90-tooling/00-index.mdx`
 
 ---
