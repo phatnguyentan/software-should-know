@@ -33,11 +33,10 @@ SOFTWARE ENGINEERING KNOWLEDGE SYSTEM
 
 ---
 
-## Canonical vs Legacy
+## Canonical structure
 
-- **Canonical structure** hiện tại là 9 L1 folder từ `01-foundations/` đến `09-strategy-professional-practice/`.
-- Các folder cũ như `02-human/`, `03-world/`, `04-software-engineering/`, `05-product/`, `06-organization/`, `07-business/`, `08-founder/` được giữ lại như **legacy compatibility layer** để migrate dần.
-- Khi thêm cấu trúc mới, ưu tiên cập nhật theo canonical folders trước.
+- Repository hiện dùng duy nhất 9 L1 folder từ `01-foundations/` đến `09-strategy-professional-practice/`.
+- Khi thêm cấu trúc mới, ưu tiên cập nhật trực tiếp theo canonical folders.
 
 ---
 
@@ -133,7 +132,7 @@ SOFTWARE ENGINEERING KNOWLEDGE SYSTEM
 
 ---
 
-## Legacy compatibility folders đang được map dần vào canonical mới
+## Existing content sources mapped into canonical folders
 
 - `Codility/` → `01-foundations/`
 - `Backend/` + `Frontend/` → chủ yếu vào `02-software-engineering/` + `03-systems-engineering/`
@@ -160,5 +159,5 @@ SOFTWARE ENGINEERING KNOWLEDGE SYSTEM
 1. Top-level canonical folders dùng numbering để thể hiện thứ tự nhận thức.
 2. Mỗi folder điều hướng phải có `00-index.mdx`.
 3. Canonical backbone mới đi theo 9 layer L1 từ Foundations → Strategy & Professional Practice.
-4. Nội dung mới nên được gắn vào backbone mới trước khi xét folder legacy.
+4. Nội dung mới nên được gắn vào backbone mới trước khi map từ các content source hiện có.
 5. Ưu tiên **problem + principle + trade-off**, không viết theo checklist tool ngắn hạn.
