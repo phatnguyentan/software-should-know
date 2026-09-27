@@ -33,11 +33,10 @@ SOFTWARE ENGINEERING KNOWLEDGE SYSTEM
 
 ---
 
-## Canonical vs Legacy
+## Canonical structure
 
-- **Canonical structure** hiện tại là 9 L1 folder từ `01-foundations/` đến `09-strategy-professional-practice/`.
-- Các folder cũ như `02-human/`, `03-world/`, `04-software-engineering/`, `05-product/`, `06-organization/`, `07-business/`, `08-founder/` được giữ lại như **legacy compatibility layer** để migrate dần.
-- Khi thêm cấu trúc mới, ưu tiên cập nhật theo canonical folders trước.
+- Repository hiện dùng duy nhất 9 L1 folder từ `01-foundations/` đến `09-strategy-professional-practice/`.
+- Khi thêm cấu trúc mới, ưu tiên cập nhật trực tiếp theo canonical folders.
 
 ---
 
@@ -133,16 +132,19 @@ SOFTWARE ENGINEERING KNOWLEDGE SYSTEM
 
 ---
 
-## Legacy compatibility folders đang được map dần vào canonical mới
+## Các thư mục nội dung cũ còn tồn tại đang được map vào cấu trúc canonical
 
-- `Codility/` → `01-foundations/`
-- `Backend/` + `Frontend/` → chủ yếu vào `02-software-engineering/` + `03-systems-engineering/`
-- `Solution-Design/` → chủ yếu vào `02-software-engineering/` + `03-systems-engineering/` + `06-product-domain/`
-- `Video/` → `05-ai-native-engineering/`
-- `Leader/` → `07-human-organization/` + `09-strategy-professional-practice/`
-- `Founder/` → `08-business-economics/` + `09-strategy-professional-practice/`
-- `Tech-Stack/` → practice layer bên trong software/platform/ai
-- `Scripts/` → `90-tooling/`
+Các thư mục dưới đây vẫn còn tồn tại như **nguồn nội dung cũ**, không phải entrypoint điều hướng chính. Nếu mở các thư mục này trong repo, dùng các `00-index.mdx` canonical sau để định vị lại:
+
+- `Codility/` → [`01-foundations/00-index.mdx`](01-foundations/00-index.mdx)
+- `Backend/` → [`02-software-engineering/00-index.mdx`](02-software-engineering/00-index.mdx), rồi mở rộng sang [`03-systems-engineering/00-index.mdx`](03-systems-engineering/00-index.mdx)
+- `Frontend/` → [`02-software-engineering/00-index.mdx`](02-software-engineering/00-index.mdx)
+- `Solution-Design/` → [`02-software-engineering/00-index.mdx`](02-software-engineering/00-index.mdx), [`03-systems-engineering/00-index.mdx`](03-systems-engineering/00-index.mdx), và [`06-product-domain/00-index.mdx`](06-product-domain/00-index.mdx)
+- `Video/` → [`05-ai-native-engineering/00-index.mdx`](05-ai-native-engineering/00-index.mdx)
+- `Leader/` → [`07-human-organization/00-index.mdx`](07-human-organization/00-index.mdx) và [`09-strategy-professional-practice/00-index.mdx`](09-strategy-professional-practice/00-index.mdx)
+- `Founder/` → [`08-business-economics/00-index.mdx`](08-business-economics/00-index.mdx) và [`09-strategy-professional-practice/00-index.mdx`](09-strategy-professional-practice/00-index.mdx)
+- `Tech-Stack/` → nếu nội dung nghiêng về coding/framework practice thì vào [`02-software-engineering/00-index.mdx`](02-software-engineering/00-index.mdx); nếu nghiêng về distributed/performance/security thì vào [`03-systems-engineering/00-index.mdx`](03-systems-engineering/00-index.mdx); nếu nghiêng về cloud/devops/platform thì vào [`04-platform-operations/00-index.mdx`](04-platform-operations/00-index.mdx); nếu nghiêng về AI workflow thì vào [`05-ai-native-engineering/00-index.mdx`](05-ai-native-engineering/00-index.mdx)
+- `Scripts/` → [`90-tooling/00-index.mdx`](90-tooling/00-index.mdx)
 
 ---
 
@@ -160,5 +162,5 @@ SOFTWARE ENGINEERING KNOWLEDGE SYSTEM
 1. Top-level canonical folders dùng numbering để thể hiện thứ tự nhận thức.
 2. Mỗi folder điều hướng phải có `00-index.mdx`.
 3. Canonical backbone mới đi theo 9 layer L1 từ Foundations → Strategy & Professional Practice.
-4. Nội dung mới nên được gắn vào backbone mới trước khi xét folder legacy.
+4. Nội dung mới nên được gắn vào backbone mới trước khi map từ các content source hiện có.
 5. Ưu tiên **problem + principle + trade-off**, không viết theo checklist tool ngắn hạn.
