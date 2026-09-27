@@ -8,56 +8,16 @@ Kho tri thức này được tổ chức theo **Software Engineering Knowledge S
 
 ```
 SOFTWARE ENGINEERING KNOWLEDGE SYSTEM
-                 │
- ┌───────────────┼───────────────┐
- │               │               │
-FOUNDATIONS     HUMAN          WORLD
- │               │               │
- ├─ CS           ├─ Psychology   ├─ Economics
- ├─ Algorithms   ├─ People       ├─ Business
- ├─ Programming  ├─ Teams        ├─ Technology Industry
- ├─ Architecture ├─ Organization ├─ Regulation
- ├─ OS           ├─ Leadership   └─ Geopolitics
- ├─ Networks     └─ Communication
- ├─ Databases
- ├─ Distributed Systems
- └─ Security
-                 │
-                 ▼
-        SOFTWARE ENGINEERING
-                 │
-          ┌──────┼──────┐
-          │      │      │
-        BUILD   RUN   EVOLVE
-          │      │      │
-          │      │      └── AI
-          │      │          ├─ ML
-          │      │          ├─ LLM
-          │      │          ├─ RAG
-          │      │          ├─ Agents
-          │      │          └─ AI Engineering
-          │      │
-          │      └── Cloud / DevOps / SRE
-          │
-          └── Architecture / Code / Data / Testing
-                 │
-                 ▼
-               PRODUCT
-                 │
-                 ▼
-                VALUE
-                 │
-          ┌──────┴──────┐
-          │             │
-    ORGANIZATION     BUSINESS
-          │             │
-     Leadership      Strategy
-     Management      Economics
-     Culture         Finance
-          │             │
-          └──────┬──────┘
-                 ▼
-              FOUNDER
+│
+├─ 01 FOUNDATIONS
+├─ 02 SOFTWARE ENGINEERING
+├─ 03 SYSTEMS ENGINEERING
+├─ 04 PLATFORM & OPERATIONS
+├─ 05 AI-NATIVE ENGINEERING
+├─ 06 PRODUCT & DOMAIN
+├─ 07 HUMAN & ORGANIZATION
+├─ 08 BUSINESS & ECONOMICS
+└─ 09 STRATEGY & PROFESSIONAL PRACTICE
 ```
 
 ---
@@ -70,6 +30,14 @@ FOUNDATIONS     HUMAN          WORLD
 4. `03-systems-engineering/00-index.mdx` — architecture, distributed systems, scalability, reliability
 5. `04-platform-operations/00-index.mdx` — cloud, devops, sre, observability, platform engineering
 6. `05-ai-native-engineering/00-index.mdx` — AI foundations, AI engineering, agent engineering
+
+---
+
+## Canonical vs Legacy
+
+- **Canonical structure** hiện tại là 9 L1 folder từ `01-foundations/` đến `09-strategy-professional-practice/`.
+- Các folder cũ như `02-human/`, `03-world/`, `04-software-engineering/`, `05-product/`, `06-organization/`, `07-business/`, `08-founder/` được giữ lại như **legacy compatibility layer** để migrate dần.
+- Khi thêm cấu trúc mới, ưu tiên cập nhật theo canonical folders trước.
 
 ---
 
@@ -165,7 +133,7 @@ FOUNDATIONS     HUMAN          WORLD
 
 ---
 
-## Legacy domain folders đang được map dần vào backbone mới
+## Legacy compatibility folders đang được map dần vào canonical mới
 
 - `Codility/` → `01-foundations/`
 - `Backend/` + `Frontend/` → chủ yếu vào `02-software-engineering/` + `03-systems-engineering/`
