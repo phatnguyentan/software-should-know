@@ -1,0 +1,85 @@
+# Codility Brown Belt — Problem-Solving Practice
+
+Tài liệu này gom phần practice cũ ở root vào layer foundations để giữ problem-solving là một phần của canonical computer-science foundation.
+
+## 1. Cách tiếp cận bài Codility Brown Belt
+
+- Bắt đầu bằng việc đọc kỹ function signature, constraints, và performance expectation.
+- Tư duy brute-force trước để chốt correctness, sau đó mới tối ưu.
+- Ưu tiên các pattern lặp đi lặp lại: prefix sum, sliding window, two pointers, hashing, sorting, binary search, stack/queue, và dynamic programming mức vừa.
+- Test có chủ đích với edge cases: input nhỏ, phần tử lặp, giới hạn max, giá trị biên.
+- Trong timed assessment, giải bài dễ trước và chỉ tối ưu sâu sau khi đã có lời giải đúng.
+
+## 2. Các nhóm kỹ năng cần luyện
+
+### Arrays & Strings
+- Prefix sums
+- Sliding window
+- Two pointers
+- String manipulation
+
+### Sorting & Searching
+- Binary search
+- Sorting-based grouping/counting
+- Custom ordering
+
+### Hashing / Maps / Sets
+- Frequency counting
+- Duplicate detection
+- Missing-element / unique-slice style problems
+
+### Stacks & Queues
+- Balanced brackets
+- Next greater element
+- Sliding window maxima
+
+### Dynamic Programming / Greedy
+- Subarray / subsequence optimization
+- Kadane-style thinking
+- Simple 1D/2D DP
+
+### Mathematical Reasoning
+- GCD / LCM
+- Modular arithmetic
+- Prime / sieve patterns
+
+## 3. Legacy exercise example: 3Sum
+
+Bài luyện tập cũ dùng bài `3Sum` như một bài two-pointers điển hình:
+
+- Input: mảng số nguyên
+- Output: các bộ ba khác nhau có tổng bằng `0`
+- Mục tiêu học: sort + two pointers + duplicate handling
+
+```ts
+function threeSumClosest(nums: number[], target: number): number {
+  nums.sort((a, b) => a - b);
+
+  let closest = nums[0] + nums[1] + nums[2];
+
+  for (let i = 0; i < nums.length - 2; i++) {
+    let l = i + 1;
+    let r = nums.length - 1;
+
+    while (l < r) {
+      const sum = nums[i] + nums[l] + nums[r];
+
+      if (Math.abs(sum - target) < Math.abs(closest - target)) {
+        closest = sum;
+      }
+
+      if (sum < target) {
+        l++;
+      } else {
+        r--;
+      }
+    }
+  }
+
+  return closest;
+}
+```
+
+## Điều hướng liên quan
+- `./00-index.mdx`
+- `../00-index.mdx`
